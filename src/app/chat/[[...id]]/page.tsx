@@ -31,6 +31,7 @@ export default function ChatPage() {
   const [currentTitle, setCurrentTitle] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingChat, setLoadingChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -76,7 +77,7 @@ export default function ChatPage() {
 
   const loadConversation = async (id: string) => {
     try {
-      setIsLoading(true);
+      setLoadingChat(true);
       const response = await fetch(`/api/conversations/${id}`);
       if (response.ok) {
         const data = await response.json();
@@ -98,7 +99,7 @@ export default function ChatPage() {
       console.error('Failed to load conversation:', error);
       router.push('/chat');
     } finally {
-      setIsLoading(false);
+      setLoadingChat(false);
     }
   };
 
@@ -420,7 +421,23 @@ export default function ChatPage() {
         {/* Chat Area */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-4 py-6">
-            {messages.length === 0 ? (
+            {loadingChat ? (
+              <div className="space-y-4 animate-pulse">
+                {/* Loading skeleton for messages */}
+                <div className="flex justify-end">
+                  <div className="w-2/3 h-16 bg-white/10 rounded-2xl" />
+                </div>
+                <div className="flex justify-start">
+                  <div className="w-3/4 h-24 bg-white/10 rounded-2xl" />
+                </div>
+                <div className="flex justify-end">
+                  <div className="w-1/2 h-12 bg-white/10 rounded-2xl" />
+                </div>
+                <div className="flex justify-start">
+                  <div className="w-2/3 h-20 bg-white/10 rounded-2xl" />
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[60vh] text-center">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center mb-6 animate-pulse">
                   <span className="text-4xl">✨</span>
