@@ -62,6 +62,24 @@ export default function ChatPage() {
     fetchConversations();
   }, [fetchConversations]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K for new chat
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        router.push('/chat');
+      }
+      // Cmd/Ctrl + B for toggle sidebar
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        setSidebarOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [router]);
+
   // Load conversation if ID is provided
   useEffect(() => {
     if (conversationId) {
@@ -100,6 +118,8 @@ export default function ChatPage() {
       router.push('/chat');
     } finally {
       setLoadingChat(false);
+      // Focus input after loading
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
