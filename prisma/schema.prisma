@@ -1,0 +1,49 @@
+// Cosmo AI Database Schema
+// Using SQLite for local development
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// User model for authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  conversations Conversation[]
+}
+
+// Conversation model - groups messages together
+model Conversation {
+  id        String   @id @default(cuid())
+  title     String?  // Auto-generated or user-set title
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+}
+
+// Message model - individual chat messages
+model Message {
+  id             String   @id @default(cuid())
+  role           String   // "user" | "assistant" | "system"
+  content        String
+  createdAt      DateTime @default(now())
+  
+  // Relations
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
