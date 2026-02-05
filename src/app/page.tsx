@@ -14,10 +14,16 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <Link
-              href="/chat"
+              href="/sign-in"
+              className="px-5 py-2 text-white/70 hover:text-white font-medium transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/sign-up"
               className="px-5 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-medium transition-all"
             >
-              Try Cosmo
+              Get started
             </Link>
           </div>
         </div>
