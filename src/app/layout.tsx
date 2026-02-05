@@ -10,6 +10,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://cosmo.ai'),
   title: 'Cosmo AI - Your Personal AI Companion',
   description: 'Meet Cosmo, your friendly AI assistant that actually gets things done. Smart home, calendar, emails, and more - all in one place.',
   keywords: ['AI assistant', 'personal assistant', 'smart home', 'productivity', 'calendar', 'email', 'automation'],
