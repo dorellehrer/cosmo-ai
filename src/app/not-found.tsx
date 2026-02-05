@@ -2,22 +2,38 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
-      <div className="text-center">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center mx-auto mb-8">
-          <span className="text-5xl">🤔</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 sm:p-6">
+      <div className="text-center max-w-md">
+        <div 
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center mx-auto mb-6 sm:mb-8"
+          aria-hidden="true"
+        >
+          <span className="text-4xl sm:text-5xl">🤔</span>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Page not found</h1>
-        <p className="text-white/60 mb-8 max-w-md">
+        
+        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
+          Page not found
+        </h1>
+        
+        <p className="text-sm sm:text-base text-white/60 mb-6 sm:mb-8 px-4">
           Hmm, I couldn&apos;t find what you&apos;re looking for. Let&apos;s get
           you back on track.
         </p>
-        <Link
-          href="/"
-          className="inline-block px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-medium transition-all"
-        >
-          Go home
-        </Link>
+        
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+          <Link
+            href="/"
+            className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-medium transition-all text-center"
+          >
+            Go home
+          </Link>
+          <Link
+            href="/chat"
+            className="px-6 py-3 border border-white/20 hover:bg-white/10 rounded-full text-white font-medium transition-all text-center"
+          >
+            Chat with Cosmo
+          </Link>
+        </div>
       </div>
     </div>
   );
