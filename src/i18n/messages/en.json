@@ -1,0 +1,208 @@
+{
+  "common": {
+    "cosmo": "Cosmo",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "getStarted": "Get started",
+    "continue": "Continue",
+    "back": "Back",
+    "send": "Send",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "settings": "Settings",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "copyright": "© 2026 Cosmo AI. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  },
+  "landing": {
+    "skipToContent": "Skip to main content",
+    "mainNav": "Main navigation",
+    "heroTitle": "Meet Cosmo",
+    "heroSubtitle": "Your AI that actually does things",
+    "heroDescription": "Not just another chatbot. Cosmo connects to your life — calendar, email, smart home, and more. Tell it what you need, it makes it happen.",
+    "startChatting": "Start chatting — it's free",
+    "watchDemo": "Watch demo",
+    "featuresHeading": "Everything you need, one conversation away",
+    "ctaHeading": "Ready to meet your new AI companion?",
+    "ctaDescription": "Join thousands of people who've made Cosmo part of their daily routine. It's free to start.",
+    "getStartedFree": "Get started for free",
+    "features": {
+      "email": {
+        "title": "Email & Calendar",
+        "description": "Check emails, schedule meetings, get reminders. Cosmo keeps your day organized."
+      },
+      "smartHome": {
+        "title": "Smart Home",
+        "description": "\"Turn off the lights\" — works with Hue, Sonos, and your favorite devices."
+      },
+      "entertainment": {
+        "title": "Entertainment",
+        "description": "Play music, find shows, set the mood. Your entertainment, simplified."
+      },
+      "privacy": {
+        "title": "Privacy First",
+        "description": "Your data stays yours. We don't sell it, share it, or use it for training."
+      },
+      "everywhere": {
+        "title": "Works Everywhere",
+        "description": "Web, mobile, voice. Access Cosmo from any device, anytime."
+      },
+      "noSetup": {
+        "title": "No Setup Required",
+        "description": "Sign up, connect accounts, done. No terminal, no configs, no headaches."
+      }
+    }
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signInToContinue": "Sign in to continue to Cosmo",
+    "createAccount": "Create your account",
+    "joinThousands": "Join thousands using Cosmo every day",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "passwordHint": "At least 6 characters",
+    "name": "Name",
+    "nameOptional": "(optional)",
+    "namePlaceholder": "What should Cosmo call you?",
+    "signingIn": "Signing in...",
+    "creatingAccount": "Creating account...",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "termsAgreement": "By creating an account, you agree to our",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "onboarding": {
+    "step1Emoji": "👋",
+    "step1Title": "Hey there! I'm Cosmo",
+    "step1Subtitle": "What should I call you?",
+    "yourName": "Your name",
+    "step2Emoji": "🔌",
+    "step2Title": "Nice to meet you, {name}!",
+    "step2Subtitle": "What would you like me to help with?",
+    "addMoreLater": "You can always add more later",
+    "step3Emoji": "🚀",
+    "step3Title": "You're all set!",
+    "step3Subtitle": "I'm ready to help you with anything. Let's get started!",
+    "tryAskingMe": "Try asking me:",
+    "suggestions": {
+      "calendar": "\"What's on my calendar today?\"",
+      "lights": "\"Turn on the living room lights\"",
+      "music": "\"Play some chill music\"",
+      "reminder": "\"Remind me to call mom at 5pm\""
+    },
+    "startChatting": "Start chatting with Cosmo",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "Calendar, Gmail, Drive"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Music control"
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Smart lights"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Speakers"
+      }
+    }
+  },
+  "settings": {
+    "backToChat": "Back to chat",
+    "profile": "Profile",
+    "yourName": "Your name",
+    "freePlan": "Free plan · Member since Feb 2026",
+    "connectedServices": "Connected Services",
+    "connected": "Connected",
+    "connect": "Connect",
+    "preferences": "Preferences",
+    "voiceResponses": "Voice responses",
+    "voiceDescription": "Cosmo will speak responses out loud",
+    "notifications": "Notifications",
+    "notificationsDescription": "Get alerts for reminders and updates",
+    "darkMode": "Dark mode",
+    "darkModeDescription": "Always on (it's cozy)",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete account",
+    "deleteAccountDescription": "This will permanently delete your account, conversations, and all connected integrations.",
+    "deleteMyAccount": "Delete my account",
+    "language": "Language",
+    "languageDescription": "Choose your preferred language",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "Calendar, Gmail, Drive"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Music control"
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Smart lights"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Speakers"
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "Notes & docs"
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Team messages"
+      }
+    }
+  },
+  "chat": {
+    "newChat": "New Chat",
+    "noConversations": "No conversations yet",
+    "deleteConversation": "Delete this conversation?",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{days} days ago",
+    "newConversation": "New conversation",
+    "yourCompanion": "Your AI companion",
+    "openSidebar": "Open sidebar",
+    "greeting": "Hey, I'm Cosmo",
+    "greetingDescription": "Your personal AI assistant. I can help you with tasks, answer questions, and make your life easier. What would you like to do today?",
+    "askAnything": "Ask Cosmo anything...",
+    "youSaid": "You said",
+    "cosmoSaid": "Cosmo said",
+    "typing": "Cosmo is typing...",
+    "sending": "Sending...",
+    "errorMessage": "Sorry, something went wrong. Please try again.",
+    "suggestions": {
+      "email": "📧 Check my emails",
+      "calendar": "📅 What's on my calendar?",
+      "lights": "💡 Turn on the lights",
+      "music": "🎵 Play some music"
+    },
+    "loadingConversations": "Loading conversations...",
+    "loadingConversation": "Loading conversation..."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "Hmm, I couldn't find what you're looking for. Let's get you back on track.",
+    "goHome": "Go home",
+    "chatWithCosmo": "Chat with Cosmo"
+  },
+  "meta": {
+    "title": "Cosmo AI - Your Personal AI Companion",
+    "description": "Meet Cosmo, your friendly AI assistant that actually gets things done. Smart home, calendar, emails, and more - all in one place."
+  }
+}

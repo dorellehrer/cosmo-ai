@@ -3,6 +3,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
+import { MicrophoneButton, TranscriptDisplay, VoiceError } from '@/components/MicrophoneButton';
 
 interface Message {
   id: string;
@@ -39,8 +42,70 @@ export default function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [voiceErrorDismissed, setVoiceErrorDismissed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Voice settings
+  const { settings: voiceSettings } = useVoiceSettings();
+
+  // Handle auto-submit from voice input
+  const handleVoiceAutoSubmit = useCallback((transcript: string) => {
+    if (transcript.trim() && !isLoading) {
+      setInput(transcript);
+      // Submit the form after a brief delay to allow state update
+      setTimeout(() => {
+        formRef.current?.requestSubmit();
+      }, 100);
+    }
+  }, [isLoading]);
+
+  // Speech recognition
+  const {
+    isSupported: voiceSupported,
+    isListening,
+    transcript: voiceTranscript,
+    interimTranscript,
+    error: voiceError,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition(
+    {
+      language: voiceSettings.language,
+      autoSubmit: voiceSettings.autoSubmit,
+      autoSubmitDelay: voiceSettings.autoSubmitDelay,
+    },
+    handleVoiceAutoSubmit
+  );
+
+  // Update input when voice transcript changes (for manual submit mode)
+  useEffect(() => {
+    if (voiceTranscript && !voiceSettings.autoSubmit) {
+      setInput(voiceTranscript);
+    }
+  }, [voiceTranscript, voiceSettings.autoSubmit]);
+
+  // Toggle voice input
+  const toggleVoiceInput = useCallback(() => {
+    setVoiceErrorDismissed(false);
+    if (isListening) {
+      stopListening();
+      // If auto-submit is off, keep the transcript in the input
+      if (!voiceSettings.autoSubmit && voiceTranscript) {
+        setInput(voiceTranscript);
+      }
+    } else {
+      resetTranscript();
+      startListening();
+    }
+  }, [isListening, stopListening, startListening, resetTranscript, voiceSettings.autoSubmit, voiceTranscript]);
+
+  // Dismiss voice error
+  const dismissVoiceError = useCallback(() => {
+    setVoiceErrorDismissed(true);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -570,55 +635,84 @@ export default function ChatPage() {
         {/* Input Area */}
         <footer className="border-t border-white/10 backdrop-blur-sm bg-white/5 safe-area-inset">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-            <form onSubmit={sendMessage} className="flex gap-2 sm:gap-3" role="search">
-              <label htmlFor="chat-input" className="sr-only">Message Cosmo</label>
-              <input
-                id="chat-input"
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Cosmo anything..."
-                className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                disabled={isLoading}
-                autoComplete="off"
-              />
-              <button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm sm:text-base font-medium transition-all min-w-[60px] sm:min-w-[80px]"
-                aria-label={isLoading ? 'Sending message' : 'Send message'}
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span className="sr-only">Sending...</span>
-                  </span>
-                ) : (
-                  'Send'
-                )}
-              </button>
-            </form>
+            <div className="relative">
+              {/* Voice transcript display */}
+              {(isListening || voiceTranscript || interimTranscript) && (
+                <TranscriptDisplay
+                  transcript={voiceTranscript}
+                  interimTranscript={interimTranscript}
+                  isListening={isListening}
+                />
+              )}
+
+              {/* Voice error display */}
+              {voiceError && !voiceErrorDismissed && (
+                <VoiceError error={voiceError} onDismiss={dismissVoiceError} />
+              )}
+
+              <form ref={formRef} onSubmit={sendMessage} className="flex gap-2 sm:gap-3" role="search">
+                <label htmlFor="chat-input" className="sr-only">Message Cosmo</label>
+                <input
+                  id="chat-input"
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={isListening ? 'Listening...' : 'Ask Cosmo anything...'}
+                  className={`flex-1 bg-white/10 border rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all ${
+                    isListening
+                      ? 'border-red-500/50 bg-red-500/10'
+                      : 'border-white/20'
+                  }`}
+                  disabled={isLoading}
+                  autoComplete="off"
+                />
+                
+                {/* Microphone Button */}
+                <MicrophoneButton
+                  isListening={isListening}
+                  isSupported={voiceSupported}
+                  onClick={toggleVoiceInput}
+                  disabled={isLoading}
+                />
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm sm:text-base font-medium transition-all min-w-[60px] sm:min-w-[80px]"
+                  aria-label={isLoading ? 'Sending message' : 'Send message'}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      <span className="sr-only">Sending...</span>
+                    </span>
+                  ) : (
+                    'Send'
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
         </footer>
       </div>

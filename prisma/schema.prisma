@@ -19,8 +19,29 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
+  // Stripe subscription fields
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  stripeCurrentPeriodEnd DateTime?
+  
   // Relations
   conversations Conversation[]
+  usageRecords  UsageRecord[]
+}
+
+// Daily usage tracking for rate limiting
+model UsageRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // YYYY-MM-DD format for easy querying
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
 }
 
 // Conversation model - groups messages together

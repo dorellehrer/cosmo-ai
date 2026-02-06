@@ -12,14 +12,17 @@
     "@libsql/client": "^0.17.0",
     "@prisma/adapter-libsql": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "@stripe/stripe-js": "^8.7.0",
     "ai": "^6.0.72",
     "bcryptjs": "^3.0.3",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
+    "next-intl": "^4.8.2",
     "openai": "^6.18.0",
     "prisma": "^7.3.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "stripe": "^20.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

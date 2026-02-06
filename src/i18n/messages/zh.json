@@ -1,0 +1,208 @@
+{
+  "common": {
+    "cosmo": "Cosmo",
+    "signIn": "登录",
+    "signUp": "注册",
+    "getStarted": "开始使用",
+    "continue": "继续",
+    "back": "返回",
+    "send": "发送",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "settings": "设置",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "copyright": "© 2026 Cosmo AI。保留所有权利。",
+    "privacy": "隐私",
+    "terms": "条款",
+    "contact": "联系我们"
+  },
+  "landing": {
+    "skipToContent": "跳到主要内容",
+    "mainNav": "主导航",
+    "heroTitle": "认识 Cosmo",
+    "heroSubtitle": "真正能做事的 AI",
+    "heroDescription": "不只是另一个聊天机器人。Cosmo 连接你的生活——日历、邮件、智能家居等等。告诉它你需要什么，它就会实现。",
+    "startChatting": "开始聊天——免费",
+    "watchDemo": "观看演示",
+    "featuresHeading": "你需要的一切，只需一次对话",
+    "ctaHeading": "准备好认识你的新 AI 伙伴了吗？",
+    "ctaDescription": "加入成千上万将 Cosmo 纳入日常生活的人们。免费开始。",
+    "getStartedFree": "免费开始",
+    "features": {
+      "email": {
+        "title": "邮件和日历",
+        "description": "查看邮件、安排会议、获取提醒。Cosmo 让你的一天井井有条。"
+      },
+      "smartHome": {
+        "title": "智能家居",
+        "description": ""关灯"——支持 Hue、Sonos 和你喜爱的设备。"
+      },
+      "entertainment": {
+        "title": "娱乐",
+        "description": "播放音乐、查找节目、营造氛围。你的娱乐，简化了。"
+      },
+      "privacy": {
+        "title": "隐私优先",
+        "description": "你的数据属于你。我们不出售、不分享、不用于训练。"
+      },
+      "everywhere": {
+        "title": "随处可用",
+        "description": "网页、移动端、语音。随时随地从任何设备访问 Cosmo。"
+      },
+      "noSetup": {
+        "title": "无需设置",
+        "description": "注册、连接账户、完成。没有终端、没有配置、没有麻烦。"
+      }
+    }
+  },
+  "auth": {
+    "welcomeBack": "欢迎回来",
+    "signInToContinue": "登录以继续使用 Cosmo",
+    "createAccount": "创建账户",
+    "joinThousands": "加入每天使用 Cosmo 的成千上万用户",
+    "email": "邮箱",
+    "emailPlaceholder": "you@example.com",
+    "password": "密码",
+    "passwordPlaceholder": "••••••••",
+    "passwordHint": "至少6个字符",
+    "name": "姓名",
+    "nameOptional": "（可选）",
+    "namePlaceholder": "Cosmo 应该怎么称呼你？",
+    "signingIn": "登录中...",
+    "creatingAccount": "创建账户中...",
+    "dontHaveAccount": "还没有账户？",
+    "alreadyHaveAccount": "已有账户？",
+    "termsAgreement": "创建账户即表示你同意我们的",
+    "termsOfService": "服务条款",
+    "and": "和",
+    "privacyPolicy": "隐私政策",
+    "somethingWentWrong": "出了点问题。请重试。"
+  },
+  "onboarding": {
+    "step1Emoji": "👋",
+    "step1Title": "你好！我是 Cosmo",
+    "step1Subtitle": "我应该怎么称呼你？",
+    "yourName": "你的名字",
+    "step2Emoji": "🔌",
+    "step2Title": "很高兴认识你，{name}！",
+    "step2Subtitle": "你希望我帮你做什么？",
+    "addMoreLater": "你以后随时可以添加更多",
+    "step3Emoji": "🚀",
+    "step3Title": "一切就绪！",
+    "step3Subtitle": "我准备好帮助你做任何事情了。让我们开始吧！",
+    "tryAskingMe": "试着问我：",
+    "suggestions": {
+      "calendar": ""我今天的日程是什么？"",
+      "lights": ""打开客厅的灯"",
+      "music": ""播放一些轻松的音乐"",
+      "reminder": ""提醒我下午5点给妈妈打电话""
+    },
+    "startChatting": "开始与 Cosmo 聊天",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "日历、Gmail、云端硬盘"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "音乐控制"
+      },
+      "hue": {
+        "name": "飞利浦 Hue",
+        "description": "智能灯光"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "音箱"
+      }
+    }
+  },
+  "settings": {
+    "backToChat": "返回聊天",
+    "profile": "个人资料",
+    "yourName": "你的名字",
+    "freePlan": "免费计划 · 2026年2月加入",
+    "connectedServices": "已连接的服务",
+    "connected": "已连接",
+    "connect": "连接",
+    "preferences": "偏好设置",
+    "voiceResponses": "语音回复",
+    "voiceDescription": "Cosmo 会大声朗读回复",
+    "notifications": "通知",
+    "notificationsDescription": "获取提醒和更新的通知",
+    "darkMode": "深色模式",
+    "darkModeDescription": "始终开启（很舒适）",
+    "dangerZone": "危险区域",
+    "deleteAccount": "删除账户",
+    "deleteAccountDescription": "这将永久删除你的账户、对话和所有已连接的集成。",
+    "deleteMyAccount": "删除我的账户",
+    "language": "语言",
+    "languageDescription": "选择你的首选语言",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "日历、Gmail、云端硬盘"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "音乐控制"
+      },
+      "hue": {
+        "name": "飞利浦 Hue",
+        "description": "智能灯光"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "音箱"
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "笔记和文档"
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "团队消息"
+      }
+    }
+  },
+  "chat": {
+    "newChat": "新对话",
+    "noConversations": "还没有对话",
+    "deleteConversation": "删除此对话？",
+    "today": "今天",
+    "yesterday": "昨天",
+    "daysAgo": "{days} 天前",
+    "newConversation": "新对话",
+    "yourCompanion": "你的 AI 伙伴",
+    "openSidebar": "打开侧边栏",
+    "greeting": "你好，我是 Cosmo",
+    "greetingDescription": "你的个人 AI 助手。我可以帮你处理任务、回答问题，让你的生活更轻松。今天你想做什么？",
+    "askAnything": "问 Cosmo 任何问题...",
+    "youSaid": "你说",
+    "cosmoSaid": "Cosmo 说",
+    "typing": "Cosmo 正在输入...",
+    "sending": "发送中...",
+    "errorMessage": "抱歉，出了点问题。请重试。",
+    "suggestions": {
+      "email": "📧 查看我的邮件",
+      "calendar": "📅 我的日程是什么？",
+      "lights": "💡 打开灯",
+      "music": "🎵 播放音乐"
+    },
+    "loadingConversations": "正在加载对话...",
+    "loadingConversation": "正在加载对话..."
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "description": "嗯，我找不到你要找的内容。让我们回到正轨。",
+    "goHome": "返回首页",
+    "chatWithCosmo": "与 Cosmo 聊天"
+  },
+  "meta": {
+    "title": "Cosmo AI - 你的个人 AI 伙伴",
+    "description": "认识 Cosmo，你的友好 AI 助手，真正能帮你完成事情。智能家居、日历、邮件等等——尽在一处。"
+  }
+}
