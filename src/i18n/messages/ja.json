@@ -1,0 +1,208 @@
+{
+  "common": {
+    "cosmo": "Cosmo",
+    "signIn": "ログイン",
+    "signUp": "新規登録",
+    "getStarted": "始める",
+    "continue": "続ける",
+    "back": "戻る",
+    "send": "送信",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "settings": "設定",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "copyright": "© 2026 Cosmo AI. All rights reserved.",
+    "privacy": "プライバシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ"
+  },
+  "landing": {
+    "skipToContent": "メインコンテンツへスキップ",
+    "mainNav": "メインナビゲーション",
+    "heroTitle": "Cosmoに出会う",
+    "heroSubtitle": "本当に行動するAI",
+    "heroDescription": "ただのチャットボットじゃない。Cosmoはあなたの生活とつながります — カレンダー、メール、スマートホームなど。必要なことを伝えれば、実現します。",
+    "startChatting": "チャットを始める — 無料",
+    "watchDemo": "デモを見る",
+    "featuresHeading": "必要なものすべてが、会話ひとつで",
+    "ctaHeading": "新しいAIパートナーに会う準備はできましたか？",
+    "ctaDescription": "Cosmoを日常の一部にしている何千人もの人々に加わりましょう。無料で始められます。",
+    "getStartedFree": "無料で始める",
+    "features": {
+      "email": {
+        "title": "メール＆カレンダー",
+        "description": "メールをチェック、会議をスケジュール、リマインダーを受け取る。Cosmoがあなたの一日を整理します。"
+      },
+      "smartHome": {
+        "title": "スマートホーム",
+        "description": "「電気を消して」— Hue、Sonos、お気に入りのデバイスで動作します。"
+      },
+      "entertainment": {
+        "title": "エンターテイメント",
+        "description": "音楽を再生、番組を探す、雰囲気を作る。あなたのエンターテイメントをシンプルに。"
+      },
+      "privacy": {
+        "title": "プライバシー最優先",
+        "description": "あなたのデータはあなたのもの。販売も、共有も、トレーニングに使用することもありません。"
+      },
+      "everywhere": {
+        "title": "どこでも動作",
+        "description": "Web、モバイル、音声。どのデバイスからでも、いつでもCosmoにアクセス。"
+      },
+      "noSetup": {
+        "title": "セットアップ不要",
+        "description": "登録して、アカウントを接続、完了。ターミナルなし、設定なし、面倒なし。"
+      }
+    }
+  },
+  "auth": {
+    "welcomeBack": "おかえりなさい",
+    "signInToContinue": "Cosmoを続けるにはログインしてください",
+    "createAccount": "アカウントを作成",
+    "joinThousands": "毎日Cosmoを使っている何千人もの人々に加わりましょう",
+    "email": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "password": "パスワード",
+    "passwordPlaceholder": "••••••••",
+    "passwordHint": "6文字以上",
+    "name": "名前",
+    "nameOptional": "（任意）",
+    "namePlaceholder": "Cosmoに何と呼ばれたいですか？",
+    "signingIn": "ログイン中...",
+    "creatingAccount": "アカウント作成中...",
+    "dontHaveAccount": "アカウントをお持ちでないですか？",
+    "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
+    "termsAgreement": "アカウントを作成することで、以下に同意したことになります",
+    "termsOfService": "利用規約",
+    "and": "と",
+    "privacyPolicy": "プライバシーポリシー",
+    "somethingWentWrong": "問題が発生しました。もう一度お試しください。"
+  },
+  "onboarding": {
+    "step1Emoji": "👋",
+    "step1Title": "こんにちは！Cosmoです",
+    "step1Subtitle": "なんとお呼びすればいいですか？",
+    "yourName": "お名前",
+    "step2Emoji": "🔌",
+    "step2Title": "お会いできて嬉しいです、{name}さん！",
+    "step2Subtitle": "どんなことでお手伝いしましょうか？",
+    "addMoreLater": "後からいつでも追加できます",
+    "step3Emoji": "🚀",
+    "step3Title": "準備完了！",
+    "step3Subtitle": "何でもお手伝いする準備ができています。始めましょう！",
+    "tryAskingMe": "こんな風に聞いてみてください：",
+    "suggestions": {
+      "calendar": "「今日のスケジュールは？」",
+      "lights": "「リビングの電気をつけて」",
+      "music": "「リラックスできる音楽をかけて」",
+      "reminder": "「17時にお母さんに電話するようリマインドして」"
+    },
+    "startChatting": "Cosmoとチャットを始める",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "カレンダー、Gmail、ドライブ"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "音楽コントロール"
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "スマートライト"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "スピーカー"
+      }
+    }
+  },
+  "settings": {
+    "backToChat": "チャットに戻る",
+    "profile": "プロフィール",
+    "yourName": "お名前",
+    "freePlan": "無料プラン · 2026年2月から会員",
+    "connectedServices": "接続されたサービス",
+    "connected": "接続済み",
+    "connect": "接続",
+    "preferences": "設定",
+    "voiceResponses": "音声応答",
+    "voiceDescription": "Cosmoが返答を音声で読み上げます",
+    "notifications": "通知",
+    "notificationsDescription": "リマインダーや更新のアラートを受け取る",
+    "darkMode": "ダークモード",
+    "darkModeDescription": "常にオン（居心地がいい）",
+    "dangerZone": "危険ゾーン",
+    "deleteAccount": "アカウント削除",
+    "deleteAccountDescription": "アカウント、会話、接続されたすべての連携を完全に削除します。",
+    "deleteMyAccount": "アカウントを削除",
+    "language": "言語",
+    "languageDescription": "ご希望の言語を選択してください",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "カレンダー、Gmail、ドライブ"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "音楽コントロール"
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "スマートライト"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "スピーカー"
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "メモとドキュメント"
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "チームメッセージ"
+      }
+    }
+  },
+  "chat": {
+    "newChat": "新しいチャット",
+    "noConversations": "まだ会話がありません",
+    "deleteConversation": "この会話を削除しますか？",
+    "today": "今日",
+    "yesterday": "昨日",
+    "daysAgo": "{days}日前",
+    "newConversation": "新しい会話",
+    "yourCompanion": "あなたのAIパートナー",
+    "openSidebar": "サイドバーを開く",
+    "greeting": "こんにちは、Cosmoです",
+    "greetingDescription": "あなたのパーソナルAIアシスタントです。タスクのお手伝い、質問への回答、生活をより簡単にすることができます。今日は何をしましょうか？",
+    "askAnything": "Cosmoに何でも聞いてください...",
+    "youSaid": "あなたが言った",
+    "cosmoSaid": "Cosmoが言った",
+    "typing": "Cosmoが入力中...",
+    "sending": "送信中...",
+    "errorMessage": "申し訳ありません、問題が発生しました。もう一度お試しください。",
+    "suggestions": {
+      "email": "📧 メールをチェック",
+      "calendar": "📅 スケジュールは？",
+      "lights": "💡 電気をつけて",
+      "music": "🎵 音楽を再生"
+    },
+    "loadingConversations": "会話を読み込み中...",
+    "loadingConversation": "会話を読み込み中..."
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "description": "お探しのページが見つかりませんでした。正しいページへご案内します。",
+    "goHome": "ホームへ",
+    "chatWithCosmo": "Cosmoとチャット"
+  },
+  "meta": {
+    "title": "Cosmo AI - あなたのパーソナルAIパートナー",
+    "description": "Cosmoに出会いましょう。本当に物事を成し遂げるフレンドリーなAIアシスタントです。スマートホーム、カレンダー、メールなど、すべてが一か所に。"
+  }
+}
