@@ -344,12 +344,12 @@ export default function IntegrationsPage() {
                         </p>
                       )}
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => setConnectingId(integration.id)}
-                          className="flex-1 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors"
+                        <Link
+                          href={`/integrations/${integration.id}`}
+                          className="flex-1 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors text-center"
                         >
                           Manage
-                        </button>
+                        </Link>
                         <button
                           onClick={() => handleDisconnect(integration.id)}
                           className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium transition-colors"
