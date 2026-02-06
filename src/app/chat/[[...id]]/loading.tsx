@@ -1,20 +1,5 @@
 import { Placeholder } from '@/components/LoadingSpinner';
 
-function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
-  return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-        isUser
-          ? 'bg-violet-600/20'
-          : 'bg-white/5'
-      }`}>
-        <Placeholder width={200} height={16} rounded="sm" className="mb-2" />
-        <Placeholder width={isUser ? 120 : 160} height={16} rounded="sm" />
-      </div>
-    </div>
-  );
-}
-
 function ConversationItemSkeleton() {
   return (
     <div className="px-3 py-3 rounded-lg">

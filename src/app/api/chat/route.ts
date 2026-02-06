@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd);
     
     // Get or create today's usage record
-    let usageRecord = await prisma.usageRecord.findUnique({
+    const usageRecord = await prisma.usageRecord.findUnique({
       where: {
         userId_date: {
           userId: user.id,
