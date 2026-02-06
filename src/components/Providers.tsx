@@ -3,6 +3,8 @@
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 import { VoiceSettingsProvider } from "@/contexts/VoiceSettingsContext";
+import { IntegrationsProvider } from "@/contexts/IntegrationsContext";
+import { KeyboardShortcutsProvider } from "@/contexts/KeyboardShortcutsContext";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -11,9 +13,13 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <VoiceSettingsProvider>
-        {children}
-      </VoiceSettingsProvider>
+      <IntegrationsProvider>
+        <VoiceSettingsProvider>
+          <KeyboardShortcutsProvider>
+            {children}
+          </KeyboardShortcutsProvider>
+        </VoiceSettingsProvider>
+      </IntegrationsProvider>
     </SessionProvider>
   );
 }
