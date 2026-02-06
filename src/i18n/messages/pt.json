@@ -79,7 +79,11 @@
     "termsOfService": "Termos de Serviço",
     "and": "e",
     "privacyPolicy": "Política de Privacidade",
-    "somethingWentWrong": "Algo deu errado. Por favor, tente novamente."
+    "somethingWentWrong": "Algo deu errado. Por favor, tente novamente.",
+    "orContinueWith": "ou continue com e-mail",
+    "continueWithGoogle": "Continuar com Google",
+    "continueWithGitHub": "Continuar com GitHub",
+    "socialSignInError": "Não foi possível entrar com {provider}. Tente novamente."
   },
   "onboarding": {
     "step1Emoji": "👋",

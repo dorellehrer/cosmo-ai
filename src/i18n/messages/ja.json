@@ -79,7 +79,11 @@
     "termsOfService": "利用規約",
     "and": "と",
     "privacyPolicy": "プライバシーポリシー",
-    "somethingWentWrong": "問題が発生しました。もう一度お試しください。"
+    "somethingWentWrong": "問題が発生しました。もう一度お試しください。",
+    "orContinueWith": "またはメールで続ける",
+    "continueWithGoogle": "Googleで続ける",
+    "continueWithGitHub": "GitHubで続ける",
+    "socialSignInError": "{provider}でサインインできませんでした。もう一度お試しください。"
   },
   "onboarding": {
     "step1Emoji": "👋",

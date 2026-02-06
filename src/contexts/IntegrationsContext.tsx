@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { useNotifications } from './NotificationsContext';
 
 export interface Integration {
   id: string;
@@ -79,6 +80,7 @@ const STORAGE_KEY = 'cosmo-integrations';
 const IntegrationsContext = createContext<IntegrationsContextType | undefined>(undefined);
 
 export function IntegrationsProvider({ children }: { children: ReactNode }) {
+  const { addNotification } = useNotifications();
   const [integrations, setIntegrations] = useState<Integration[]>(() =>
     AVAILABLE_INTEGRATIONS.map((i) => ({ ...i, connected: false }))
   );
@@ -134,34 +136,62 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
   );
 
   const connectIntegration = useCallback((id: string, email?: string) => {
+    const integration = integrations.find((i) => i.id === id);
     setIntegrations((prev) =>
-      prev.map((integration) =>
-        integration.id === id
+      prev.map((i) =>
+        i.id === id
           ? {
-              ...integration,
+              ...i,
               connected: true,
               connectedAt: new Date().toISOString(),
               email,
             }
-          : integration
+          : i
       )
     );
-  }, []);
+    
+    if (integration) {
+      addNotification({
+        type: 'success',
+        category: 'integration',
+        title: `${integration.name} Connected! 🎉`,
+        message: `Your ${integration.name} integration is now active. ${integration.description}`,
+        action: {
+          label: 'View Integrations',
+          href: '/integrations',
+        },
+      });
+    }
+  }, [integrations, addNotification]);
 
   const disconnectIntegration = useCallback((id: string) => {
+    const integration = integrations.find((i) => i.id === id);
     setIntegrations((prev) =>
-      prev.map((integration) =>
-        integration.id === id
+      prev.map((i) =>
+        i.id === id
           ? {
-              ...integration,
+              ...i,
               connected: false,
               connectedAt: undefined,
               email: undefined,
             }
-          : integration
+          : i
       )
     );
-  }, []);
+    
+    if (integration) {
+      addNotification({
+        type: 'info',
+        category: 'integration',
+        title: `${integration.name} Disconnected`,
+        message: `Your ${integration.name} integration has been disconnected.`,
+        action: {
+          label: 'Reconnect',
+          href: `/integrations/${id}`,
+        },
+      });
+    }
+  }, [integrations, addNotification]);
 
   const isConnected = useCallback(
     (id: string) => integrations.find((i) => i.id === id)?.connected || false,

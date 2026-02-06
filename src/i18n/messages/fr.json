@@ -79,7 +79,11 @@
     "termsOfService": "Conditions d'Utilisation",
     "and": "et",
     "privacyPolicy": "Politique de Confidentialité",
-    "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer."
+    "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer.",
+    "orContinueWith": "ou continuer avec email",
+    "continueWithGoogle": "Continuer avec Google",
+    "continueWithGitHub": "Continuer avec GitHub",
+    "socialSignInError": "Connexion avec {provider} impossible. Veuillez réessayer."
   },
   "onboarding": {
     "step1Emoji": "👋",

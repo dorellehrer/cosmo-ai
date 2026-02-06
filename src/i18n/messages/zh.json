@@ -79,7 +79,11 @@
     "termsOfService": "服务条款",
     "and": "和",
     "privacyPolicy": "隐私政策",
-    "somethingWentWrong": "出了点问题。请重试。"
+    "somethingWentWrong": "出了点问题。请重试。",
+    "orContinueWith": "或使用邮箱继续",
+    "continueWithGoogle": "使用 Google 继续",
+    "continueWithGitHub": "使用 GitHub 继续",
+    "socialSignInError": "无法使用 {provider} 登录。请重试。"
   },
   "onboarding": {
     "step1Emoji": "👋",

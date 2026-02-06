@@ -79,7 +79,11 @@
     "termsOfService": "Användarvillkor",
     "and": "och",
     "privacyPolicy": "Integritetspolicy",
-    "somethingWentWrong": "Något gick fel. Vänligen försök igen."
+    "somethingWentWrong": "Något gick fel. Vänligen försök igen.",
+    "orContinueWith": "eller fortsätt med e-post",
+    "continueWithGoogle": "Fortsätt med Google",
+    "continueWithGitHub": "Fortsätt med GitHub",
+    "socialSignInError": "Kunde inte logga in med {provider}. Försök igen."
   },
   "onboarding": {
     "step1Emoji": "👋",

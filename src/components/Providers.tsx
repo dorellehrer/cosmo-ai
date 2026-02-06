@@ -5,6 +5,8 @@ import { ReactNode } from "react";
 import { VoiceSettingsProvider } from "@/contexts/VoiceSettingsContext";
 import { IntegrationsProvider } from "@/contexts/IntegrationsContext";
 import { KeyboardShortcutsProvider } from "@/contexts/KeyboardShortcutsContext";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import { ToastContainer } from "@/components/notifications";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -13,13 +15,16 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <IntegrationsProvider>
-        <VoiceSettingsProvider>
-          <KeyboardShortcutsProvider>
-            {children}
-          </KeyboardShortcutsProvider>
-        </VoiceSettingsProvider>
-      </IntegrationsProvider>
+      <NotificationsProvider>
+        <IntegrationsProvider>
+          <VoiceSettingsProvider>
+            <KeyboardShortcutsProvider>
+              {children}
+              <ToastContainer />
+            </KeyboardShortcutsProvider>
+          </VoiceSettingsProvider>
+        </IntegrationsProvider>
+      </NotificationsProvider>
     </SessionProvider>
   );
 }

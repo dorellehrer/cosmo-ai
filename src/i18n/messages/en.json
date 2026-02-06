@@ -79,7 +79,11 @@
     "termsOfService": "Terms of Service",
     "and": "and",
     "privacyPolicy": "Privacy Policy",
-    "somethingWentWrong": "Something went wrong. Please try again."
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "orContinueWith": "or continue with email",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithGitHub": "Continue with GitHub",
+    "socialSignInError": "Could not sign in with {provider}. Please try again."
   },
   "onboarding": {
     "step1Emoji": "👋",

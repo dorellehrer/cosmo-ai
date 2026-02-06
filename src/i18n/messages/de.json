@@ -79,7 +79,11 @@
     "termsOfService": "Nutzungsbedingungen",
     "and": "und",
     "privacyPolicy": "Datenschutzrichtlinie",
-    "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+    "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    "orContinueWith": "oder weiter mit E-Mail",
+    "continueWithGoogle": "Weiter mit Google",
+    "continueWithGitHub": "Weiter mit GitHub",
+    "socialSignInError": "Anmeldung mit {provider} fehlgeschlagen. Bitte erneut versuchen."
   },
   "onboarding": {
     "step1Emoji": "👋",

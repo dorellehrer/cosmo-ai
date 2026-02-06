@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { SocialAuthButtons, AuthDivider } from '@/components/SocialAuthButtons';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -69,6 +70,11 @@ export default function SignInPage() {
           <p className="text-sm sm:text-base text-white/60 text-center mb-6 sm:mb-8">
             {t('signInToContinue')}
           </p>
+
+          {/* Social Auth Buttons */}
+          <SocialAuthButtons callbackUrl="/chat" />
+          
+          <AuthDivider text={t('orContinueWith') || 'or continue with email'} />
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {error && (

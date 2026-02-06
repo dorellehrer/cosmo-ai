@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ShortcutBadge } from '@/components/ShortcutHint';
 import { useKeyboardShortcuts } from '@/contexts/KeyboardShortcutsContext';
+import { NotificationBell } from '@/components/notifications';
 
 interface Message {
   id: string;
@@ -523,25 +524,28 @@ export default function ChatPage() {
               </div>
             </Link>
             
-            {/* Command Palette Button */}
+            {/* Header Actions */}
             <div className="flex-1" />
-            <button
-              onClick={openCommandPalette}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/70 transition-all text-sm"
-              aria-label="Open command palette"
-            >
-              <svg 
-                className="w-4 h-4" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-                aria-hidden="true"
+            <div className="flex items-center gap-2">
+              <button
+                onClick={openCommandPalette}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/70 transition-all text-sm"
+                aria-label="Open command palette"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <span className="hidden sm:inline">Search...</span>
-              <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] bg-white/10 rounded border border-white/20">⌘K</kbd>
-            </button>
+                <svg 
+                  className="w-4 h-4" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span className="hidden sm:inline">Search...</span>
+                <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] bg-white/10 rounded border border-white/20">⌘K</kbd>
+              </button>
+              <NotificationBell />
+            </div>
           </div>
         </header>
 
