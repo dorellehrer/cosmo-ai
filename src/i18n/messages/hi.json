@@ -204,5 +204,153 @@
   "meta": {
     "title": "Cosmo AI - आपका व्यक्तिगत AI साथी",
     "description": "Cosmo से मिलें, आपका दोस्ताना AI सहायक जो वास्तव में काम करता है। स्मार्ट होम, कैलेंडर, ईमेल, और बहुत कुछ — सब एक जगह।"
+  },
+  "commandPalette": {
+    "commandPalette": "Command Palette",
+    "searchPlaceholder": "Search commands, conversations...",
+    "searchCommands": "Search commands",
+    "noResults": "No results found",
+    "actions": "Actions",
+    "navigation": "Navigation",
+    "conversations": "Conversations",
+    "newChat": "New Chat",
+    "startFreshConversation": "Start a fresh conversation",
+    "managePreferences": "Manage your preferences",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "viewAllShortcuts": "View all keyboard shortcuts",
+    "shortcutsPage": "Shortcuts Page",
+    "fullShortcutsList": "Full list of all shortcuts",
+    "goHome": "Go Home",
+    "returnToLanding": "Return to landing page",
+    "pricing": "Pricing",
+    "viewPlans": "View subscription plans",
+    "about": "About",
+    "learnAboutCosmo": "Learn about Cosmo",
+    "untitled": "Untitled conversation",
+    "toNavigate": "to navigate",
+    "toSelect": "to select",
+    "poweredBy": "Powered by Cosmo ✨"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "pageTitle": "Keyboard Shortcuts",
+    "pageDescription": "Master Cosmo with these keyboard shortcuts. Work faster, type less.",
+    "close": "Close",
+    "general": "General",
+    "chatActions": "Chat",
+    "navigationLabel": "Navigation",
+    "commandPaletteLabel": "Command Palette",
+    "openCommandPalette": "Open command palette",
+    "showShortcuts": "Show this help",
+    "closeModal": "Close modal / dialog",
+    "newChat": "New chat",
+    "toggleSidebar": "Toggle sidebar",
+    "sendMessage": "Send message",
+    "openSettings": "Open settings",
+    "openHelp": "Open shortcuts page",
+    "goHome": "Go to home",
+    "goChat": "Go to chat",
+    "previousItem": "Previous item",
+    "nextItem": "Next item",
+    "selectItem": "Select item",
+    "tip": "Pro tip",
+    "tipText": "Press ⌘K anywhere to quickly search and navigate",
+    "viewAllShortcuts": "View all shortcuts",
+    "backToChat": "Back to chat",
+    "categories": {
+      "general": {
+        "title": "General",
+        "description": "Essential shortcuts for everyday use"
+      },
+      "chat": {
+        "title": "Chat",
+        "description": "Shortcuts for the chat interface"
+      },
+      "navigation": {
+        "title": "Navigation",
+        "description": "Move around Cosmo quickly"
+      },
+      "commandPalette": {
+        "title": "Command Palette",
+        "description": "Navigate within the command palette"
+      }
+    },
+    "allShortcuts": {
+      "cmdK": {
+        "keys": "⌘K",
+        "description": "Open command palette",
+        "detail": "The fastest way to do anything in Cosmo."
+      },
+      "question": {
+        "keys": "?",
+        "description": "Show keyboard shortcuts",
+        "detail": "Opens this shortcuts modal from anywhere."
+      },
+      "escape": {
+        "keys": "Esc",
+        "description": "Close modal or cancel",
+        "detail": "Closes any open modal or dialog."
+      },
+      "cmdN": {
+        "keys": "⌘N",
+        "description": "New chat",
+        "detail": "Start a fresh conversation with Cosmo."
+      },
+      "cmdB": {
+        "keys": "⌘B",
+        "description": "Toggle sidebar",
+        "detail": "Show or hide the conversations sidebar."
+      },
+      "cmdEnter": {
+        "keys": "⌘↵",
+        "description": "Send message",
+        "detail": "Send your message to Cosmo."
+      },
+      "cmdComma": {
+        "keys": "⌘,",
+        "description": "Open settings",
+        "detail": "Quick access to your preferences."
+      },
+      "cmdSlash": {
+        "keys": "⌘/",
+        "description": "Open help",
+        "detail": "Navigate to shortcuts documentation."
+      },
+      "gH": {
+        "keys": "G H",
+        "description": "Go to home",
+        "detail": "Press G then H to go home."
+      },
+      "gC": {
+        "keys": "G C",
+        "description": "Go to chat",
+        "detail": "Press G then C to go to chat."
+      },
+      "gS": {
+        "keys": "G S",
+        "description": "Go to settings",
+        "detail": "Press G then S for settings."
+      },
+      "gP": {
+        "keys": "G P",
+        "description": "Go to pricing",
+        "detail": "Press G then P for pricing."
+      },
+      "arrowUp": {
+        "keys": "↑",
+        "description": "Previous item",
+        "detail": "Move selection up."
+      },
+      "arrowDown": {
+        "keys": "↓",
+        "description": "Next item",
+        "detail": "Move selection down."
+      },
+      "enter": {
+        "keys": "↵",
+        "description": "Select item",
+        "detail": "Execute the selected command."
+      }
+    }
   }
 }
