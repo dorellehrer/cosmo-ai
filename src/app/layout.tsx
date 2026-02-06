@@ -93,8 +93,31 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} className={inter.variable}>
       <head>
+        {/* Favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icon-512.svg" />
+        <link rel="icon" href="/favicon.png" sizes="32x32" type="image/png" />
+        
+        {/* Apple Touch Icons */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+        
+        {/* iOS PWA Meta Tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Cosmo" />
+        
+        {/* Android/Chrome Theme */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Cosmo" />
+        
+        {/* Microsoft Tiles */}
+        <meta name="msapplication-TileColor" content="#8B5CF6" />
+        <meta name="msapplication-TileImage" content="/icons/icon-144.png" />
+        
+        {/* Format Detection */}
+        <meta name="format-detection" content="telephone=no" />
+        
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
