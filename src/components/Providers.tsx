@@ -7,6 +7,8 @@ import { IntegrationsProvider } from "@/contexts/IntegrationsContext";
 import { KeyboardShortcutsProvider } from "@/contexts/KeyboardShortcutsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ToastContainer } from "@/components/notifications";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -21,6 +23,8 @@ export function Providers({ children }: ProvidersProps) {
             <KeyboardShortcutsProvider>
               {children}
               <ToastContainer />
+              <PWAInstallPrompt />
+              <ServiceWorkerRegistration />
             </KeyboardShortcutsProvider>
           </VoiceSettingsProvider>
         </IntegrationsProvider>
