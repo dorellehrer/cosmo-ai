@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 
 // Custom hook to safely get online status with SSR support
@@ -21,18 +21,18 @@ function useOnlineStatus() {
 
 export default function OfflinePage() {
   const isOnline = useOnlineStatus();
-  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const redirectInitiated = useRef(false);
 
   // Handle redirect when coming back online
   useEffect(() => {
-    if (isOnline && !shouldRedirect) {
-      setShouldRedirect(true);
+    if (isOnline && !redirectInitiated.current) {
+      redirectInitiated.current = true;
       const timer = setTimeout(() => {
         window.location.href = '/';
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [isOnline, shouldRedirect]);
+  }, [isOnline]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
