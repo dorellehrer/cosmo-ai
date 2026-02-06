@@ -200,21 +200,22 @@ export default function AboutPage() {
         {/* Team */}
         <section className="py-16 sm:py-24">
           <h2 className="text-3xl font-bold text-white text-center mb-4">Meet the team</h2>
-          <p className="text-white/60 text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-white/70 text-center mb-12 max-w-2xl mx-auto">
             We&apos;re a small team of builders who believe AI can be genuinely helpful.
           </p>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {team.map((member) => (
+            {team.map((member, index) => (
               <div
                 key={member.name}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center card-hover group animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center text-4xl mx-auto mb-4">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center text-4xl mx-auto mb-4 transition-transform group-hover:scale-110">
                   {member.avatar}
                 </div>
-                <h3 className="text-white font-semibold mb-1">{member.name}</h3>
+                <h3 className="text-white font-semibold mb-1 group-hover:text-violet-300 transition-colors">{member.name}</h3>
                 <p className="text-violet-400 text-sm mb-3">{member.role}</p>
-                <p className="text-white/50 text-sm">{member.bio}</p>
+                <p className="text-white/60 text-sm">{member.bio}</p>
               </div>
             ))}
           </div>
@@ -231,13 +232,13 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="#"
-                className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-semibold transition-all"
+                className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-semibold transition-all btn-hover-lift"
               >
                 View open roles
               </a>
               <a
                 href="mailto:hello@cosmo.ai"
-                className="px-6 py-3 border border-white/20 hover:bg-white/10 rounded-full text-white font-semibold transition-all"
+                className="px-6 py-3 border border-white/20 hover:bg-white/10 hover:border-white/30 rounded-full text-white font-semibold transition-all"
               >
                 Get in touch
               </a>
