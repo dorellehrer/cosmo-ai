@@ -51,16 +51,13 @@ export default function SettingsPage() {
   const common = useTranslations('common');
   const { settings: voiceSettings, updateSettings: updateVoiceSettings } = useVoiceSettings();
   const { integrations, disconnectIntegration, connectedCount } = useIntegrations();
-  const [speechSupported, setSpeechSupported] = useState(true);
+  // Check if speech recognition is supported using lazy initial state
+  const [speechSupported] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return !!(window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
+  });
   const [name, setName] = useState('');
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
-
-  // Check if speech recognition is supported
-  useEffect(() => {
-    const isSupported = typeof window !== 'undefined' && 
-      (window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
-    setSpeechSupported(!!isSupported);
-  }, []);
 
   const handleDisconnect = (id: string) => {
     setDisconnectingId(id);
