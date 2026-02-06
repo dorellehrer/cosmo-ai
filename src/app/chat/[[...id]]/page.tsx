@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { ShortcutBadge } from '@/components/ShortcutHint';
+import { useKeyboardShortcuts } from '@/contexts/KeyboardShortcutsContext';
 
 interface Message {
   id: string;
@@ -26,6 +28,7 @@ export default function ChatPage() {
   
   const t = useTranslations('chat');
   const common = useTranslations('common');
+  const { openCommandPalette } = useKeyboardShortcuts();
 
   const suggestions = [
     { key: 'email', text: t('suggestions.email') },
@@ -73,19 +76,21 @@ export default function ChatPage() {
     fetchConversations();
   }, [fetchConversations]);
 
-  // Keyboard shortcuts
+  // Local keyboard shortcuts (global ones like Cmd+K handled by KeyboardShortcutsContext)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + K for new chat
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        router.push('/chat');
-      }
-      // Cmd/Ctrl + B for toggle sidebar
+      const target = e.target as HTMLElement;
+      const isInputField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+      
+      // Cmd/Ctrl + B for toggle sidebar (works in input too)
       if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
         e.preventDefault();
         setSidebarOpen((prev) => !prev);
       }
+      
+      // Skip other shortcuts when in input
+      if (isInputField) return;
+      
       // Escape to close sidebar on mobile
       if (e.key === 'Escape' && sidebarOpen) {
         setSidebarOpen(false);
@@ -93,7 +98,7 @@ export default function ChatPage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [router, sidebarOpen]);
+  }, [sidebarOpen]);
 
   // Load conversation if ID is provided
   useEffect(() => {
@@ -316,8 +321,9 @@ export default function ChatPage() {
           <div className="p-3 sm:p-4 border-b border-white/10">
             <button
               onClick={startNewChat}
-              className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg sm:rounded-xl text-white text-sm sm:text-base font-medium transition-all shadow-lg shadow-violet-500/25"
+              className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg sm:rounded-xl text-white text-sm sm:text-base font-medium transition-all shadow-lg shadow-violet-500/25 group"
               aria-label={t('newChat')}
+              title="⌘N"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -333,7 +339,8 @@ export default function ChatPage() {
               >
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              {t('newChat')}
+              <span className="flex-1">{t('newChat')}</span>
+              <ShortcutBadge shortcut="⌘+N" className="opacity-60 group-hover:opacity-100" />
             </button>
           </div>
 
@@ -401,10 +408,11 @@ export default function ChatPage() {
           </div>
 
           {/* Sidebar Footer */}
-          <div className="p-3 sm:p-4 border-t border-white/10">
+          <div className="p-3 sm:p-4 border-t border-white/10 space-y-1">
             <Link
               href="/settings"
-              className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-all text-sm"
+              className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-all text-sm group"
+              title="⌘,"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -421,7 +429,31 @@ export default function ChatPage() {
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
-              {common('settings')}
+              <span className="flex-1">{common('settings')}</span>
+              <ShortcutBadge shortcut="⌘+," className="opacity-0 group-hover:opacity-100" />
+            </Link>
+            <Link
+              href="/shortcuts"
+              className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-all text-sm group"
+              title="?"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M8 16h8" />
+              </svg>
+              <span className="flex-1">Shortcuts</span>
+              <ShortcutBadge shortcut="?" className="opacity-0 group-hover:opacity-100" />
             </Link>
           </div>
         </div>
@@ -466,6 +498,26 @@ export default function ChatPage() {
                 </p>
               </div>
             </Link>
+            
+            {/* Command Palette Button */}
+            <div className="flex-1" />
+            <button
+              onClick={openCommandPalette}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/70 transition-all text-sm"
+              aria-label="Open command palette"
+            >
+              <svg 
+                className="w-4 h-4" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="hidden sm:inline">Search...</span>
+              <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] bg-white/10 rounded border border-white/20">⌘K</kbd>
+            </button>
           </div>
         </header>
 

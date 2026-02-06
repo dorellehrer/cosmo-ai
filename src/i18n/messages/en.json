@@ -205,6 +205,70 @@
     "title": "Cosmo AI - Your Personal AI Companion",
     "description": "Meet Cosmo, your friendly AI assistant that actually gets things done. Smart home, calendar, emails, and more - all in one place."
   },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle": "Connect Your Apps",
+    "description": "Link your favorite services to unlock the full power of Cosmo. The more you connect, the more I can help.",
+    "connected": "connected",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "manage": "Manage",
+    "manageAll": "Manage all",
+    "backToChat": "Back to chat",
+    "needAnother": "Need another integration?",
+    "letUsKnow": "Let us know",
+    "noIntegrations": "No integrations connected",
+    "noIntegrationsDescription": "Connect your apps to let Cosmo help you more",
+    "browseIntegrations": "Browse integrations",
+    "connectionModal": {
+      "connecting": "Connecting to {name}...",
+      "pleaseWait": "Please wait while we set things up",
+      "connected": "Connected!",
+      "connectedDescription": "{name} is now connected to Cosmo",
+      "done": "Done",
+      "whatCosmoCanDo": "What Cosmo can do:",
+      "demoNote": "This is a demo. In production, this would open an OAuth authorization window.",
+      "emailLabel": "Email (for demo)"
+    },
+    "services": {
+      "google": {
+        "name": "Google",
+        "description": "Calendar, Gmail, Drive",
+        "fullDescription": "Connect your Google account to access Calendar for scheduling, Gmail for email management, and Drive for file access.",
+        "features": ["View and create calendar events", "Read and send emails", "Access files in Drive", "Set reminders"]
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Smart lighting control",
+        "fullDescription": "Control your Philips Hue smart lights with voice commands. Set scenes, adjust brightness, and automate your lighting.",
+        "features": ["Control individual lights", "Activate scenes", "Adjust brightness and color", "Schedule lighting"]
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Music streaming & playback",
+        "fullDescription": "Stream your favorite music with Spotify. Control playback, search for songs, and manage your playlists with Cosmo.",
+        "features": ["Play/pause/skip tracks", "Search for music", "Control volume", "Manage playlists"]
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Multi-room audio",
+        "fullDescription": "Control your Sonos speakers throughout your home. Play music, adjust volume, and group speakers together.",
+        "features": ["Multi-room audio control", "Group/ungroup speakers", "Volume control", "Play from various sources"]
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "Notes, docs & databases",
+        "fullDescription": "Access your Notion workspace. Search pages, create notes, and manage your databases with natural language.",
+        "features": ["Search pages and databases", "Create new pages", "Update database entries", "Quick capture notes"]
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Team communication",
+        "fullDescription": "Connect Slack to send messages, update your status, and stay on top of your team communication.",
+        "features": ["Send direct messages", "Post to channels", "Update your status", "Search messages"]
+      }
+    }
+  },
   "commandPalette": {
     "commandPalette": "Command Palette",
     "searchPlaceholder": "Search commands, conversations...",
