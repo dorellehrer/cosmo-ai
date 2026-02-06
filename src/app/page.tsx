@@ -183,15 +183,21 @@ export default async function LandingPage() {
           <div className="flex items-center gap-4 sm:gap-6">
             <nav aria-label="Footer navigation">
               <div className="flex gap-4 sm:gap-6 text-white/40 text-sm">
-                <a href="#" className="hover:text-white/60 transition-colors">
+                <Link href="/privacy" className="hover:text-white/60 transition-colors">
                   {common('privacy')}
-                </a>
-                <a href="#" className="hover:text-white/60 transition-colors">
+                </Link>
+                <Link href="/terms" className="hover:text-white/60 transition-colors">
                   {common('terms')}
-                </a>
-                <a href="#" className="hover:text-white/60 transition-colors">
+                </Link>
+                <Link href="/cookies" className="hover:text-white/60 transition-colors">
+                  Cookies
+                </Link>
+                <Link href="/contact" className="hover:text-white/60 transition-colors">
                   {common('contact')}
-                </a>
+                </Link>
+                <Link href="/help" className="hover:text-white/60 transition-colors">
+                  Help
+                </Link>
               </div>
             </nav>
             <LanguageSwitcher />
