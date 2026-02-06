@@ -3,9 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
-import { MicrophoneButton, TranscriptDisplay, VoiceError } from '@/components/MicrophoneButton';
+import { useTranslations } from 'next-intl';
 
 interface Message {
   id: string;
@@ -21,17 +19,20 @@ interface Conversation {
   messages?: { content: string }[];
 }
 
-const suggestions = [
-  '📧 Check my emails',
-  "📅 What's on my calendar?",
-  '💡 Turn on the lights',
-  '🎵 Play some music',
-];
-
 export default function ChatPage() {
   const router = useRouter();
   const params = useParams();
   const conversationId = params.id?.[0] as string | undefined;
+  
+  const t = useTranslations('chat');
+  const common = useTranslations('common');
+
+  const suggestions = [
+    { key: 'email', text: t('suggestions.email') },
+    { key: 'calendar', text: t('suggestions.calendar') },
+    { key: 'lights', text: t('suggestions.lights') },
+    { key: 'music', text: t('suggestions.music') },
+  ];
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -42,70 +43,8 @@ export default function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
-  const [voiceErrorDismissed, setVoiceErrorDismissed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  // Voice settings
-  const { settings: voiceSettings } = useVoiceSettings();
-
-  // Handle auto-submit from voice input
-  const handleVoiceAutoSubmit = useCallback((transcript: string) => {
-    if (transcript.trim() && !isLoading) {
-      setInput(transcript);
-      // Submit the form after a brief delay to allow state update
-      setTimeout(() => {
-        formRef.current?.requestSubmit();
-      }, 100);
-    }
-  }, [isLoading]);
-
-  // Speech recognition
-  const {
-    isSupported: voiceSupported,
-    isListening,
-    transcript: voiceTranscript,
-    interimTranscript,
-    error: voiceError,
-    startListening,
-    stopListening,
-    resetTranscript,
-  } = useSpeechRecognition(
-    {
-      language: voiceSettings.language,
-      autoSubmit: voiceSettings.autoSubmit,
-      autoSubmitDelay: voiceSettings.autoSubmitDelay,
-    },
-    handleVoiceAutoSubmit
-  );
-
-  // Update input when voice transcript changes (for manual submit mode)
-  useEffect(() => {
-    if (voiceTranscript && !voiceSettings.autoSubmit) {
-      setInput(voiceTranscript);
-    }
-  }, [voiceTranscript, voiceSettings.autoSubmit]);
-
-  // Toggle voice input
-  const toggleVoiceInput = useCallback(() => {
-    setVoiceErrorDismissed(false);
-    if (isListening) {
-      stopListening();
-      // If auto-submit is off, keep the transcript in the input
-      if (!voiceSettings.autoSubmit && voiceTranscript) {
-        setInput(voiceTranscript);
-      }
-    } else {
-      resetTranscript();
-      startListening();
-    }
-  }, [isListening, stopListening, startListening, resetTranscript, voiceSettings.autoSubmit, voiceTranscript]);
-
-  // Dismiss voice error
-  const dismissVoiceError = useCallback(() => {
-    setVoiceErrorDismissed(true);
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -212,7 +151,7 @@ export default function ChatPage() {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!confirm('Delete this conversation?')) return;
+    if (!confirm(t('deleteConversation'))) return;
 
     try {
       const response = await fetch(`/api/conversations/${id}`, {
@@ -325,7 +264,7 @@ export default function ChatPage() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId
-            ? { ...m, content: 'Sorry, something went wrong. Please try again.' }
+            ? { ...m, content: t('errorMessage') }
             : m
         )
       );
@@ -347,9 +286,9 @@ export default function ChatPage() {
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
+    if (days === 0) return t('today');
+    if (days === 1) return t('yesterday');
+    if (days < 7) return t('daysAgo', { days });
     return date.toLocaleDateString();
   };
 
@@ -366,8 +305,8 @@ export default function ChatPage() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 sm:w-72 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`fixed lg:static inset-y-0 start-0 z-50 w-64 sm:w-72 bg-slate-900/95 backdrop-blur-xl border-e border-white/10 transform transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0 rtl:-translate-x-0' : '-translate-x-full rtl:translate-x-full lg:translate-x-0 lg:rtl:-translate-x-0'
         }`}
         role="navigation"
         aria-label="Conversations sidebar"
@@ -378,7 +317,7 @@ export default function ChatPage() {
             <button
               onClick={startNewChat}
               className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg sm:rounded-xl text-white text-sm sm:text-base font-medium transition-all shadow-lg shadow-violet-500/25"
-              aria-label="Start new chat"
+              aria-label={t('newChat')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -394,20 +333,20 @@ export default function ChatPage() {
               >
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              New Chat
+              {t('newChat')}
             </button>
           </div>
 
           {/* Conversations List */}
           <div className="flex-1 overflow-y-auto p-2">
             {loadingConversations ? (
-              <div className="flex items-center justify-center py-8" role="status" aria-label="Loading conversations">
+              <div className="flex items-center justify-center py-8" role="status" aria-label={t('loadingConversations')}>
                 <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-                <span className="sr-only">Loading conversations...</span>
+                <span className="sr-only">{t('loadingConversations')}</span>
               </div>
             ) : conversations.length === 0 ? (
               <div className="text-center py-8 text-white/40 text-xs sm:text-sm">
-                No conversations yet
+                {t('noConversations')}
               </div>
             ) : (
               <nav aria-label="Conversation history">
@@ -426,7 +365,7 @@ export default function ChatPage() {
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-xs sm:text-sm font-medium truncate">
-                            {conv.title || conv.messages?.[0]?.content?.slice(0, 30) || 'New Chat'}
+                            {conv.title || conv.messages?.[0]?.content?.slice(0, 30) || t('newChat')}
                             {!conv.title && conv.messages?.[0]?.content && conv.messages[0].content.length > 30 && '...'}
                           </p>
                           <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">
@@ -482,7 +421,7 @@ export default function ChatPage() {
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
-              Settings
+              {common('settings')}
             </Link>
           </div>
         </div>
@@ -496,7 +435,7 @@ export default function ChatPage() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors text-white/60"
-              aria-label="Open sidebar"
+              aria-label={t('openSidebar')}
               aria-expanded={sidebarOpen}
             >
               <svg
@@ -520,10 +459,10 @@ export default function ChatPage() {
               </div>
               <div className="hidden xs:block">
                 <h1 className="text-lg sm:text-xl font-semibold text-white truncate max-w-[200px]">
-                  {currentTitle || 'Cosmo'}
+                  {currentTitle || common('cosmo')}
                 </h1>
                 <p className="text-[10px] sm:text-xs text-white/60">
-                  {currentTitle ? 'Your AI companion' : 'New conversation'}
+                  {currentTitle ? t('yourCompanion') : t('newConversation')}
                 </p>
               </div>
             </Link>
@@ -534,7 +473,7 @@ export default function ChatPage() {
         <main className="flex-1 overflow-y-auto" role="main" aria-label="Chat messages">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
             {loadingChat ? (
-              <div className="space-y-3 sm:space-y-4 animate-pulse" role="status" aria-label="Loading conversation">
+              <div className="space-y-3 sm:space-y-4 animate-pulse" role="status" aria-label={t('loadingConversation')}>
                 {/* Loading skeleton for messages */}
                 <div className="flex justify-end">
                   <div className="w-2/3 h-14 sm:h-16 bg-white/10 rounded-2xl" />
@@ -548,7 +487,7 @@ export default function ChatPage() {
                 <div className="flex justify-start">
                   <div className="w-2/3 h-16 sm:h-20 bg-white/10 rounded-2xl" />
                 </div>
-                <span className="sr-only">Loading conversation...</span>
+                <span className="sr-only">{t('loadingConversation')}</span>
               </div>
             ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] sm:h-[60vh] text-center px-4">
@@ -556,21 +495,19 @@ export default function ChatPage() {
                   <span className="text-3xl sm:text-4xl">✨</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2">
-                  Hey, I&apos;m Cosmo
+                  {t('greeting')}
                 </h2>
                 <p className="text-sm sm:text-base text-white/60 max-w-md mb-6 sm:mb-8">
-                  Your personal AI assistant. I can help you with tasks, answer
-                  questions, and make your life easier. What would you like to do
-                  today?
+                  {t('greetingDescription')}
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center" role="group" aria-label="Suggested prompts">
                   {suggestions.map((suggestion) => (
                     <button
-                      key={suggestion}
-                      onClick={() => handleSuggestionClick(suggestion)}
+                      key={suggestion.key}
+                      onClick={() => handleSuggestionClick(suggestion.text)}
                       className="px-3 sm:px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white/80 text-xs sm:text-sm transition-colors"
                     >
-                      {suggestion}
+                      {suggestion.text}
                     </button>
                   ))}
                 </div>
@@ -591,7 +528,7 @@ export default function ChatPage() {
                           : 'bg-white/10 text-white/90 backdrop-blur-sm'
                       }`}
                       role="article"
-                      aria-label={`${message.role === 'user' ? 'You' : 'Cosmo'} said`}
+                      aria-label={`${message.role === 'user' ? t('youSaid') : t('cosmoSaid')}`}
                     >
                       {message.content ? (
                         <>
@@ -610,7 +547,7 @@ export default function ChatPage() {
                           </p>
                         </>
                       ) : (
-                        <div className="flex gap-1" aria-label="Cosmo is typing">
+                        <div className="flex gap-1" aria-label={t('typing')}>
                           <span className="w-2 h-2 bg-white/60 rounded-full animate-bounce" />
                           <span
                             className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
@@ -620,7 +557,7 @@ export default function ChatPage() {
                             className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
                             style={{ animationDelay: '0.2s' }}
                           />
-                          <span className="sr-only">Cosmo is typing...</span>
+                          <span className="sr-only">{t('typing')}</span>
                         </div>
                       )}
                     </div>
@@ -635,84 +572,55 @@ export default function ChatPage() {
         {/* Input Area */}
         <footer className="border-t border-white/10 backdrop-blur-sm bg-white/5 safe-area-inset">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-            <div className="relative">
-              {/* Voice transcript display */}
-              {(isListening || voiceTranscript || interimTranscript) && (
-                <TranscriptDisplay
-                  transcript={voiceTranscript}
-                  interimTranscript={interimTranscript}
-                  isListening={isListening}
-                />
-              )}
-
-              {/* Voice error display */}
-              {voiceError && !voiceErrorDismissed && (
-                <VoiceError error={voiceError} onDismiss={dismissVoiceError} />
-              )}
-
-              <form ref={formRef} onSubmit={sendMessage} className="flex gap-2 sm:gap-3" role="search">
-                <label htmlFor="chat-input" className="sr-only">Message Cosmo</label>
-                <input
-                  id="chat-input"
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={isListening ? 'Listening...' : 'Ask Cosmo anything...'}
-                  className={`flex-1 bg-white/10 border rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all ${
-                    isListening
-                      ? 'border-red-500/50 bg-red-500/10'
-                      : 'border-white/20'
-                  }`}
-                  disabled={isLoading}
-                  autoComplete="off"
-                />
-                
-                {/* Microphone Button */}
-                <MicrophoneButton
-                  isListening={isListening}
-                  isSupported={voiceSupported}
-                  onClick={toggleVoiceInput}
-                  disabled={isLoading}
-                />
-
-                <button
-                  type="submit"
-                  disabled={isLoading || !input.trim()}
-                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm sm:text-base font-medium transition-all min-w-[60px] sm:min-w-[80px]"
-                  aria-label={isLoading ? 'Sending message' : 'Send message'}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg
-                        className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      <span className="sr-only">Sending...</span>
-                    </span>
-                  ) : (
-                    'Send'
-                  )}
-                </button>
-              </form>
-            </div>
+            <form onSubmit={sendMessage} className="flex gap-2 sm:gap-3" role="search">
+              <label htmlFor="chat-input" className="sr-only">{t('askAnything')}</label>
+              <input
+                id="chat-input"
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={t('askAnything')}
+                className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                disabled={isLoading}
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm sm:text-base font-medium transition-all min-w-[60px] sm:min-w-[80px]"
+                aria-label={isLoading ? t('sending') : common('send')}
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span className="sr-only">{t('sending')}</span>
+                  </span>
+                ) : (
+                  common('send')
+                )}
+              </button>
+            </form>
           </div>
         </footer>
       </div>

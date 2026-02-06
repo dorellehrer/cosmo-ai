@@ -310,3 +310,87 @@ input:disabled {
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ===== RTL Support ===== */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* RTL-aware positioning */
+[dir="rtl"] .skip-to-content:focus {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+/* RTL-aware animations */
+[dir="rtl"] @keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* RTL scrollbar positioning */
+[dir="rtl"] ::-webkit-scrollbar {
+  direction: ltr;
+}
+
+/* Ensure proper text direction for mixed content */
+[dir="rtl"] .ltr-content {
+  direction: ltr;
+  text-align: left;
+}
+
+/* RTL-aware flex layouts */
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+/* RTL font family with Arabic support */
+[dir="rtl"] body {
+  font-family: 'Segoe UI', Tahoma, 'Noto Sans Arabic', 'Noto Kufi Arabic', sans-serif;
+}
+
+/* Fix for chat bubbles in RTL */
+[dir="rtl"] .justify-end {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .justify-start {
+  justify-content: flex-end;
+}
+
+/* Logical properties for RTL compatibility */
+.ms-2 {
+  margin-inline-start: 0.5rem;
+}
+
+.me-2 {
+  margin-inline-end: 0.5rem;
+}
+
+.ps-4 {
+  padding-inline-start: 1rem;
+}
+
+.pe-4 {
+  padding-inline-end: 1rem;
+}
+
+.start-0 {
+  inset-inline-start: 0;
+}
+
+.end-0 {
+  inset-inline-end: 0;
+}
+
+/* RTL icon flip */
+[dir="rtl"] .rtl\:rotate-180 {
+  transform: rotate(180deg);
+}
