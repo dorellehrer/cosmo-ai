@@ -2,6 +2,7 @@ import { OpenAI } from 'openai';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages } from "@/lib/stripe";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,6 +21,11 @@ When users ask about capabilities you don't have yet (like controlling smart hom
 
 Keep responses conversational and natural. Don't use excessive formatting or bullet points unless it genuinely helps clarity.`;
 
+// Get today's date in YYYY-MM-DD format
+function getToday(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -31,8 +37,69 @@ export async function POST(req: Request) {
       );
     }
 
+    // Get user with subscription info
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check usage limits
+    const today = getToday();
+    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd);
+    
+    // Get or create today's usage record
+    let usageRecord = await prisma.usageRecord.findUnique({
+      where: {
+        userId_date: {
+          userId: user.id,
+          date: today,
+        },
+      },
+    });
+
+    const currentUsage = usageRecord?.count || 0;
+
+    // Check if user has reached their limit
+    if (hasReachedLimit(tier, currentUsage)) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Daily message limit reached',
+          code: 'LIMIT_REACHED',
+          limit: TIERS[tier].messagesPerDay,
+          used: currentUsage,
+          tier,
+        }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { messages, conversationId } = await req.json();
     const userMessage = messages[messages.length - 1];
+
+    // Increment usage count
+    if (usageRecord) {
+      await prisma.usageRecord.update({
+        where: { id: usageRecord.id },
+        data: { count: usageRecord.count + 1 },
+      });
+    } else {
+      await prisma.usageRecord.create({
+        data: {
+          userId: user.id,
+          date: today,
+          count: 1,
+        },
+      });
+    }
+
+    const newUsage = currentUsage + 1;
+    const remaining = getRemainingMessages(tier, newUsage);
 
     // Get or create conversation
     let conversation;
@@ -92,9 +159,17 @@ export async function POST(req: Request) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        // Send conversationId as first message
+        // Send conversationId and usage info as first message
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ conversationId: conversation.id })}\n\n`)
+          encoder.encode(`data: ${JSON.stringify({ 
+            conversationId: conversation.id,
+            usage: {
+              used: newUsage,
+              limit: TIERS[tier].messagesPerDay,
+              remaining,
+              tier,
+            }
+          })}\n\n`)
         );
 
         for await (const chunk of response) {

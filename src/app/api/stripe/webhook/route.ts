@@ -40,13 +40,15 @@ export async function POST(req: NextRequest) {
         if (userId && subscriptionId) {
           // Get subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const subscriptionData = subscription as any;
 
           await prisma.user.update({
             where: { id: userId },
             data: {
               stripeSubscriptionId: subscriptionId,
-              stripePriceId: subscription.items.data[0]?.price.id,
-              stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              stripePriceId: subscriptionData.items?.data?.[0]?.price?.id,
+              stripeCurrentPeriodEnd: new Date(subscriptionData.current_period_end * 1000),
             },
           });
         }
@@ -54,14 +56,15 @@ export async function POST(req: NextRequest) {
       }
 
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const subscription = event.data.object as any;
         const userId = subscription.metadata?.userId;
 
         if (userId) {
           await prisma.user.update({
             where: { id: userId },
             data: {
-              stripePriceId: subscription.items.data[0]?.price.id,
+              stripePriceId: subscription.items?.data?.[0]?.price?.id,
               stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
             },
           });
@@ -69,12 +72,12 @@ export async function POST(req: NextRequest) {
           // Fallback: find user by customer ID
           const customerId = typeof subscription.customer === 'string'
             ? subscription.customer
-            : subscription.customer.id;
+            : subscription.customer?.id;
 
           await prisma.user.updateMany({
             where: { stripeCustomerId: customerId },
             data: {
-              stripePriceId: subscription.items.data[0]?.price.id,
+              stripePriceId: subscription.items?.data?.[0]?.price?.id,
               stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
             },
           });
@@ -83,7 +86,8 @@ export async function POST(req: NextRequest) {
       }
 
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const subscription = event.data.object as any;
         const userId = subscription.metadata?.userId;
 
         if (userId) {
@@ -99,7 +103,7 @@ export async function POST(req: NextRequest) {
           // Fallback: find user by customer ID
           const customerId = typeof subscription.customer === 'string'
             ? subscription.customer
-            : subscription.customer.id;
+            : subscription.customer?.id;
 
           await prisma.user.updateMany({
             where: { stripeCustomerId: customerId },

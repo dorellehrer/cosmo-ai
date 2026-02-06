@@ -1,8 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useVoiceSettings, SUPPORTED_LANGUAGES } from '@/contexts/VoiceSettingsContext';
+
+interface UsageData {
+  tier: string;
+  tierName: string;
+  limit: number;
+  used: number;
+  remaining: number;
+  subscriptionEnd: string | null;
+}
 
 const INTEGRATIONS = [
   {
@@ -56,24 +66,66 @@ const INTEGRATIONS = [
 ];
 
 export default function SettingsPage() {
+  const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [integrations, setIntegrations] = useState(INTEGRATIONS);
   const [name, setName] = useState('');
-  const { settings: voiceSettings, updateSettings: updateVoiceSettings } = useVoiceSettings();
-  const [speechSupported, setSpeechSupported] = useState(true);
+  const [usage, setUsage] = useState<UsageData | null>(null);
+  const [loadingPortal, setLoadingPortal] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Check if speech recognition is supported
+  // Check for successful checkout
   useEffect(() => {
-    const isSupported = typeof window !== 'undefined' && 
-      (window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
-    setSpeechSupported(!!isSupported);
-  }, []);
+    if (searchParams.get('checkout') === 'success') {
+      setShowSuccess(true);
+      // Refresh usage data
+      fetchUsage();
+      setTimeout(() => setShowSuccess(false), 5000);
+    }
+  }, [searchParams]);
+
+  // Fetch usage data
+  const fetchUsage = async () => {
+    try {
+      const res = await fetch('/api/usage');
+      const data = await res.json();
+      setUsage(data);
+    } catch (error) {
+      console.error('Failed to fetch usage:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchUsage();
+    }
+  }, [session]);
 
   const handleConnect = (id: string) => {
-    // In real app, this would trigger OAuth flow
     setIntegrations((prev) =>
       prev.map((i) => (i.id === id ? { ...i, connected: !i.connected } : i))
     );
   };
+
+  const handleManageSubscription = async () => {
+    setLoadingPortal(true);
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Failed to open billing portal');
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      alert('Failed to open billing portal');
+    } finally {
+      setLoadingPortal(false);
+    }
+  };
+
+  const isPro = usage?.tier === 'pro';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -106,6 +158,16 @@ export default function SettingsPage() {
         </div>
       </header>
 
+      {/* Success Banner */}
+      {showSuccess && (
+        <div className="bg-green-500/20 border-b border-green-500/30 px-4 py-3 text-center">
+          <p className="text-green-200 text-sm flex items-center justify-center gap-2">
+            <span>🎉</span>
+            Welcome to Pro! You now have unlimited messages.
+          </p>
+        </div>
+      )}
+
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Profile Section */}
         <section className="mb-8 sm:mb-12" aria-labelledby="profile-heading">
@@ -131,10 +193,96 @@ export default function SettingsPage() {
                   className="w-full bg-transparent text-lg sm:text-xl font-semibold text-white placeholder-white/40 focus:outline-none border-b border-transparent focus:border-violet-500 transition-colors truncate"
                 />
                 <p className="text-white/40 text-xs sm:text-sm mt-1">
-                  Free plan · Member since Feb 2026
+                  {isPro ? (
+                    <span className="text-violet-400">✨ Pro plan</span>
+                  ) : (
+                    'Free plan'
+                  )} · Member since Feb 2026
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Subscription Section */}
+        <section className="mb-8 sm:mb-12" aria-labelledby="subscription-heading">
+          <h2 id="subscription-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
+            Subscription
+          </h2>
+          <div className={`border rounded-xl sm:rounded-2xl p-4 sm:p-6 ${
+            isPro 
+              ? 'bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border-violet-500/30' 
+              : 'bg-white/5 border-white/10'
+          }`}>
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  {isPro && <span className="text-xl">✨</span>}
+                  <h3 className="text-lg sm:text-xl font-semibold text-white">
+                    {usage?.tierName || 'Free'} Plan
+                  </h3>
+                </div>
+                <p className="text-white/60 text-sm">
+                  {isPro 
+                    ? 'Unlimited messages, priority support' 
+                    : `${usage?.limit || 50} messages per day`}
+                </p>
+              </div>
+              {isPro ? (
+                <div className="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30">
+                  <span className="text-violet-300 text-xs font-medium">Active</span>
+                </div>
+              ) : (
+                <Link
+                  href="/pricing"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white text-sm font-medium transition-colors"
+                >
+                  Upgrade
+                </Link>
+              )}
+            </div>
+
+            {/* Usage Stats */}
+            {usage && !isPro && (
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-white/60">Today&apos;s usage</span>
+                  <span className="text-white">{usage.used} / {usage.limit}</span>
+                </div>
+                <div className="w-full bg-white/10 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all ${
+                      usage.used / usage.limit >= 0.8
+                        ? 'bg-yellow-500'
+                        : 'bg-violet-500'
+                    }`}
+                    style={{ width: `${Math.min(100, (usage.used / usage.limit) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Subscription End Date */}
+            {isPro && usage?.subscriptionEnd && (
+              <p className="text-white/40 text-sm mb-4">
+                Renews on {new Date(usage.subscriptionEnd).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+            )}
+
+            {/* Manage Button */}
+            {isPro && (
+              <button
+                onClick={handleManageSubscription}
+                disabled={loadingPortal}
+                className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                {loadingPortal ? 'Opening...' : 'Manage Subscription'}
+              </button>
+            )}
           </div>
         </section>
 
@@ -184,142 +332,6 @@ export default function SettingsPage() {
                 </button>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Voice Input Settings Section */}
-        <section className="mb-8 sm:mb-12" aria-labelledby="voice-settings-heading">
-          <h2 id="voice-settings-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-violet-400"
-              aria-hidden="true"
-            >
-              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" x2="12" y1="19" y2="22" />
-            </svg>
-            Voice Input
-          </h2>
-          
-          {!speechSupported && (
-            <div 
-              className="mb-4 px-4 py-3 bg-amber-500/20 border border-amber-500/30 rounded-xl"
-              role="alert"
-            >
-              <div className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-amber-400 shrink-0"
-                  aria-hidden="true"
-                >
-                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                  <line x1="12" x2="12" y1="9" y2="13" />
-                  <line x1="12" x2="12.01" y1="17" y2="17" />
-                </svg>
-                <p className="text-sm text-amber-200">
-                  Voice input is not supported in this browser. Try Chrome, Edge, or Safari for the best experience.
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl divide-y divide-white/10">
-            {/* Auto-submit toggle */}
-            <div className="p-3 sm:p-4 flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <h3 className="text-sm sm:text-base text-white font-medium">Auto-submit</h3>
-                <p className="text-white/40 text-xs sm:text-sm">
-                  Automatically send message when you stop talking
-                </p>
-              </div>
-              <button 
-                onClick={() => updateVoiceSettings({ autoSubmit: !voiceSettings.autoSubmit })}
-                className={`w-11 sm:w-12 h-6 sm:h-7 rounded-full relative transition-colors shrink-0 ${
-                  voiceSettings.autoSubmit ? 'bg-violet-500' : 'bg-white/20'
-                }`}
-                role="switch"
-                aria-checked={voiceSettings.autoSubmit}
-                aria-label="Auto-submit voice input"
-                disabled={!speechSupported}
-              >
-                <span 
-                  className={`absolute top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                    voiceSettings.autoSubmit ? 'right-0.5 sm:right-1' : 'left-0.5 sm:left-1'
-                  }`} 
-                />
-              </button>
-            </div>
-
-            {/* Auto-submit delay */}
-            {voiceSettings.autoSubmit && (
-              <div className="p-3 sm:p-4">
-                <div className="flex items-center justify-between gap-4 mb-2">
-                  <div className="min-w-0">
-                    <h3 className="text-sm sm:text-base text-white font-medium">Delay before submit</h3>
-                    <p className="text-white/40 text-xs sm:text-sm">
-                      Wait time after you stop speaking: {voiceSettings.autoSubmitDelay / 1000}s
-                    </p>
-                  </div>
-                </div>
-                <input
-                  type="range"
-                  min="500"
-                  max="3000"
-                  step="250"
-                  value={voiceSettings.autoSubmitDelay}
-                  onChange={(e) => updateVoiceSettings({ autoSubmitDelay: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-violet-500"
-                  aria-label="Auto-submit delay"
-                  disabled={!speechSupported}
-                />
-                <div className="flex justify-between text-xs text-white/40 mt-1">
-                  <span>0.5s</span>
-                  <span>3s</span>
-                </div>
-              </div>
-            )}
-
-            {/* Language selection */}
-            <div className="p-3 sm:p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <h3 className="text-sm sm:text-base text-white font-medium">Speech language</h3>
-                  <p className="text-white/40 text-xs sm:text-sm">
-                    Language for voice recognition
-                  </p>
-                </div>
-                <select
-                  value={voiceSettings.language}
-                  onChange={(e) => updateVoiceSettings({ language: e.target.value })}
-                  className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 min-w-[140px]"
-                  aria-label="Speech language"
-                  disabled={!speechSupported}
-                >
-                  {SUPPORTED_LANGUAGES.map((lang) => (
-                    <option key={lang.code} value={lang.code} className="bg-slate-800">
-                      {lang.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
           </div>
         </section>
 

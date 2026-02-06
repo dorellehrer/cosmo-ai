@@ -1,0 +1,208 @@
+{
+  "common": {
+    "cosmo": "Cosmo",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "getStarted": "Commencer",
+    "continue": "Continuer",
+    "back": "Retour",
+    "send": "Envoyer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "settings": "Paramètres",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "copyright": "© 2026 Cosmo AI. Tous droits réservés.",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "contact": "Contact"
+  },
+  "landing": {
+    "skipToContent": "Aller au contenu principal",
+    "mainNav": "Navigation principale",
+    "heroTitle": "Découvrez Cosmo",
+    "heroSubtitle": "Votre IA qui fait vraiment les choses",
+    "heroDescription": "Pas juste un autre chatbot. Cosmo se connecte à votre vie — agenda, e-mail, maison connectée, et plus. Dites-lui ce dont vous avez besoin, il le fait.",
+    "startChatting": "Commencez à discuter — c'est gratuit",
+    "watchDemo": "Voir la démo",
+    "featuresHeading": "Tout ce dont vous avez besoin, à une conversation près",
+    "ctaHeading": "Prêt à rencontrer votre nouveau compagnon IA ?",
+    "ctaDescription": "Rejoignez des milliers de personnes qui ont fait de Cosmo une partie de leur routine quotidienne. C'est gratuit pour commencer.",
+    "getStartedFree": "Commencez gratuitement",
+    "features": {
+      "email": {
+        "title": "E-mail et Agenda",
+        "description": "Consultez vos e-mails, planifiez des réunions, recevez des rappels. Cosmo organise votre journée."
+      },
+      "smartHome": {
+        "title": "Maison Connectée",
+        "description": "\"Éteins les lumières\" — fonctionne avec Hue, Sonos et vos appareils préférés."
+      },
+      "entertainment": {
+        "title": "Divertissement",
+        "description": "Jouez de la musique, trouvez des émissions, créez l'ambiance. Votre divertissement, simplifié."
+      },
+      "privacy": {
+        "title": "Confidentialité d'Abord",
+        "description": "Vos données restent les vôtres. Nous ne les vendons pas, ne les partageons pas, ne les utilisons pas pour l'entraînement."
+      },
+      "everywhere": {
+        "title": "Fonctionne Partout",
+        "description": "Web, mobile, voix. Accédez à Cosmo depuis n'importe quel appareil, n'importe quand."
+      },
+      "noSetup": {
+        "title": "Aucune Configuration",
+        "description": "Inscrivez-vous, connectez vos comptes, c'est fait. Pas de terminal, pas de configs, pas de prise de tête."
+      }
+    }
+  },
+  "auth": {
+    "welcomeBack": "Bon retour",
+    "signInToContinue": "Connectez-vous pour continuer sur Cosmo",
+    "createAccount": "Créez votre compte",
+    "joinThousands": "Rejoignez des milliers d'utilisateurs de Cosmo chaque jour",
+    "email": "E-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "••••••••",
+    "passwordHint": "Au moins 6 caractères",
+    "name": "Nom",
+    "nameOptional": "(facultatif)",
+    "namePlaceholder": "Comment Cosmo doit-il vous appeler ?",
+    "signingIn": "Connexion...",
+    "creatingAccount": "Création du compte...",
+    "dontHaveAccount": "Pas de compte ?",
+    "alreadyHaveAccount": "Déjà un compte ?",
+    "termsAgreement": "En créant un compte, vous acceptez nos",
+    "termsOfService": "Conditions d'Utilisation",
+    "and": "et",
+    "privacyPolicy": "Politique de Confidentialité",
+    "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "onboarding": {
+    "step1Emoji": "👋",
+    "step1Title": "Salut ! Je suis Cosmo",
+    "step1Subtitle": "Comment dois-je vous appeler ?",
+    "yourName": "Votre nom",
+    "step2Emoji": "🔌",
+    "step2Title": "Ravi de vous rencontrer, {name} !",
+    "step2Subtitle": "Avec quoi aimeriez-vous que je vous aide ?",
+    "addMoreLater": "Vous pouvez toujours en ajouter plus tard",
+    "step3Emoji": "🚀",
+    "step3Title": "Tout est prêt !",
+    "step3Subtitle": "Je suis prêt à vous aider pour n'importe quoi. Commençons !",
+    "tryAskingMe": "Essayez de me demander :",
+    "suggestions": {
+      "calendar": "\"Qu'est-ce qu'il y a dans mon agenda aujourd'hui ?\"",
+      "lights": "\"Allume les lumières du salon\"",
+      "music": "\"Mets de la musique relaxante\"",
+      "reminder": "\"Rappelle-moi d'appeler maman à 17h\""
+    },
+    "startChatting": "Commencez à discuter avec Cosmo",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "Agenda, Gmail, Drive"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Contrôle musical"
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Éclairage intelligent"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Enceintes"
+      }
+    }
+  },
+  "settings": {
+    "backToChat": "Retour au chat",
+    "profile": "Profil",
+    "yourName": "Votre nom",
+    "freePlan": "Plan gratuit · Membre depuis fév 2026",
+    "connectedServices": "Services Connectés",
+    "connected": "Connecté",
+    "connect": "Connecter",
+    "preferences": "Préférences",
+    "voiceResponses": "Réponses vocales",
+    "voiceDescription": "Cosmo parlera les réponses à voix haute",
+    "notifications": "Notifications",
+    "notificationsDescription": "Recevez des alertes pour les rappels et mises à jour",
+    "darkMode": "Mode sombre",
+    "darkModeDescription": "Toujours activé (c'est cosy)",
+    "dangerZone": "Zone de Danger",
+    "deleteAccount": "Supprimer le compte",
+    "deleteAccountDescription": "Cela supprimera définitivement votre compte, vos conversations et toutes les intégrations connectées.",
+    "deleteMyAccount": "Supprimer mon compte",
+    "language": "Langue",
+    "languageDescription": "Choisissez votre langue préférée",
+    "integrations": {
+      "google": {
+        "name": "Google",
+        "description": "Agenda, Gmail, Drive"
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Contrôle musical"
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Éclairage intelligent"
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Enceintes"
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "Notes et docs"
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Messages d'équipe"
+      }
+    }
+  },
+  "chat": {
+    "newChat": "Nouvelle Discussion",
+    "noConversations": "Pas encore de conversations",
+    "deleteConversation": "Supprimer cette conversation ?",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "daysAgo": "Il y a {days} jours",
+    "newConversation": "Nouvelle conversation",
+    "yourCompanion": "Votre compagnon IA",
+    "openSidebar": "Ouvrir la barre latérale",
+    "greeting": "Salut, je suis Cosmo",
+    "greetingDescription": "Votre assistant IA personnel. Je peux vous aider avec des tâches, répondre à vos questions et vous faciliter la vie. Que souhaitez-vous faire aujourd'hui ?",
+    "askAnything": "Demandez n'importe quoi à Cosmo...",
+    "youSaid": "Vous avez dit",
+    "cosmoSaid": "Cosmo a dit",
+    "typing": "Cosmo écrit...",
+    "sending": "Envoi...",
+    "errorMessage": "Désolé, quelque chose s'est mal passé. Veuillez réessayer.",
+    "suggestions": {
+      "email": "📧 Vérifier mes e-mails",
+      "calendar": "📅 Qu'y a-t-il dans mon agenda ?",
+      "lights": "💡 Allumer les lumières",
+      "music": "🎵 Jouer de la musique"
+    },
+    "loadingConversations": "Chargement des conversations...",
+    "loadingConversation": "Chargement de la conversation..."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "Hmm, je n'ai pas trouvé ce que vous cherchez. Remettons-vous sur la bonne voie.",
+    "goHome": "Aller à l'accueil",
+    "chatWithCosmo": "Discuter avec Cosmo"
+  },
+  "meta": {
+    "title": "Cosmo AI - Votre Compagnon IA Personnel",
+    "description": "Découvrez Cosmo, votre assistant IA sympathique qui fait vraiment les choses. Maison connectée, agenda, e-mails et plus — tout en un seul endroit."
+  }
+}
