@@ -323,17 +323,7 @@ input:disabled {
   transform: translateX(-50%);
 }
 
-/* RTL-aware animations */
-[dir="rtl"] @keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* RTL-aware animations - keyframes work the same in both directions */
 
 /* RTL scrollbar positioning */
 [dir="rtl"] ::-webkit-scrollbar {
