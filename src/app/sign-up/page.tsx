@@ -4,9 +4,13 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const t = useTranslations('auth');
+  const common = useTranslations('common');
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,7 +52,7 @@ export default function SignUpPage() {
         router.refresh();
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -70,17 +74,17 @@ export default function SignUpPage() {
             >
               <span className="text-xl sm:text-2xl">✨</span>
             </div>
-            <span className="text-xl sm:text-2xl font-semibold text-white">Cosmo</span>
+            <span className="text-xl sm:text-2xl font-semibold text-white">{common('cosmo')}</span>
           </Link>
         </div>
 
         {/* Card */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8">
           <h1 className="text-xl sm:text-2xl font-bold text-white text-center mb-2">
-            Create your account
+            {t('createAccount')}
           </h1>
           <p className="text-sm sm:text-base text-white/60 text-center mb-6 sm:mb-8">
-            Join thousands using Cosmo every day
+            {t('joinThousands')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
@@ -99,7 +103,7 @@ export default function SignUpPage() {
                 htmlFor="name"
                 className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2"
               >
-                Name <span className="text-white/40">(optional)</span>
+                {t('name')} <span className="text-white/40">{t('nameOptional')}</span>
               </label>
               <input
                 id="name"
@@ -107,7 +111,7 @@ export default function SignUpPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-lg text-sm sm:text-base text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                placeholder="What should Cosmo call you?"
+                placeholder={t('namePlaceholder')}
                 autoComplete="name"
               />
             </div>
@@ -117,7 +121,7 @@ export default function SignUpPage() {
                 htmlFor="email"
                 className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2"
               >
-                Email
+                {t('email')}
               </label>
               <input
                 id="email"
@@ -125,7 +129,7 @@ export default function SignUpPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-lg text-sm sm:text-base text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                placeholder="you@example.com"
+                placeholder={t('emailPlaceholder')}
                 required
                 autoComplete="email"
               />
@@ -136,7 +140,7 @@ export default function SignUpPage() {
                 htmlFor="password"
                 className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2"
               >
-                Password
+                {t('password')}
               </label>
               <input
                 id="password"
@@ -144,7 +148,7 @@ export default function SignUpPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-lg text-sm sm:text-base text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                placeholder="At least 6 characters"
+                placeholder={t('passwordHint')}
                 minLength={6}
                 required
                 autoComplete="new-password"
@@ -156,29 +160,29 @@ export default function SignUpPage() {
               disabled={loading}
               className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white text-sm sm:text-base font-semibold transition-all"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? t('creatingAccount') : t('createAccount')}
             </button>
           </form>
 
           <p className="mt-5 sm:mt-6 text-center text-white/60 text-xs sm:text-sm">
-            Already have an account?{' '}
+            {t('alreadyHaveAccount')}{' '}
             <Link
               href="/sign-in"
               className="text-violet-400 hover:text-violet-300 font-medium transition-colors"
             >
-              Sign in
+              {common('signIn')}
             </Link>
           </p>
         </div>
 
         <p className="mt-5 sm:mt-6 text-center text-white/40 text-[10px] sm:text-xs">
-          By creating an account, you agree to our{' '}
+          {t('termsAgreement')}{' '}
           <a href="#" className="underline hover:text-white/60">
-            Terms of Service
+            {t('termsOfService')}
           </a>{' '}
-          and{' '}
+          {t('and')}{' '}
           <a href="#" className="underline hover:text-white/60">
-            Privacy Policy
+            {t('privacyPolicy')}
           </a>
         </p>
       </div>

@@ -4,9 +4,13 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function SignInPage() {
   const router = useRouter();
+  const t = useTranslations('auth');
+  const common = useTranslations('common');
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -31,7 +35,7 @@ export default function SignInPage() {
         router.refresh();
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -53,17 +57,17 @@ export default function SignInPage() {
             >
               <span className="text-xl sm:text-2xl">✨</span>
             </div>
-            <span className="text-xl sm:text-2xl font-semibold text-white">Cosmo</span>
+            <span className="text-xl sm:text-2xl font-semibold text-white">{common('cosmo')}</span>
           </Link>
         </div>
 
         {/* Card */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8">
           <h1 className="text-xl sm:text-2xl font-bold text-white text-center mb-2">
-            Welcome back
+            {t('welcomeBack')}
           </h1>
           <p className="text-sm sm:text-base text-white/60 text-center mb-6 sm:mb-8">
-            Sign in to continue to Cosmo
+            {t('signInToContinue')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
@@ -82,7 +86,7 @@ export default function SignInPage() {
                 htmlFor="email"
                 className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2"
               >
-                Email
+                {t('email')}
               </label>
               <input
                 id="email"
@@ -90,7 +94,7 @@ export default function SignInPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-lg text-sm sm:text-base text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                placeholder="you@example.com"
+                placeholder={t('emailPlaceholder')}
                 required
                 autoComplete="email"
               />
@@ -101,7 +105,7 @@ export default function SignInPage() {
                 htmlFor="password"
                 className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2"
               >
-                Password
+                {t('password')}
               </label>
               <input
                 id="password"
@@ -109,7 +113,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-lg text-sm sm:text-base text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                placeholder="••••••••"
+                placeholder={t('passwordPlaceholder')}
                 required
                 autoComplete="current-password"
               />
@@ -120,17 +124,17 @@ export default function SignInPage() {
               disabled={loading}
               className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white text-sm sm:text-base font-semibold transition-all"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? t('signingIn') : common('signIn')}
             </button>
           </form>
 
           <p className="mt-5 sm:mt-6 text-center text-white/60 text-xs sm:text-sm">
-            Don&apos;t have an account?{' '}
+            {t('dontHaveAccount')}{' '}
             <Link
               href="/sign-up"
               className="text-violet-400 hover:text-violet-300 font-medium transition-colors"
             >
-              Sign up
+              {common('signUp')}
             </Link>
           </p>
         </div>

@@ -38,7 +38,7 @@
       },
       "smartHome": {
         "title": "智能家居",
-        "description": ""关灯"——支持 Hue、Sonos 和你喜爱的设备。"
+        "description": "\"关灯\"——支持 Hue、Sonos 和你喜爱的设备。"
       },
       "entertainment": {
         "title": "娱乐",
@@ -95,10 +95,10 @@
     "step3Subtitle": "我准备好帮助你做任何事情了。让我们开始吧！",
     "tryAskingMe": "试着问我：",
     "suggestions": {
-      "calendar": ""我今天的日程是什么？"",
-      "lights": ""打开客厅的灯"",
-      "music": ""播放一些轻松的音乐"",
-      "reminder": ""提醒我下午5点给妈妈打电话""
+      "calendar": "\"我今天的日程是什么？\"",
+      "lights": "\"打开客厅的灯\"",
+      "music": "\"播放一些轻松的音乐\"",
+      "reminder": "\"提醒我下午5点给妈妈打电话\""
     },
     "startChatting": "开始与 Cosmo 聊天",
     "integrations": {

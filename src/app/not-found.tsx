@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations('notFound');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 sm:p-6">
       <div className="text-center max-w-md">
@@ -12,12 +15,11 @@ export default function NotFound() {
         </div>
         
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
-          Page not found
+          {t('title')}
         </h1>
         
         <p className="text-sm sm:text-base text-white/60 mb-6 sm:mb-8 px-4">
-          Hmm, I couldn&apos;t find what you&apos;re looking for. Let&apos;s get
-          you back on track.
+          {t('description')}
         </p>
         
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
@@ -25,13 +27,13 @@ export default function NotFound() {
             href="/"
             className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-medium transition-all text-center"
           >
-            Go home
+            {t('goHome')}
           </Link>
           <Link
             href="/chat"
             className="px-6 py-3 border border-white/20 hover:bg-white/10 rounded-full text-white font-medium transition-all text-center"
           >
-            Chat with Cosmo
+            {t('chatWithCosmo')}
           </Link>
         </div>
       </div>
