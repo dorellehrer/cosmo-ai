@@ -151,14 +151,15 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {TIERS.map((tier) => (
+          {TIERS.map((tier, index) => (
             <div
               key={tier.name}
-              className={`relative bg-white/5 border rounded-2xl p-8 ${
+              className={`relative bg-white/5 border rounded-2xl p-8 card-hover animate-fade-in ${
                 tier.popular
                   ? 'border-violet-500/50 ring-2 ring-violet-500/20'
                   : 'border-white/10'
               }`}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -203,7 +204,7 @@ export default function PricingPage() {
                 userTier === 'free' ? (
                   <Link
                     href="/chat"
-                    className="block w-full text-center py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors"
+                    className="block w-full text-center py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {session ? 'Go to Chat' : 'Get Started'}
                   </Link>
@@ -213,7 +214,7 @@ export default function PricingPage() {
               ) : userTier === 'pro' ? (
                 <Link
                   href="/settings"
-                  className="block w-full text-center py-3 px-4 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-medium"
+                  className="block w-full text-center py-3 px-4 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-medium btn-hover-lift"
                 >
                   Manage Subscription
                 </Link>
@@ -221,7 +222,7 @@ export default function PricingPage() {
                 <button
                   onClick={handleUpgrade}
                   disabled={loading === 'pro'}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed btn-hover-lift"
                 >
                   {loading === 'pro' ? (
                     <span className="flex items-center justify-center gap-2">
@@ -261,27 +262,27 @@ export default function PricingPage() {
             Frequently Asked Questions
           </h2>
           <div className="space-y-4">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-white font-medium mb-2">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 card-hover group">
+              <h3 className="text-white font-medium mb-2 group-hover:text-violet-300 transition-colors">
                 Can I cancel my subscription?
               </h3>
-              <p className="text-white/60 text-sm">
+              <p className="text-white/70 text-sm">
                 Yes! You can cancel anytime from your settings page. You&apos;ll keep Pro access until the end of your billing period.
               </p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-white font-medium mb-2">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 card-hover group">
+              <h3 className="text-white font-medium mb-2 group-hover:text-violet-300 transition-colors">
                 What happens when I hit the free tier limit?
               </h3>
-              <p className="text-white/60 text-sm">
+              <p className="text-white/70 text-sm">
                 You&apos;ll see a friendly prompt to upgrade. Your limit resets every day at midnight, so you can always come back tomorrow!
               </p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-white font-medium mb-2">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 card-hover group">
+              <h3 className="text-white font-medium mb-2 group-hover:text-violet-300 transition-colors">
                 Is my payment information secure?
               </h3>
-              <p className="text-white/60 text-sm">
+              <p className="text-white/70 text-sm">
                 Absolutely. We use Stripe for payment processing, which is PCI compliant and trusted by millions of businesses worldwide.
               </p>
             </div>

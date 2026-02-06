@@ -137,14 +137,15 @@ export default function AboutPage() {
         <section className="py-16 sm:py-24">
           <h2 className="text-3xl font-bold text-white text-center mb-12">What we believe</h2>
           <div className="grid sm:grid-cols-2 gap-6">
-            {values.map((value) => (
+            {values.map((value, index) => (
               <div
                 key={value.title}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 card-hover group animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="text-3xl mb-4">{value.icon}</div>
-                <h3 className="text-xl font-semibold text-white mb-2">{value.title}</h3>
-                <p className="text-white/60">{value.description}</p>
+                <div className="text-3xl mb-4 transform transition-transform group-hover:scale-110">{value.icon}</div>
+                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-violet-300 transition-colors">{value.title}</h3>
+                <p className="text-white/70">{value.description}</p>
               </div>
             ))}
           </div>

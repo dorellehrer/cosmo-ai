@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useVoiceSettings, SUPPORTED_LANGUAGES } from '@/contexts/VoiceSettingsContext';
 import { useIntegrations } from '@/contexts/IntegrationsContext';
+import { NotificationBell } from '@/components/notifications';
 
 // Integration icons mapping
 const INTEGRATION_ICONS: Record<string, React.ReactNode> = {
@@ -99,7 +100,7 @@ export default function SettingsPage() {
             <span className="text-sm sm:text-base">{t('backToChat')}</span>
           </Link>
           <h1 className="text-lg sm:text-xl font-semibold text-white">{common('settings')}</h1>
-          <div className="w-16 sm:w-20" aria-hidden="true" />
+          <NotificationBell />
         </div>
       </header>
 
