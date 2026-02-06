@@ -177,13 +177,13 @@ export default function SignUpPage() {
 
         <p className="mt-5 sm:mt-6 text-center text-white/40 text-[10px] sm:text-xs">
           {t('termsAgreement')}{' '}
-          <a href="#" className="underline hover:text-white/60">
+          <Link href="/terms" className="underline hover:text-white/60">
             {t('termsOfService')}
-          </a>{' '}
+          </Link>{' '}
           {t('and')}{' '}
-          <a href="#" className="underline hover:text-white/60">
+          <Link href="/privacy" className="underline hover:text-white/60">
             {t('privacyPolicy')}
-          </a>
+          </Link>
         </p>
       </div>
     </div>

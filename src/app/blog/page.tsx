@@ -236,11 +236,14 @@ export default function BlogPage() {
             <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
           </div>
           <nav>
-            <div className="flex gap-6 text-white/40 text-sm">
+            <div className="flex flex-wrap gap-4 sm:gap-6 text-white/40 text-sm">
               <Link href="/" className="hover:text-white/60">Home</Link>
               <Link href="/about" className="hover:text-white/60">About</Link>
-              <a href="#" className="hover:text-white/60">Privacy</a>
-              <a href="#" className="hover:text-white/60">Terms</a>
+              <Link href="/privacy" className="hover:text-white/60">Privacy</Link>
+              <Link href="/terms" className="hover:text-white/60">Terms</Link>
+              <Link href="/cookies" className="hover:text-white/60">Cookies</Link>
+              <Link href="/contact" className="hover:text-white/60">Contact</Link>
+              <Link href="/help" className="hover:text-white/60">Help</Link>
             </div>
           </nav>
         </div>

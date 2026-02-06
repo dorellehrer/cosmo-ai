@@ -291,8 +291,22 @@ export default function PricingPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-8 mt-16">
-        <div className="max-w-6xl mx-auto px-4 text-center text-white/40 text-sm">
-          <p>© 2026 Cosmo AI. All rights reserved.</p>
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+              <span className="text-sm">✨</span>
+            </div>
+            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+          </div>
+          <nav>
+            <div className="flex flex-wrap gap-4 sm:gap-6 text-white/40 text-sm">
+              <Link href="/privacy" className="hover:text-white/60">Privacy</Link>
+              <Link href="/terms" className="hover:text-white/60">Terms</Link>
+              <Link href="/cookies" className="hover:text-white/60">Cookies</Link>
+              <Link href="/contact" className="hover:text-white/60">Contact</Link>
+              <Link href="/help" className="hover:text-white/60">Help</Link>
+            </div>
+          </nav>
         </div>
       </footer>
     </div>

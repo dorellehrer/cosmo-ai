@@ -204,5 +204,153 @@
   "meta": {
     "title": "Cosmo AI - Din Personliga AI-Kompis",
     "description": "Möt Cosmo, din vänliga AI-assistent som faktiskt får saker gjorda. Smart hem, kalender, e-post och mer — allt på ett ställe."
+  },
+  "commandPalette": {
+    "commandPalette": "Kommandopalett",
+    "searchPlaceholder": "Sök kommandon, konversationer...",
+    "searchCommands": "Sök kommandon",
+    "noResults": "Inga resultat hittades",
+    "actions": "Åtgärder",
+    "navigation": "Navigering",
+    "conversations": "Konversationer",
+    "newChat": "Ny Chatt",
+    "startFreshConversation": "Starta en ny konversation",
+    "managePreferences": "Hantera dina inställningar",
+    "keyboardShortcuts": "Tangentbordsgenvägar",
+    "viewAllShortcuts": "Visa alla tangentbordsgenvägar",
+    "shortcutsPage": "Genvägssida",
+    "fullShortcutsList": "Fullständig lista över genvägar",
+    "goHome": "Gå hem",
+    "returnToLanding": "Återgå till startsidan",
+    "pricing": "Priser",
+    "viewPlans": "Visa prenumerationsplaner",
+    "about": "Om",
+    "learnAboutCosmo": "Läs mer om Cosmo",
+    "untitled": "Namnlös konversation",
+    "toNavigate": "för att navigera",
+    "toSelect": "för att välja",
+    "poweredBy": "Drivs av Cosmo ✨"
+  },
+  "shortcuts": {
+    "title": "Tangentbordsgenvägar",
+    "pageTitle": "Tangentbordsgenvägar",
+    "pageDescription": "Bemästra Cosmo med dessa tangentbordsgenvägar. Arbeta snabbare, skriv mindre.",
+    "close": "Stäng",
+    "general": "Allmänt",
+    "chatActions": "Chatt",
+    "navigationLabel": "Navigering",
+    "commandPaletteLabel": "Kommandopalett",
+    "openCommandPalette": "Öppna kommandopaletten",
+    "showShortcuts": "Visa denna hjälp",
+    "closeModal": "Stäng modal/dialog",
+    "newChat": "Ny chatt",
+    "toggleSidebar": "Växla sidofält",
+    "sendMessage": "Skicka meddelande",
+    "openSettings": "Öppna inställningar",
+    "openHelp": "Öppna genvägssidan",
+    "goHome": "Gå till hem",
+    "goChat": "Gå till chatt",
+    "previousItem": "Föregående objekt",
+    "nextItem": "Nästa objekt",
+    "selectItem": "Välj objekt",
+    "tip": "Profftips",
+    "tipText": "Tryck ⌘K var som helst för att snabbt söka och navigera",
+    "viewAllShortcuts": "Visa alla genvägar",
+    "backToChat": "Tillbaka till chatten",
+    "categories": {
+      "general": {
+        "title": "Allmänt",
+        "description": "Viktiga genvägar för dagligt bruk"
+      },
+      "chat": {
+        "title": "Chatt",
+        "description": "Genvägar för chattgränssnittet"
+      },
+      "navigation": {
+        "title": "Navigering",
+        "description": "Flytta runt i Cosmo snabbt"
+      },
+      "commandPalette": {
+        "title": "Kommandopalett",
+        "description": "Navigera inom kommandopaletten"
+      }
+    },
+    "allShortcuts": {
+      "cmdK": {
+        "keys": "⌘K",
+        "description": "Öppna kommandopaletten",
+        "detail": "Det snabbaste sättet att göra något i Cosmo. Sök konversationer, kör kommandon, navigera var som helst."
+      },
+      "question": {
+        "keys": "?",
+        "description": "Visa tangentbordsgenvägar",
+        "detail": "Öppnar denna genvägsmodal från var som helst i appen."
+      },
+      "escape": {
+        "keys": "Esc",
+        "description": "Stäng modal eller avbryt",
+        "detail": "Stänger alla öppna modaler, dialoger eller avbryter aktuell åtgärd."
+      },
+      "cmdN": {
+        "keys": "⌘N",
+        "description": "Ny chatt",
+        "detail": "Starta en ny konversation med Cosmo."
+      },
+      "cmdB": {
+        "keys": "⌘B",
+        "description": "Växla sidofält",
+        "detail": "Visa eller dölj konversationssidofältet."
+      },
+      "cmdEnter": {
+        "keys": "⌘↵",
+        "description": "Skicka meddelande",
+        "detail": "Skicka ditt meddelande till Cosmo."
+      },
+      "cmdComma": {
+        "keys": "⌘,",
+        "description": "Öppna inställningar",
+        "detail": "Snabb åtkomst till dina preferenser och kontoinställningar."
+      },
+      "cmdSlash": {
+        "keys": "⌘/",
+        "description": "Öppna hjälp",
+        "detail": "Navigera till den fullständiga genvägsdokumentationssidan."
+      },
+      "gH": {
+        "keys": "G H",
+        "description": "Gå till hem",
+        "detail": "Tryck G sedan H för att navigera till startsidan."
+      },
+      "gC": {
+        "keys": "G C",
+        "description": "Gå till chatt",
+        "detail": "Tryck G sedan C för att navigera till chatten."
+      },
+      "gS": {
+        "keys": "G S",
+        "description": "Gå till inställningar",
+        "detail": "Tryck G sedan S för att navigera till inställningar."
+      },
+      "gP": {
+        "keys": "G P",
+        "description": "Gå till priser",
+        "detail": "Tryck G sedan P för att visa prisplaner."
+      },
+      "arrowUp": {
+        "keys": "↑",
+        "description": "Föregående objekt",
+        "detail": "Flytta urvalet uppåt i kommandopaletten."
+      },
+      "arrowDown": {
+        "keys": "↓",
+        "description": "Nästa objekt",
+        "detail": "Flytta urvalet nedåt i kommandopaletten."
+      },
+      "enter": {
+        "keys": "↵",
+        "description": "Välj objekt",
+        "detail": "Kör det valda kommandot eller navigera till det valda objektet."
+      }
+    }
   }
 }
