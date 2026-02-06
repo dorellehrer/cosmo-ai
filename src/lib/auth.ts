@@ -1,10 +1,22 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -22,6 +34,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) {
           throw new Error("No account found with this email");
+        }
+
+        if (!user.passwordHash) {
+          throw new Error("Please sign in with your social account");
         }
 
         const isValid = await bcrypt.compare(
@@ -49,9 +65,67 @@ export const authOptions: NextAuthOptions = {
     error: "/sign-in",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      // Handle OAuth sign-in
+      if (account?.provider === "google" || account?.provider === "github") {
+        if (!user.email) {
+          return false;
+        }
+
+        // Check if user exists with this email
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (existingUser) {
+          // Link the social account to existing user
+          const updateData: { googleId?: string; githubId?: string; name?: string } = {};
+          
+          if (account.provider === "google" && !existingUser.googleId) {
+            updateData.googleId = account.providerAccountId;
+          } else if (account.provider === "github" && !existingUser.githubId) {
+            updateData.githubId = account.providerAccountId;
+          }
+          
+          // Update name if not set
+          if (!existingUser.name && user.name) {
+            updateData.name = user.name;
+          }
+
+          if (Object.keys(updateData).length > 0) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: updateData,
+            });
+          }
+        } else {
+          // Create new user from OAuth
+          await prisma.user.create({
+            data: {
+              email: user.email,
+              name: user.name,
+              passwordHash: "", // No password for OAuth users
+              googleId: account.provider === "google" ? account.providerAccountId : null,
+              githubId: account.provider === "github" ? account.providerAccountId : null,
+            },
+          });
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
+        // For OAuth, we need to get the actual database user ID
+        if (account?.provider === "google" || account?.provider === "github") {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+          }
+        } else {
+          token.id = user.id;
+        }
       }
       return token;
     },

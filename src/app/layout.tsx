@@ -1,9 +1,20 @@
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
+import { Inter } from 'next/font/google';
 import { Providers } from '@/components/Providers';
+import { PageTransition } from '@/components/PageTransition';
 import { isRtlLocale, type Locale } from '@/i18n/config';
 import './globals.css';
+
+// Optimized font loading with next/font
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -80,14 +91,21 @@ export default async function RootLayout({
   const isRtl = isRtlLocale(locale);
 
   return (
-    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'}>
+    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} className={inter.variable}>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon-512.svg" />
+        {/* Preconnect to external domains for performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased">
+      <body className={`${inter.className} antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers>
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
