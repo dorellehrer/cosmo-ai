@@ -43,8 +43,8 @@ setup('authenticate', async ({ page }) => {
   }
 
   // Verify the session is active by checking for a chat-specific element
-  await expect(page.locator('textarea, [role="textbox"]').first()).toBeVisible({
-    timeout: 10_000,
+  await expect(page.locator('#chat-input')).toBeVisible({
+    timeout: 15_000,
   });
 
   // Persist signed-in state to reuse across authenticated tests

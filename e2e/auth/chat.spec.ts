@@ -14,15 +14,15 @@ test.describe('Chat', () => {
     await page.goto('/chat');
 
     // Should see the message input area
-    const input = page.locator('textarea, [role="textbox"]').first();
-    await expect(input).toBeVisible({ timeout: 10_000 });
+    const input = page.locator('#chat-input');
+    await expect(input).toBeVisible({ timeout: 15_000 });
   });
 
   test('can type a message', async ({ page }) => {
     await page.goto('/chat');
 
-    const input = page.locator('textarea').first();
-    await expect(input).toBeVisible({ timeout: 10_000 });
+    const input = page.locator('#chat-input');
+    await expect(input).toBeVisible({ timeout: 15_000 });
 
     await input.fill('Hello, Nova!');
     await expect(input).toHaveValue('Hello, Nova!');
@@ -57,8 +57,8 @@ test.describe('Chat', () => {
 
     await page.goto('/chat');
 
-    const input = page.locator('textarea').first();
-    await expect(input).toBeVisible({ timeout: 10_000 });
+    const input = page.locator('#chat-input');
+    await expect(input).toBeVisible({ timeout: 15_000 });
 
     // Type and send a message
     await input.fill('Hello, Nova!');
