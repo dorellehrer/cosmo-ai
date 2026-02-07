@@ -16,18 +16,19 @@ setup('authenticate', async ({ page }) => {
   // Submit the form
   await page.locator('button[type="submit"]').click();
 
-  // Wait for either redirect to /chat OR an error alert (DB unreachable locally)
-  const redirected = await Promise.race([
-    page.waitForURL('/chat**', { timeout: 15_000 }).then(() => true),
-    page.locator('[role="alert"]').waitFor({ timeout: 15_000 }).then(() => false),
-  ]).catch(() => false);
+  // Wait for redirect to /chat — confirms successful login
+  try {
+    await page.waitForURL('**/chat**', { timeout: 15_000 });
+  } catch {
+    // Sign-in failed — capture the page state for debugging
+    const url = page.url();
+    const alertText = await page.locator('[role="alert"]').first().textContent().catch(() => 'none');
+    console.log(`Auth setup failed. URL: ${url}, Alert: ${alertText}`);
 
-  if (!redirected) {
-    // DB likely unreachable (RDS in VPC) — write empty auth state so
-    // dependent tests get skipped gracefully rather than crashing
+    // Write empty auth state so dependent tests skip gracefully
     fs.mkdirSync('.auth', { recursive: true });
     fs.writeFileSync(AUTH_FILE, JSON.stringify({ cookies: [], origins: [] }));
-    setup.skip(true, 'Sign-in failed (database likely unreachable in local dev)');
+    setup.skip(true, `Sign-in did not redirect to /chat. Current URL: ${url}`);
     return;
   }
 

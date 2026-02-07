@@ -14,7 +14,7 @@ test.describe('Authenticated navigation', () => {
     await page.goto('/sign-in');
 
     // Middleware should redirect authenticated users away from auth routes
-    await page.waitForURL('/chat**', { timeout: 10_000 });
+    await page.waitForURL('**/chat**', { timeout: 10_000 });
     expect(page.url()).toContain('/chat');
   });
 
@@ -23,7 +23,7 @@ test.describe('Authenticated navigation', () => {
   }) => {
     await page.goto('/sign-up');
 
-    await page.waitForURL('/chat**', { timeout: 10_000 });
+    await page.waitForURL('**/chat**', { timeout: 10_000 });
     expect(page.url()).toContain('/chat');
   });
 
@@ -34,7 +34,7 @@ test.describe('Authenticated navigation', () => {
     const settingsLink = page.locator('a[href="/settings"]').first();
     if (await settingsLink.isVisible()) {
       await settingsLink.click();
-      await page.waitForURL('/settings**');
+      await page.waitForURL('**/settings**');
       expect(page.url()).toContain('/settings');
     }
   });
