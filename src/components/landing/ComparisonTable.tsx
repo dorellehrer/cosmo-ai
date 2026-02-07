@@ -9,7 +9,7 @@ const features = [
   { name: 'Multiple AI models', nova: true, chatgpt: false, siri: false, alexa: false },
   { name: 'Privacy-first (no data selling)', nova: true, chatgpt: false, siri: true, alexa: false },
   { name: 'Works across all devices', nova: true, chatgpt: true, siri: 'partial', alexa: 'partial' },
-  { name: 'Free tier available', nova: true, chatgpt: false, siri: true, alexa: true },
+  { name: 'Free trial available', nova: true, chatgpt: false, siri: true, alexa: true },
   { name: 'Smart home control', nova: true, chatgpt: false, siri: true, alexa: true },
 ];
 

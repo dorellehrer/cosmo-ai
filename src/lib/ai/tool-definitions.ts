@@ -38,6 +38,9 @@ export const integrationDescriptions: Record<string, string> = {
   slack: 'Slack — you can search messages, list channels, send messages to channels (with optional thread replies), and send direct messages',
   hue: 'Philips Hue — you can list lights, control individual lights (on/off, brightness, color), list scenes, and activate scenes',
   sonos: 'Sonos — you can list speaker groups, control playback (play, pause, skip), and adjust volume',
+  whatsapp: 'WhatsApp — you can send messages to contacts and read recent messages from conversations',
+  discord: 'Discord — you can send messages to channels, read channel messages, and list servers',
+  phone: 'AI Phone Calls — you can make AI-powered voice calls to contacts and view recent call history with transcripts. Calls are billed at $0.10/minute',
 };
 
 export function buildSystemPrompt(connectedIntegrations: ConnectedIntegration[]): string {
@@ -95,6 +98,16 @@ export const TOOL_STATUS_LABELS: Record<string, string> = {
   sonos_playback_control: 'Controlling Sonos playback…',
   sonos_set_volume: 'Adjusting volume…',
   create_routine: 'Creating routine…',
+  // WhatsApp
+  whatsapp_send_message: 'Sending WhatsApp message…',
+  whatsapp_read_messages: 'Reading WhatsApp messages…',
+  // Discord
+  discord_send_message: 'Sending Discord message…',
+  discord_read_messages: 'Reading Discord messages…',
+  discord_list_servers: 'Loading Discord servers…',
+  // AI Phone Calls
+  call_contact: 'Initiating AI phone call…',
+  call_list_recent: 'Loading recent calls…',
 };
 
 // ── Integration Token Helpers ───────────────────
@@ -473,6 +486,124 @@ export function getIntegrationTools(connectedIntegrations: ConnectedIntegration[
               volume: { type: 'number', description: 'Volume level 0-100' },
             },
             required: ['groupId', 'volume'],
+          },
+        },
+      }
+    );
+  }
+
+  // ── WhatsApp Tools ──────────────────────────────
+  if (providers.has('whatsapp')) {
+    tools.push(
+      {
+        type: 'function',
+        function: {
+          name: 'whatsapp_send_message',
+          description: 'Send a WhatsApp message to a contact or group. Call this when the user wants to text someone on WhatsApp.',
+          parameters: {
+            type: 'object',
+            properties: {
+              to: { type: 'string', description: 'Phone number (with country code, e.g., "+46701234567") or contact name' },
+              message: { type: 'string', description: 'The message text to send' },
+            },
+            required: ['to', 'message'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'whatsapp_read_messages',
+          description: 'Read recent WhatsApp messages from a conversation. Call this when the user wants to check their WhatsApp messages.',
+          parameters: {
+            type: 'object',
+            properties: {
+              from: { type: 'string', description: 'Contact name or phone number to read messages from. Leave empty for all recent messages.' },
+              limit: { type: 'number', description: 'Number of messages to retrieve (default 10, max 50)' },
+            },
+          },
+        },
+      }
+    );
+  }
+
+  // ── Discord Tools ──────────────────────────────
+  if (providers.has('discord')) {
+    tools.push(
+      {
+        type: 'function',
+        function: {
+          name: 'discord_send_message',
+          description: 'Send a message to a Discord channel. Call this when the user wants to post in a Discord channel.',
+          parameters: {
+            type: 'object',
+            properties: {
+              channelId: { type: 'string', description: 'The Discord channel ID to send to' },
+              serverName: { type: 'string', description: 'Server name (for finding the channel if channelId is unknown)' },
+              channelName: { type: 'string', description: 'Channel name (for finding the channel if channelId is unknown)' },
+              message: { type: 'string', description: 'The message text to send' },
+            },
+            required: ['message'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'discord_read_messages',
+          description: 'Read recent messages from a Discord channel.',
+          parameters: {
+            type: 'object',
+            properties: {
+              channelId: { type: 'string', description: 'The Discord channel ID' },
+              serverName: { type: 'string', description: 'Server name (for finding the channel)' },
+              channelName: { type: 'string', description: 'Channel name (for finding the channel)' },
+              limit: { type: 'number', description: 'Number of messages to retrieve (default 10, max 50)' },
+            },
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'discord_list_servers',
+          description: 'List the Discord servers (guilds) the bot is a member of, along with their channels.',
+          parameters: { type: 'object', properties: {} },
+        },
+      }
+    );
+  }
+
+  // ── AI Phone Call Tools ──────────────────────────────
+  if (providers.has('phone')) {
+    tools.push(
+      {
+        type: 'function',
+        function: {
+          name: 'call_contact',
+          description: 'Initiate an AI-powered phone call to a contact. The AI will call the person, have a conversation on your behalf based on your instructions, and provide a transcript and summary afterward. Billed at $0.10/minute.',
+          parameters: {
+            type: 'object',
+            properties: {
+              contactName: { type: 'string', description: 'Name of the person to call' },
+              phoneNumber: { type: 'string', description: 'Phone number with country code (e.g., "+46701234567")' },
+              objective: { type: 'string', description: 'What the AI should accomplish during the call (e.g., "Schedule a dinner reservation for Friday at 7pm", "Ask about their business hours")' },
+              tone: { type: 'string', description: 'Communication style: "professional", "casual", or "friendly". Default: "friendly"' },
+            },
+            required: ['contactName', 'phoneNumber', 'objective'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'call_list_recent',
+          description: 'List recent AI phone calls with their status, duration, cost, and summaries.',
+          parameters: {
+            type: 'object',
+            properties: {
+              limit: { type: 'number', description: 'Number of recent calls to retrieve (default 10)' },
+            },
           },
         },
       }

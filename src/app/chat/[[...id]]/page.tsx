@@ -57,7 +57,7 @@ export default function ChatPage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
-  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [userPlan, setUserPlan] = useState<'expired' | 'trial' | 'pro'>('expired');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1281,11 +1281,11 @@ export default function ChatPage() {
               >
                 <option value="gpt-4o-mini" className="bg-slate-800">GPT-4o Mini</option>
                 <option value="claude-haiku-4-5-20251001" className="bg-slate-800">Claude Haiku</option>
-                <option value="gpt-4o" className="bg-slate-800" disabled={userPlan !== 'pro'}>
-                  GPT-4o {userPlan !== 'pro' ? '(Pro)' : ''}
+                <option value="gpt-4o" className="bg-slate-800" disabled={userPlan === 'expired'}>
+                  GPT-4o {userPlan === 'expired' ? '(Pro)' : ''}
                 </option>
-                <option value="claude-sonnet-4-5-20250929" className="bg-slate-800" disabled={userPlan !== 'pro'}>
-                  Claude Sonnet {userPlan !== 'pro' ? '(Pro)' : ''}
+                <option value="claude-sonnet-4-5-20250929" className="bg-slate-800" disabled={userPlan === 'expired'}>
+                  Claude Sonnet {userPlan === 'expired' ? '(Pro)' : ''}
                 </option>
               </select>
             </div>

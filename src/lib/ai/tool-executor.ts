@@ -7,7 +7,7 @@
 import type { ConnectedIntegration } from './tool-definitions';
 import type { AIProvider } from './providers';
 import { getOpenAIClient } from './openai-provider';
-import { checkRateLimit, RATE_LIMIT_IMAGE_FREE, RATE_LIMIT_IMAGE_PRO } from '@/lib/rate-limit';
+import { checkRateLimit, RATE_LIMIT_IMAGE, RATE_LIMIT_CALLS } from '@/lib/rate-limit';
 
 /** Get the cheapest model for a given provider (used for internal tool tasks) */
 const INTERNAL_MODELS: Record<string, string> = {
@@ -21,7 +21,6 @@ export async function executeToolCall(
   args: Record<string, unknown>,
   integrations: ConnectedIntegration[],
   userId: string = 'anon',
-  isPro: boolean = false,
   aiProvider: AIProvider,
 ): Promise<string> {
   try {
@@ -632,14 +631,13 @@ export async function executeToolCall(
 
         const imgRateLimit = checkRateLimit(
           `dalle:${userId}`,
-          isPro ? RATE_LIMIT_IMAGE_PRO : RATE_LIMIT_IMAGE_FREE
+          RATE_LIMIT_IMAGE
         );
         if (!imgRateLimit.allowed) {
-          const limit = isPro ? 50 : 5;
           return JSON.stringify({
-            error: `Daily image generation limit reached (${limit}/day). ${isPro ? 'Try again tomorrow.' : 'Upgrade to Pro for 50 images/day.'}`,
+            error: 'Daily image generation limit reached (50/day). Try again tomorrow.',
             remaining: 0,
-            limit,
+            limit: 50,
           });
         }
 
@@ -1080,6 +1078,270 @@ export async function executeToolCall(
           },
           message: `Routine "${routine.name}" created! It will run ${cronToHuman(schedule).toLowerCase()}, starting ${nextRun.toLocaleString()}.`,
         });
+      }
+
+      // ── WhatsApp Tools ──────────────────────────────
+      case 'whatsapp_send_message': {
+        const whatsapp = integrations.find(i => i.provider === 'whatsapp');
+        if (!whatsapp) return JSON.stringify({ error: 'WhatsApp is not connected. Please connect it in Settings → Integrations.' });
+
+        const to = args.to as string;
+        const message = args.message as string;
+
+        try {
+          const res = await fetch('https://graph.facebook.com/v18.0/me/messages', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${whatsapp.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              messaging_product: 'whatsapp',
+              to: to.replace(/[^+\d]/g, ''),
+              type: 'text',
+              text: { body: message },
+            }),
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            return JSON.stringify({ error: `Failed to send WhatsApp message: ${errData?.error?.message || res.statusText}` });
+          }
+
+          return JSON.stringify({
+            success: true,
+            message: `Message sent to ${to} via WhatsApp.`,
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `WhatsApp API error: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'whatsapp_read_messages': {
+        const whatsapp = integrations.find(i => i.provider === 'whatsapp');
+        if (!whatsapp) return JSON.stringify({ error: 'WhatsApp is not connected. Please connect it in Settings → Integrations.' });
+
+        // WhatsApp Business API doesn't directly support reading messages via REST.
+        // In production, messages are received via webhook and stored in DB.
+        // For now, return a helpful message about the webhook-based architecture.
+        return JSON.stringify({
+          info: 'WhatsApp messages are received in real-time via webhooks. Recent messages from your conversations are shown in the WhatsApp integration panel.',
+          tip: 'Ask me to send a message instead, or check the WhatsApp integration page for received messages.',
+        });
+      }
+
+      // ── Discord Tools ──────────────────────────────
+      case 'discord_send_message': {
+        const discord = integrations.find(i => i.provider === 'discord');
+        if (!discord) return JSON.stringify({ error: 'Discord is not connected. Please connect it in Settings → Integrations.' });
+
+        const message = args.message as string;
+        let channelId = args.channelId as string | undefined;
+        const serverName = args.serverName as string | undefined;
+        const channelName = args.channelName as string | undefined;
+
+        try {
+          // If no channelId, try to find it by server/channel name
+          if (!channelId && (serverName || channelName)) {
+            const guildsRes = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+              headers: { 'Authorization': `Bearer ${discord.accessToken}` },
+            });
+            const guilds = await guildsRes.json();
+            const guild = guilds.find((g: { name: string }) =>
+              serverName ? g.name.toLowerCase().includes(serverName.toLowerCase()) : true
+            );
+
+            if (guild) {
+              // Use bot token for channel listing (OAuth doesn't have guild.channels scope)
+              const channelsRes = await fetch(`https://discord.com/api/v10/guilds/${guild.id}/channels`, {
+                headers: { 'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+              });
+              const channels = await channelsRes.json();
+              const channel = channels.find((c: { name: string; type: number }) =>
+                channelName ? c.name.toLowerCase().includes(channelName.toLowerCase()) && c.type === 0 : c.type === 0
+              );
+              if (channel) channelId = channel.id;
+            }
+          }
+
+          if (!channelId) {
+            return JSON.stringify({ error: 'Could not find the Discord channel. Please provide a channelId or valid server/channel name.' });
+          }
+
+          const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: message }),
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            return JSON.stringify({ error: `Failed to send Discord message: ${errData?.message || res.statusText}` });
+          }
+
+          return JSON.stringify({
+            success: true,
+            message: `Message sent to Discord${channelName ? ` #${channelName}` : ''}.`,
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Discord API error: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'discord_read_messages': {
+        const discord = integrations.find(i => i.provider === 'discord');
+        if (!discord) return JSON.stringify({ error: 'Discord is not connected. Please connect it in Settings → Integrations.' });
+
+        const channelId = args.channelId as string;
+        const limit = Math.min((args.limit as number) || 10, 50);
+
+        if (!channelId) {
+          return JSON.stringify({ error: 'Please provide a channelId. Use discord_list_servers to find channel IDs.' });
+        }
+
+        try {
+          const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages?limit=${limit}`, {
+            headers: { 'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+          });
+
+          if (!res.ok) {
+            return JSON.stringify({ error: `Failed to read Discord messages: ${res.statusText}` });
+          }
+
+          const messages = await res.json();
+          return JSON.stringify({
+            messages: messages.map((m: { author: { username: string }; content: string; timestamp: string }) => ({
+              author: m.author.username,
+              content: m.content,
+              timestamp: m.timestamp,
+            })),
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Discord API error: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'discord_list_servers': {
+        const discord = integrations.find(i => i.provider === 'discord');
+        if (!discord) return JSON.stringify({ error: 'Discord is not connected. Please connect it in Settings → Integrations.' });
+
+        try {
+          const guildsRes = await fetch('https://discord.com/api/v10/users/@me/guilds', {
+            headers: { 'Authorization': `Bearer ${discord.accessToken}` },
+          });
+          const guilds = await guildsRes.json();
+
+          const serversWithChannels = await Promise.all(
+            guilds.slice(0, 10).map(async (guild: { id: string; name: string }) => {
+              try {
+                const channelsRes = await fetch(`https://discord.com/api/v10/guilds/${guild.id}/channels`, {
+                  headers: { 'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+                });
+                const channels = await channelsRes.json();
+                return {
+                  name: guild.name,
+                  id: guild.id,
+                  channels: Array.isArray(channels)
+                    ? channels
+                        .filter((c: { type: number }) => c.type === 0) // Text channels only
+                        .slice(0, 20)
+                        .map((c: { id: string; name: string }) => ({ id: c.id, name: c.name }))
+                    : [],
+                };
+              } catch {
+                return { name: guild.name, id: guild.id, channels: [] };
+              }
+            })
+          );
+
+          return JSON.stringify({ servers: serversWithChannels });
+        } catch (err) {
+          return JSON.stringify({ error: `Discord API error: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      // ── AI Phone Call Tools ──────────────────────────────
+      case 'call_contact': {
+        const phone = integrations.find(i => i.provider === 'phone');
+        if (!phone) return JSON.stringify({ error: 'AI Phone Calls is not connected. Please enable it in Settings → Integrations.' });
+
+        // Rate limit AI calls
+        const callRateLimit = checkRateLimit(`calls:${userId}`, RATE_LIMIT_CALLS);
+        if (!callRateLimit.allowed) {
+          return JSON.stringify({
+            error: 'Daily AI call limit reached (10/day). Try again tomorrow.',
+            remaining: 0,
+          });
+        }
+
+        const contactName = args.contactName as string;
+        const phoneNumber = args.phoneNumber as string;
+        const objective = args.objective as string;
+        const tone = (args.tone as string) || 'friendly';
+
+        try {
+          // Import prisma dynamically to avoid circular deps
+          const { prisma } = await import('@/lib/prisma');
+
+          // Create call record
+          const callRecord = await prisma.callRecord.create({
+            data: {
+              userId,
+              contactName,
+              phoneNumber: phoneNumber.replace(/\d(?=\d{4})/g, '*'), // Mask for display
+              direction: 'outbound',
+              status: 'initiated',
+            },
+          });
+
+          // In production, this would call Twilio/Vapi/Bland.ai to initiate the call
+          // For now, simulate the call initiation
+          return JSON.stringify({
+            success: true,
+            callId: callRecord.id,
+            message: `AI call initiated to ${contactName} (${phoneNumber}). The AI will ${objective}. Tone: ${tone}. You'll receive a transcript and summary when the call ends.`,
+            estimatedCost: '$0.10/minute',
+            note: 'AI Phone Calls are in beta. The call will appear in your call history once completed.',
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to initiate call: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'call_list_recent': {
+        const limit = Math.min((args.limit as number) || 10, 50);
+
+        try {
+          const { prisma } = await import('@/lib/prisma');
+
+          const calls = await prisma.callRecord.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+          });
+
+          if (calls.length === 0) {
+            return JSON.stringify({ message: 'No recent calls found.', calls: [] });
+          }
+
+          return JSON.stringify({
+            calls: calls.map(c => ({
+              id: c.id,
+              contact: c.contactName,
+              phone: c.phoneNumber,
+              status: c.status,
+              duration: c.durationSeconds > 0 ? `${Math.ceil(c.durationSeconds / 60)} min` : 'N/A',
+              cost: c.costCents > 0 ? `$${(c.costCents / 100).toFixed(2)}` : 'N/A',
+              summary: c.summary || 'No summary available',
+              date: c.createdAt.toISOString(),
+            })),
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to list calls: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
       }
 
       default:

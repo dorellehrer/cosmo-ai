@@ -99,8 +99,8 @@ export const RATE_LIMIT_AUTH = { maxRequests: 5, windowSeconds: 60 };
 /** 3 requests per minute — agent provisioning (very expensive) */
 export const RATE_LIMIT_AGENT_PROVISION = { maxRequests: 3, windowSeconds: 60 };
 
-/** 5 images per day — DALL-E for free users (expensive: ~$0.04/image) */
-export const RATE_LIMIT_IMAGE_FREE = { maxRequests: 5, windowSeconds: 86400 };
+/** 50 images per day — DALL-E for pro/trial users */
+export const RATE_LIMIT_IMAGE = { maxRequests: 50, windowSeconds: 86400 };
 
-/** 50 images per day — DALL-E for pro users */
-export const RATE_LIMIT_IMAGE_PRO = { maxRequests: 50, windowSeconds: 86400 };
+/** 10 AI calls per day — phone calls (very expensive: $0.10/min) */
+export const RATE_LIMIT_CALLS = { maxRequests: 10, windowSeconds: 86400 };

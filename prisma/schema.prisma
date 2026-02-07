@@ -32,6 +32,10 @@ model User {
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
 
+  // Trial system (3-day Pro trial for new users)
+  trialEnd         DateTime? // When the trial expires
+  freeTrialUsed    Boolean   @default(false) // Prevent trial abuse on re-signup
+
   // AI model preference
   preferredModel   String    @default("gpt-4o-mini")
 
@@ -48,6 +52,7 @@ model User {
   integrations     UserIntegration[]
   pushSubscriptions PushSubscription[]
   routines         Routine[]
+  callRecords      CallRecord[]
 }
 
 // Push notification subscriptions (Web Push API)
@@ -70,7 +75,7 @@ model PushSubscription {
 model UserIntegration {
   id                String   @id @default(cuid())
   userId            String
-  provider          String   // google | spotify | notion | slack | hue | sonos
+  provider          String   // google | spotify | notion | slack | hue | sonos | whatsapp | discord | phone
   providerAccountId String?  // e.g. Google sub ID, Spotify user ID
   email             String?  // Connected account email/display
 
@@ -317,4 +322,28 @@ model RoutineExecution {
 
   @@index([routineId])
   @@index([routineId, startedAt])
+}
+
+// ──────────────────────────────────────────────
+// AI Phone Calls (per-minute billing)
+// ──────────────────────────────────────────────
+
+model CallRecord {
+  id             String    @id @default(cuid())
+  userId         String
+  contactName    String    // Who was called
+  phoneNumber    String?   // Masked phone number for display
+  direction      String    @default("outbound") // outbound | inbound
+  status         String    @default("initiated") // initiated | ringing | in_progress | completed | failed
+  durationSeconds Int      @default(0)
+  costCents      Int       @default(0) // Cost in cents ($0.10/min = 10 cents/min)
+  summary        String?   @db.Text // AI-generated call summary
+  transcript     String?   @db.Text // Full call transcript
+  createdAt      DateTime  @default(now())
+  endedAt        DateTime?
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
 }

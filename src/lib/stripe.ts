@@ -33,9 +33,15 @@ export const stripe: Stripe = new Proxy({} as Stripe, {
 
 // Tier configuration
 export const TIERS = {
-  free: {
-    name: 'Free',
-    messagesPerDay: 50,
+  trial: {
+    name: 'Trial',
+    messagesPerDay: Infinity, // Full Pro access during trial
+    price: 0,
+    priceId: null,
+  },
+  expired: {
+    name: 'Expired',
+    messagesPerDay: 0, // No access after trial expires
     price: 0,
     priceId: null,
   },
@@ -49,21 +55,37 @@ export const TIERS = {
 
 export type TierName = keyof typeof TIERS;
 
-// Get user's current tier based on subscription status
+/** Duration of the free trial in milliseconds (3 days) */
+export const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
+
+/** AI call cost: $0.10 per minute (10 cents) */
+export const CALL_COST_PER_MINUTE_CENTS = 10;
+
+// Get user's current tier based on subscription and trial status
 export function getUserTier(
   stripeSubscriptionId: string | null,
-  stripeCurrentPeriodEnd: Date | null
+  stripeCurrentPeriodEnd: Date | null,
+  trialEnd?: Date | null
 ): TierName {
-  if (!stripeSubscriptionId || !stripeCurrentPeriodEnd) {
-    return 'free';
+  // Active Stripe subscription = Pro
+  if (stripeSubscriptionId && stripeCurrentPeriodEnd) {
+    if (new Date() <= stripeCurrentPeriodEnd) {
+      return 'pro';
+    }
   }
-  
-  // Check if subscription is still active
-  if (new Date() > stripeCurrentPeriodEnd) {
-    return 'free';
+
+  // Active trial = Trial (full Pro access)
+  if (trialEnd && new Date() <= trialEnd) {
+    return 'trial';
   }
-  
-  return 'pro';
+
+  // No subscription, no trial or trial expired
+  return 'expired';
+}
+
+/** Check if user has Pro-level access (either paid or trial) */
+export function hasProAccess(tier: TierName): boolean {
+  return tier === 'pro' || tier === 'trial';
 }
 
 // Check if user has reached their daily limit
@@ -71,6 +93,7 @@ export function hasReachedLimit(
   tier: TierName,
   currentUsage: number
 ): boolean {
+  if (tier === 'expired') return true; // Expired users can't send messages
   const limit = TIERS[tier].messagesPerDay;
   return currentUsage >= limit;
 }
@@ -80,9 +103,31 @@ export function getRemainingMessages(
   tier: TierName,
   currentUsage: number
 ): number {
+  if (tier === 'expired') return 0;
   const limit = TIERS[tier].messagesPerDay;
   if (limit === Infinity) return Infinity;
   return Math.max(0, limit - currentUsage);
+}
+
+/** Get trial time remaining as a human-readable string */
+export function getTrialTimeRemaining(trialEnd: Date | null): string | null {
+  if (!trialEnd) return null;
+  const now = new Date();
+  const diff = trialEnd.getTime() - now.getTime();
+  if (diff <= 0) return null;
+  
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  const remainingHours = hours % 24;
+  
+  if (days > 0) {
+    return `${days}d ${remainingHours}h remaining`;
+  }
+  if (hours > 0) {
+    return `${hours}h remaining`;
+  }
+  const minutes = Math.floor(diff / (1000 * 60));
+  return `${minutes}m remaining`;
 }
 
 // Format price for display

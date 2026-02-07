@@ -22,7 +22,7 @@ const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Is Nova free to use?',
-        a: 'Yes! Nova offers a free tier with 50 messages per day. For unlimited usage and premium features, you can upgrade to our Pro plan at $20/month.',
+        a: 'Yes! Nova offers a 3-day free trial with full Pro access — unlimited messages, all integrations, and AI phone calls. After the trial, continue with Pro at $20/month.',
       },
       {
         q: 'What devices can I use Nova on?',

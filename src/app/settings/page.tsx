@@ -60,7 +60,7 @@ export default function SettingsPage() {
     return !!(window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
   });
   const [name, setName] = useState('');
-  const [plan, setPlan] = useState('free');
+  const [plan, setPlan] = useState('expired');
   const [preferredModel, setPreferredModel] = useState('gpt-4o-mini');
   const [profileLoading, setProfileLoading] = useState(true);
   const [savingName, setSavingName] = useState(false);
@@ -205,8 +205,8 @@ export default function SettingsPage() {
   };
 
   const AI_MODELS = [
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', tier: 'free', description: 'Fast and efficient for everyday tasks' },
-    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku', provider: 'Anthropic', tier: 'free', description: 'Quick and lightweight' },
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', tier: 'standard', description: 'Fast and efficient for everyday tasks' },
+    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku', provider: 'Anthropic', tier: 'standard', description: 'Quick and lightweight' },
     { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', tier: 'pro', description: 'Most capable OpenAI model' },
     { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet', provider: 'Anthropic', tier: 'pro', description: 'Excellent for writing and analysis' },
   ];
@@ -271,7 +271,7 @@ export default function SettingsPage() {
                   className="w-full bg-transparent text-lg sm:text-xl font-semibold text-white placeholder-white/40 focus:outline-none border-b border-transparent focus:border-violet-500 transition-colors truncate disabled:opacity-50"
                 />
                 <p className="text-white/40 text-xs sm:text-sm mt-1">
-                  {savingName ? 'Saving...' : plan === 'pro' ? t('proPlan') ?? 'Pro Plan' : t('freePlan')}
+                  {savingName ? 'Saving...' : plan === 'pro' ? t('proPlan') ?? 'Pro Plan' : plan === 'trial' ? 'Trial (Pro Access)' : 'Upgrade Required'}
                 </p>
               </div>
             </div>
@@ -303,7 +303,7 @@ export default function SettingsPage() {
             <p className="text-white/60 text-sm mb-4">Choose which AI model Nova uses for conversations.</p>
             <div className="grid sm:grid-cols-2 gap-3">
               {AI_MODELS.map((model) => {
-                const isProLocked = model.tier === 'pro' && plan !== 'pro';
+                const isProLocked = model.tier === 'pro' && plan !== 'pro' && plan !== 'trial';
                 return (
                   <button
                     key={model.id}
@@ -324,7 +324,7 @@ export default function SettingsPage() {
                           ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                           : 'bg-green-500/20 text-green-400 border border-green-500/30'
                       }`}>
-                        {model.tier === 'pro' ? 'Pro' : 'Free'}
+                        {model.tier === 'pro' ? 'Pro' : 'Included'}
                       </span>
                     </div>
                     <p className="text-xs text-white/40">{model.provider} — {model.description}</p>

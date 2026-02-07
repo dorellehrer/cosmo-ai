@@ -21,7 +21,7 @@ const faqs = [
   {
     question: 'Is there a free plan?',
     answer:
-      "Yes! Nova's free tier includes basic integrations and up to 50 messages per day. Our Pro plan ($20/month) unlocks unlimited messages and all integrations.",
+      "Yes! Nova offers a 3-day free trial with full Pro access — unlimited messages, all integrations, and AI phone calls. After the trial, continue with Pro at $20/month).",
   },
   {
     question: 'Can Nova learn my preferences?',
@@ -36,7 +36,7 @@ const faqs = [
   {
     question: 'How do I get started?',
     answer:
-      "Just sign up — it takes 30 seconds. No credit card required for the free tier. Connect your first service (we recommend starting with email or calendar), and start chatting. Nova will guide you through setup and suggest helpful automations.",
+      "Just sign up — it takes 30 seconds and you get a 3-day free trial with full Pro access. No credit card required. Connect your first service (we recommend starting with email or calendar), and start chatting. Nova will guide you through setup and suggest helpful automations.",
   },
   {
     question: 'Can I use Nova for my team or business?',

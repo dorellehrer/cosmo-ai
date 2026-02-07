@@ -6,7 +6,7 @@ export interface ModelConfig {
   id: string;
   name: string;
   provider: 'openai' | 'anthropic';
-  tier: 'free' | 'pro';
+  tier: 'standard' | 'pro';
   description: string;
   maxTokens: number;
 }
@@ -16,7 +16,7 @@ export const MODELS: Record<string, ModelConfig> = {
     id: 'gpt-4o-mini',
     name: 'GPT-4o Mini',
     provider: 'openai',
-    tier: 'free',
+    tier: 'standard',
     description: 'Fast and efficient for everyday tasks',
     maxTokens: 4096,
   },
@@ -40,7 +40,7 @@ export const MODELS: Record<string, ModelConfig> = {
     id: 'claude-haiku-4-5-20251001',
     name: 'Claude Haiku',
     provider: 'anthropic',
-    tier: 'free',
+    tier: 'standard',
     description: 'Quick and lightweight',
     maxTokens: 4096,
   },

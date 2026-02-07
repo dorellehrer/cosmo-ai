@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getUserTier, TIERS, getRemainingMessages } from '@/lib/stripe';
+import { getUserTier, TIERS, getRemainingMessages, getTrialTimeRemaining } from '@/lib/stripe';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // Get today's date in YYYY-MM-DD format
@@ -54,9 +54,10 @@ export async function GET() {
     });
 
     const currentUsage = usageRecord?.count || 0;
-    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd);
+    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd);
     const tierConfig = TIERS[tier];
     const remaining = getRemainingMessages(tier, currentUsage);
+    const trialRemaining = getTrialTimeRemaining(user.trialEnd);
 
     return NextResponse.json({
       tier,
@@ -65,6 +66,8 @@ export async function GET() {
       used: currentUsage,
       remaining,
       subscriptionEnd: user.stripeCurrentPeriodEnd,
+      trialEnd: user.trialEnd,
+      trialRemaining,
     });
   } catch (error) {
     console.error('Usage API error:', error);

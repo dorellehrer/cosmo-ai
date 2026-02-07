@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { TRIAL_DURATION_MS } from "./stripe";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -114,7 +115,7 @@ export const authOptions: NextAuthOptions = {
             });
           }
         } else {
-          // Create new user from OAuth
+          // Create new user from OAuth — start 3-day Pro trial
           await prisma.user.create({
             data: {
               email: user.email,
@@ -122,6 +123,8 @@ export const authOptions: NextAuthOptions = {
               passwordHash: null, // No password for OAuth users
               googleId: account.provider === "google" ? account.providerAccountId : null,
               githubId: account.provider === "github" ? account.providerAccountId : null,
+              trialEnd: new Date(Date.now() + TRIAL_DURATION_MS),
+              freeTrialUsed: true,
             },
           });
         }

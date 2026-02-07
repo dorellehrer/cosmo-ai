@@ -59,8 +59,6 @@ export async function POST(request: Request) {
         // Get user's integrations for tool execution
         const integrations = await getConnectedIntegrations(routine.userId);
         const provider = createProvider('openai'); // Routines always use OpenAI (cheapest)
-        const isPro = !!routine.user.stripeSubscriptionId &&
-          (!routine.user.stripeCurrentPeriodEnd || routine.user.stripeCurrentPeriodEnd > now);
 
         let previousResult = '';
         const stepResults: Array<{ tool: string; result: string }> = [];
@@ -79,7 +77,6 @@ export async function POST(request: Request) {
             args,
             integrations,
             routine.userId,
-            isPro,
             provider,
           );
 

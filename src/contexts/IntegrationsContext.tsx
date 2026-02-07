@@ -75,6 +75,30 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     color: 'from-purple-500 to-pink-500',
     services: ['Messages', 'Search', 'Channels', 'DMs'],
   },
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    description: 'Send & read messages via AI',
+    icon: '📱',
+    color: 'from-green-400 to-green-600',
+    services: ['Send Messages', 'Read Messages', 'Contacts', 'Group Chats'],
+  },
+  {
+    id: 'discord',
+    name: 'Discord',
+    description: 'Servers, channels & DMs',
+    icon: '🎮',
+    color: 'from-indigo-500 to-violet-600',
+    services: ['Send Messages', 'Read Messages', 'Servers', 'Channels'],
+  },
+  {
+    id: 'phone',
+    name: 'AI Phone Calls',
+    description: 'AI-powered voice calls • $0.10/min',
+    icon: '📞',
+    color: 'from-emerald-500 to-teal-600',
+    services: ['Make Calls', 'Schedule Calls', 'Call Summaries', 'Transcripts'],
+  },
 ];
 
 const IntegrationsContext = createContext<IntegrationsContextType | undefined>(undefined);

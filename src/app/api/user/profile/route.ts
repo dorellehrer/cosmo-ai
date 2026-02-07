@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { getUserTier } from '@/lib/stripe';
 import { MODELS, DEFAULT_MODEL } from '@/lib/ai/models';
 
 // GET /api/user/profile — fetch current user profile
@@ -32,6 +33,7 @@ export async function GET() {
         systemPrompt: true,
         stripeSubscriptionId: true,
         stripeCurrentPeriodEnd: true,
+        trialEnd: true,
       },
     });
 
@@ -39,16 +41,14 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const isPro =
-      !!user.stripeSubscriptionId &&
-      (!user.stripeCurrentPeriodEnd || user.stripeCurrentPeriodEnd > new Date());
+    const plan = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd);
 
     return NextResponse.json({
       id: user.id,
       name: user.name,
       email: user.email,
       createdAt: user.createdAt,
-      plan: isPro ? 'pro' : 'free',
+      plan,
       preferredModel: user.preferredModel || DEFAULT_MODEL,
       systemPrompt: user.systemPrompt || '',
     });

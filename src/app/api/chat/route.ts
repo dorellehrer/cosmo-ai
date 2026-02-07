@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages } from "@/lib/stripe";
+import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages, hasProAccess } from "@/lib/stripe";
 import { checkRateLimit, RATE_LIMIT_CHAT } from '@/lib/rate-limit';
 import {
   getConnectedIntegrations,
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
 
     // Check usage limits
     const today = getToday();
-    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd);
+    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd);
 
     const usageRecord = await prisma.usageRecord.findUnique({
       where: {
@@ -127,15 +127,18 @@ export async function POST(req: Request) {
     const currentUsage = usageRecord?.count || 0;
 
     if (hasReachedLimit(tier, currentUsage)) {
+      const isExpired = tier === 'expired';
       return new Response(
         JSON.stringify({
-          error: 'Daily message limit reached',
-          code: 'LIMIT_REACHED',
+          error: isExpired
+            ? 'Your trial has expired. Subscribe to Pro to continue using Nova.'
+            : 'Daily message limit reached',
+          code: isExpired ? 'TRIAL_EXPIRED' : 'LIMIT_REACHED',
           limit: TIERS[tier].messagesPerDay,
           used: currentUsage,
           tier,
         }),
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
+        { status: isExpired ? 403 : 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -235,8 +238,8 @@ export async function POST(req: Request) {
     const modelId = requestModel || conversation.model || user.preferredModel || DEFAULT_MODEL;
     const modelConfig = getModelConfig(modelId);
 
-    // Block Pro models for free users
-    if (modelConfig.tier === 'pro' && tier !== 'pro') {
+    // Block Pro models for expired users (trial + pro users have access)
+    if (modelConfig.tier === 'pro' && !hasProAccess(tier)) {
       return new Response(
         JSON.stringify({ error: 'This model requires a Pro subscription', code: 'PRO_REQUIRED' }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -276,7 +279,6 @@ export async function POST(req: Request) {
     let toolRound = 0;
     const MAX_TOOL_ROUNDS = 3;
     const toolStatusEvents: string[] = [];
-    const isPro = tier === 'pro';
 
     while (toolRound < MAX_TOOL_ROUNDS) {
       const toolResponse = await provider.chat({
@@ -300,7 +302,6 @@ export async function POST(req: Request) {
             toolCall.arguments,
             connectedIntegrations,
             user.id,
-            isPro,
             provider,
           );
           aiMessages.push({

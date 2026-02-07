@@ -140,13 +140,13 @@ export async function POST(req: NextRequest) {
           await prisma.user.updateMany({
             where: { stripeCustomerId: customerId },
             data: {
-              // Clear subscription so user falls back to free tier
+              // Clear subscription so user loses pro access
               stripeSubscriptionId: null,
               stripePriceId: null,
               stripeCurrentPeriodEnd: null,
             },
           });
-          console.log(`Payment failed — reverted user (customer ${customerId}) to free tier`);
+          console.log(`Payment failed — reverted user (customer ${customerId}) to expired`);
         }
         break;
       }
