@@ -64,6 +64,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/dotenv ./node_modules/dotenv
+
+# Create .bin symlink so npx/prisma CLI resolves
+RUN mkdir -p node_modules/.bin && ln -s ../prisma/build/index.js node_modules/.bin/prisma && chown -R nextjs:nodejs node_modules/.bin
 
 USER nextjs
 
@@ -77,4 +81,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD node -e "const http = require('http'); const req = http.get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.setTimeout(3000, () => { req.destroy(); process.exit(1); });"
 
 # Apply pending migrations then start the server
-CMD ["sh", "-c", "npx prisma migrate deploy 2>&1 || echo 'Migration skipped' && node server.js"]
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy 2>&1; node server.js"]
