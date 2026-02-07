@@ -7,6 +7,7 @@ on:
     branches: [main]
 
 env:
+  BASE_URL: https://www.heynova.se
   TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
   TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
 
@@ -30,6 +31,18 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
+
+      - name: Wait for production to be ready
+        run: |
+          for i in $(seq 1 10); do
+            if curl -sf "$BASE_URL" > /dev/null; then
+              echo "Production is up"
+              exit 0
+            fi
+            echo "Waiting for production... attempt $i"
+            sleep 5
+          done
+          echo "Production not reachable" && exit 1
 
       - name: Run Playwright tests
         run: npx playwright test
