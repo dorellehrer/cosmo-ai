@@ -3,13 +3,13 @@
 const badges = [
   {
     icon: '🔒',
-    title: 'End-to-end encryption',
-    description: 'Your data is encrypted in transit and at rest',
+    title: 'AES-256 encryption',
+    description: 'Your integration tokens are encrypted with AES-256-GCM',
   },
   {
     icon: '🛡️',
-    title: 'SOC 2 Type II',
-    description: 'Enterprise-grade security certified',
+    title: 'Secure OAuth2',
+    description: 'Industry-standard OAuth2 for all integrations',
   },
   {
     icon: '🚫',
@@ -18,18 +18,16 @@ const badges = [
   },
   {
     icon: '🔐',
-    title: 'GDPR compliant',
-    description: 'Full data rights and portability',
+    title: 'Security headers',
+    description: 'CSP, HSTS, and strict security policies enforced',
   },
 ];
 
 const integrations = [
   { name: 'Google', icon: '🔵' },
-  { name: 'Microsoft', icon: '🟦' },
-  { name: 'Apple', icon: '⚪' },
   { name: 'Slack', icon: '🟣' },
   { name: 'Spotify', icon: '🟢' },
-  { name: 'Philips Hue', icon: '💡' },
+  { name: 'Notion', icon: '⚪' },
 ];
 
 export function TrustBadges() {
@@ -67,7 +65,7 @@ export function TrustBadges() {
       {/* Trusted integrations */}
       <div className="text-center">
         <p className="text-white/40 text-sm uppercase tracking-wider mb-6">
-          Trusted integrations with
+          Works with
         </p>
         <div className="flex flex-wrap justify-center gap-8 items-center">
           {integrations.map((integration) => (

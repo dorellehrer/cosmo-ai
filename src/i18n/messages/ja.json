@@ -30,7 +30,7 @@
     "watchDemo": "デモを見る",
     "featuresHeading": "必要なものすべてが、会話ひとつで",
     "ctaHeading": "新しいAIパートナーに会う準備はできましたか？",
-    "ctaDescription": "Novaを日常の一部にしている何千人もの人々に加わりましょう。無料で始められます。",
+    "ctaDescription": "今日Novaを試して、AIがあなたのために何ができるか体験してみてください。無料で始められます。",
     "getStartedFree": "無料で始める",
     "features": {
       "email": {
@@ -63,7 +63,7 @@
     "welcomeBack": "おかえりなさい",
     "signInToContinue": "Novaを続けるにはログインしてください",
     "createAccount": "アカウントを作成",
-    "joinThousands": "毎日Novaを使っている何千人もの人々に加わりましょう",
+    "joinThousands": "今日からNovaを使い始めましょう",
     "email": "メールアドレス",
     "emailPlaceholder": "you@example.com",
     "password": "パスワード",
@@ -209,6 +209,46 @@
   "meta": {
     "title": "Nova AI - あなたのパーソナルAIパートナー",
     "description": "Novaに出会いましょう。本当に物事を成し遂げるフレンドリーなAIアシスタントです。スマートホーム、カレンダー、メールなど、すべてが一か所に。"
+  },
+  "integrations": {
+    "services": {
+      "google": {
+        "name": "Google",
+        "description": "カレンダー、Gmail、ドライブ",
+        "fullDescription": "Googleアカウントを接続して、スケジュール管理のカレンダー、メール閲覧のGmail、ファイル検索のDriveにアクセスできます。",
+        "features": ["カレンダーの予定を表示・作成", "メールの要約を読む", "ドライブのファイルを検索", "今後の予定を確認"]
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "スマートライト（近日公開）",
+        "fullDescription": "Philips Hueスマートライト連携は近日公開予定です。",
+        "features": ["個別のライトを操作（近日公開）", "シーンを有効化（近日公開）", "明るさと色を調整（近日公開）", "照明スケジュール設定（近日公開）"]
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "音楽検索・発見",
+        "fullDescription": "Spotifyを接続して、再生中の曲を確認したり、Novaを通じて曲、アーティスト、アルバムを検索できます。",
+        "features": ["現在再生中のトラックを確認", "音楽を検索", "アーティストとアルバムを閲覧", "新しい音楽を発見"]
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "マルチルームオーディオ（近日公開）",
+        "fullDescription": "Sonosスピーカー連携は近日公開予定です。",
+        "features": ["マルチルームオーディオ操作（近日公開）", "スピーカーのグループ化/解除（近日公開）", "音量調整（近日公開）", "様々なソースから再生（近日公開）"]
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "メモ、ドキュメント＆データベース",
+        "fullDescription": "Notionワークスペースにアクセス。ページの検索、メモの作成、自然言語でのデータベース管理ができます。",
+        "features": ["ページとデータベースを検索", "新しいページを作成", "データベースエントリを更新", "クイックメモを取る"]
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "チームコミュニケーション",
+        "fullDescription": "Slackを接続して、Novaを通じてメッセージを検索したりチームチャンネルを閲覧できます。",
+        "features": ["ワークスペースのメッセージを検索", "チャンネル一覧を表示", "チームコミュニケーションを閲覧", "最新情報を把握"]
+      }
+    }
   },
   "commandPalette": {
     "commandPalette": "Command Palette",

@@ -8,28 +8,10 @@ export const metadata: Metadata = {
 
 const team = [
   {
-    name: 'Alex Chen',
-    role: 'Co-founder & CEO',
-    bio: 'Former Google AI researcher. Believes AI should do things, not just talk about them.',
-    avatar: '👨🏻‍💼',
-  },
-  {
-    name: 'Sarah Kim',
-    role: 'Co-founder & CTO',
-    bio: 'Ex-Stripe engineer. Building infrastructure that connects AI to the real world.',
-    avatar: '👩🏻‍💻',
-  },
-  {
-    name: 'Marcus Johnson',
-    role: 'Head of Product',
-    bio: 'Previously at Apple. Obsessed with making technology invisible.',
-    avatar: '👨🏿',
-  },
-  {
-    name: 'Emma Rodriguez',
-    role: 'Head of Design',
-    bio: 'Former Figma designer. Makes complex things feel simple.',
-    avatar: '👩🏽‍🎨',
+    name: 'Dorel',
+    role: 'Founder',
+    bio: 'Building the AI assistant that actually does things. Believes technology should work for people, not the other way around.',
+    avatar: '👨‍💻',
   },
 ];
 
@@ -57,11 +39,10 @@ const values = [
 ];
 
 const timeline = [
-  { year: '2024', event: 'Nova founded in San Francisco' },
-  { year: '2024', event: 'Raised $12M seed round' },
-  { year: '2025', event: 'Launched beta with 1,000 users' },
-  { year: '2025', event: 'Reached 50,000 active users' },
-  { year: '2026', event: 'Public launch & Series A' },
+  { year: '2026', event: 'Nova development started' },
+  { year: '2026', event: 'Core chat + integrations built' },
+  { year: '2026', event: 'Desktop app (macOS & Windows) ready' },
+  { year: '2026', event: 'Preparing for public launch' },
 ];
 
 export default function AboutPage() {
@@ -160,17 +141,12 @@ export default function AboutPage() {
                 Nova started with a simple frustration: why can&apos;t AI actually DO anything?
               </p>
               <p className="text-white/70 leading-relaxed mb-6">
-                In 2024, we were watching the AI hype cycle reach fever pitch. ChatGPT could write essays, 
-                generate code, and have surprisingly human conversations. But when you asked it to schedule 
-                a meeting or turn off your lights? Nothing.
-              </p>
-              <p className="text-white/70 leading-relaxed mb-6">
-                We believed AI could be more than a chatbot. It could be a bridge between intention and action. 
-                You say &quot;schedule lunch with Sarah&quot; and it actually happens. You say &quot;movie night mode&quot; and 
-                your home responds.
+                AI chatbots can write essays and generate code, but when you ask them to schedule
+                a meeting or check your email? They can&apos;t. There&apos;s a gap between conversation and action.
               </p>
               <p className="text-white/70 leading-relaxed">
-                That&apos;s what we&apos;re building. Not AI that impresses you with words — AI that helps you with actions.
+                That&apos;s what we&apos;re building with Nova. An AI that connects to your real services — Google Calendar,
+                Gmail, Spotify, Notion, Slack — and actually takes action. Not just talk, but real results.
               </p>
             </div>
           </div>
@@ -203,7 +179,7 @@ export default function AboutPage() {
           <p className="text-white/70 text-center mb-12 max-w-2xl mx-auto">
             We&apos;re a small team of builders who believe AI can be genuinely helpful.
           </p>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-1 md:grid-cols-1 gap-6 max-w-sm mx-auto">
             {team.map((member, index) => (
               <div
                 key={member.name}

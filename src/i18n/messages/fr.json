@@ -30,7 +30,7 @@
     "watchDemo": "Voir la démo",
     "featuresHeading": "Tout ce dont vous avez besoin, à une conversation près",
     "ctaHeading": "Prêt à rencontrer votre nouveau compagnon IA ?",
-    "ctaDescription": "Rejoignez des milliers de personnes qui ont fait de Nova une partie de leur routine quotidienne. C'est gratuit pour commencer.",
+    "ctaDescription": "Essayez Nova aujourd'hui et découvrez ce que l'IA peut vraiment faire pour vous. C'est gratuit pour commencer.",
     "getStartedFree": "Commencez gratuitement",
     "features": {
       "email": {
@@ -63,7 +63,7 @@
     "welcomeBack": "Bon retour",
     "signInToContinue": "Connectez-vous pour continuer sur Nova",
     "createAccount": "Créez votre compte",
-    "joinThousands": "Rejoignez des milliers d'utilisateurs de Nova chaque jour",
+    "joinThousands": "Commencez à utiliser Nova aujourd'hui",
     "email": "E-mail",
     "emailPlaceholder": "vous@exemple.com",
     "password": "Mot de passe",
@@ -209,6 +209,46 @@
   "meta": {
     "title": "Nova AI - Votre Compagnon IA Personnel",
     "description": "Découvrez Nova, votre assistant IA sympathique qui fait vraiment les choses. Maison connectée, agenda, e-mails et plus — tout en un seul endroit."
+  },
+  "integrations": {
+    "services": {
+      "google": {
+        "name": "Google",
+        "description": "Agenda, Gmail, Drive",
+        "fullDescription": "Connectez votre compte Google pour accéder à l'Agenda pour la planification, Gmail pour lire les e-mails et Drive pour la recherche de fichiers.",
+        "features": ["Afficher et créer des événements", "Lire les résumés d'e-mails", "Rechercher des fichiers dans Drive", "Consulter les événements à venir"]
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Éclairage intelligent (bientôt disponible)",
+        "fullDescription": "L'intégration des lumières connectées Philips Hue arrive bientôt.",
+        "features": ["Contrôler les lumières individuelles (bientôt)", "Activer des scènes (bientôt)", "Ajuster la luminosité et la couleur (bientôt)", "Programmer l'éclairage (bientôt)"]
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Recherche et découverte musicale",
+        "fullDescription": "Connectez Spotify pour voir ce qui est en cours de lecture et rechercher des chansons, artistes et albums via Nova.",
+        "features": ["Voir le titre en cours de lecture", "Rechercher de la musique", "Parcourir artistes et albums", "Découvrir de la nouvelle musique"]
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Audio multi-pièces (bientôt disponible)",
+        "fullDescription": "L'intégration des enceintes Sonos arrive bientôt.",
+        "features": ["Contrôle audio multi-pièces (bientôt)", "Grouper/séparer les enceintes (bientôt)", "Contrôle du volume (bientôt)", "Lecture depuis différentes sources (bientôt)"]
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "Notes, documents et bases de données",
+        "fullDescription": "Accédez à votre espace de travail Notion. Recherchez des pages, créez des notes et gérez vos bases de données en langage naturel.",
+        "features": ["Rechercher des pages et bases de données", "Créer de nouvelles pages", "Mettre à jour les entrées de base de données", "Capture rapide de notes"]
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Communication d'équipe",
+        "fullDescription": "Connectez Slack pour rechercher des messages et parcourir les canaux de votre équipe via Nova.",
+        "features": ["Rechercher les messages de l'espace de travail", "Lister les canaux", "Parcourir la communication d'équipe", "Rester informé"]
+      }
+    }
   },
   "commandPalette": {
     "commandPalette": "Command Palette",

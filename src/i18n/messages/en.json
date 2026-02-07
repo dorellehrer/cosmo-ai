@@ -30,7 +30,7 @@
     "watchDemo": "Watch demo",
     "featuresHeading": "Everything you need, one conversation away",
     "ctaHeading": "Ready to meet your new AI companion?",
-    "ctaDescription": "Join thousands of people who've made Nova part of their daily routine. It's free to start.",
+    "ctaDescription": "Try Nova today and see what AI can actually do for you. It's free to start.",
     "getStartedFree": "Get started for free",
     "features": {
       "email": {
@@ -63,7 +63,7 @@
     "welcomeBack": "Welcome back",
     "signInToContinue": "Sign in to continue to Nova",
     "createAccount": "Create your account",
-    "joinThousands": "Join thousands using Nova every day",
+    "joinThousands": "Start using Nova today",
     "email": "Email",
     "emailPlaceholder": "you@example.com",
     "password": "Password",
@@ -239,26 +239,26 @@
       "google": {
         "name": "Google",
         "description": "Calendar, Gmail, Drive",
-        "fullDescription": "Connect your Google account to access Calendar for scheduling, Gmail for email management, and Drive for file access.",
-        "features": ["View and create calendar events", "Read and send emails", "Access files in Drive", "Set reminders"]
+        "fullDescription": "Connect your Google account to access Calendar for scheduling, Gmail for reading emails, and Drive for file search.",
+        "features": ["View and create calendar events", "Read email summaries", "Search files in Drive", "Check upcoming events"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "Smart lighting control",
-        "fullDescription": "Control your Philips Hue smart lights with voice commands. Set scenes, adjust brightness, and automate your lighting.",
-        "features": ["Control individual lights", "Activate scenes", "Adjust brightness and color", "Schedule lighting"]
+        "description": "Smart lighting (coming soon)",
+        "fullDescription": "Philips Hue smart light integration is coming soon. Connect to control lights, set scenes, and adjust brightness.",
+        "features": ["Control individual lights (coming soon)", "Activate scenes (coming soon)", "Adjust brightness and color (coming soon)", "Schedule lighting (coming soon)"]
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Music streaming & playback",
-        "fullDescription": "Stream your favorite music with Spotify. Control playback, search for songs, and manage your playlists with Nova.",
-        "features": ["Play/pause/skip tracks", "Search for music", "Control volume", "Manage playlists"]
+        "description": "Music search & discovery",
+        "fullDescription": "Connect Spotify to check what's playing and search for songs, artists, and albums through Nova.",
+        "features": ["Check currently playing track", "Search for music", "Browse artists and albums", "Discover new music"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "Multi-room audio",
-        "fullDescription": "Control your Sonos speakers throughout your home. Play music, adjust volume, and group speakers together.",
-        "features": ["Multi-room audio control", "Group/ungroup speakers", "Volume control", "Play from various sources"]
+        "description": "Multi-room audio (coming soon)",
+        "fullDescription": "Sonos speaker integration is coming soon. Control multi-room audio, adjust volume, and group speakers.",
+        "features": ["Multi-room audio control (coming soon)", "Group/ungroup speakers (coming soon)", "Volume control (coming soon)", "Play from various sources (coming soon)"]
       },
       "notion": {
         "name": "Notion",
@@ -269,8 +269,8 @@
       "slack": {
         "name": "Slack",
         "description": "Team communication",
-        "fullDescription": "Connect Slack to send messages, update your status, and stay on top of your team communication.",
-        "features": ["Send direct messages", "Post to channels", "Update your status", "Search messages"]
+        "fullDescription": "Connect Slack to search messages and browse your team channels through Nova.",
+        "features": ["Search workspace messages", "List channels", "Browse team communication", "Stay updated"]
       }
     }
   },

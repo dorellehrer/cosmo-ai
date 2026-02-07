@@ -30,7 +30,7 @@
     "watchDemo": "观看演示",
     "featuresHeading": "你需要的一切，只需一次对话",
     "ctaHeading": "准备好认识你的新 AI 伙伴了吗？",
-    "ctaDescription": "加入成千上万将 Nova 纳入日常生活的人们。免费开始。",
+    "ctaDescription": "今天就试试 Nova，看看 AI 真正能为你做什么。免费开始。",
     "getStartedFree": "免费开始",
     "features": {
       "email": {
@@ -63,7 +63,7 @@
     "welcomeBack": "欢迎回来",
     "signInToContinue": "登录以继续使用 Nova",
     "createAccount": "创建账户",
-    "joinThousands": "加入每天使用 Nova 的成千上万用户",
+    "joinThousands": "今天就开始使用 Nova",
     "email": "邮箱",
     "emailPlaceholder": "you@example.com",
     "password": "密码",
@@ -209,6 +209,46 @@
   "meta": {
     "title": "Nova AI - 你的个人 AI 伙伴",
     "description": "认识 Nova，你的友好 AI 助手，真正能帮你完成事情。智能家居、日历、邮件等等——尽在一处。"
+  },
+  "integrations": {
+    "services": {
+      "google": {
+        "name": "Google",
+        "description": "日历、Gmail、云端硬盘",
+        "fullDescription": "连接你的 Google 账户，访问日历进行日程安排、Gmail 阅读邮件、以及云端硬盘搜索文件。",
+        "features": ["查看和创建日历事件", "阅读邮件摘要", "搜索云端硬盘文件", "查看即将到来的事件"]
+      },
+      "hue": {
+        "name": "飞利浦 Hue",
+        "description": "智能灯光（即将推出）",
+        "fullDescription": "飞利浦 Hue 智能灯光集成即将推出。",
+        "features": ["控制单个灯光（即将推出）", "激活场景（即将推出）", "调节亮度和颜色（即将推出）", "定时照明（即将推出）"]
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "音乐搜索与发现",
+        "fullDescription": "连接 Spotify，查看正在播放的内容，并通过 Nova 搜索歌曲、艺术家和专辑。",
+        "features": ["查看当前播放的曲目", "搜索音乐", "浏览艺术家和专辑", "发现新音乐"]
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "多房间音频（即将推出）",
+        "fullDescription": "Sonos 音箱集成即将推出。",
+        "features": ["多房间音频控制（即将推出）", "分组/取消分组音箱（即将推出）", "音量控制（即将推出）", "从多种来源播放（即将推出）"]
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "笔记、文档和数据库",
+        "fullDescription": "访问你的 Notion 工作区。搜索页面、创建笔记、用自然语言管理数据库。",
+        "features": ["搜索页面和数据库", "创建新页面", "更新数据库条目", "快速记录笔记"]
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "团队沟通",
+        "fullDescription": "连接 Slack，通过 Nova 搜索消息和浏览团队频道。",
+        "features": ["搜索工作区消息", "列出频道", "浏览团队沟通", "保持更新"]
+      }
+    }
   },
   "commandPalette": {
     "commandPalette": "Command Palette",

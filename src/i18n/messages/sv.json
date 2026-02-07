@@ -30,7 +30,7 @@
     "watchDemo": "Se demo",
     "featuresHeading": "Allt du behöver, bara en konversation bort",
     "ctaHeading": "Redo att träffa din nya AI-kompis?",
-    "ctaDescription": "Gå med tusentals människor som har gjort Nova till en del av sin vardag. Det är gratis att börja.",
+    "ctaDescription": "Prova Nova idag och se vad AI faktiskt kan göra för dig. Det är gratis att börja.",
     "getStartedFree": "Kom igång gratis",
     "features": {
       "email": {
@@ -63,7 +63,7 @@
     "welcomeBack": "Välkommen tillbaka",
     "signInToContinue": "Logga in för att fortsätta till Nova",
     "createAccount": "Skapa ditt konto",
-    "joinThousands": "Gå med tusentals som använder Nova varje dag",
+    "joinThousands": "Börja använda Nova idag",
     "email": "E-post",
     "emailPlaceholder": "du@exempel.se",
     "password": "Lösenord",
@@ -209,6 +209,46 @@
   "meta": {
     "title": "Nova AI - Din Personliga AI-Kompis",
     "description": "Möt Nova, din vänliga AI-assistent som faktiskt får saker gjorda. Smart hem, kalender, e-post och mer — allt på ett ställe."
+  },
+  "integrations": {
+    "services": {
+      "google": {
+        "name": "Google",
+        "description": "Kalender, Gmail, Drive",
+        "fullDescription": "Anslut ditt Google-konto för att komma åt Kalender för schemaläggning, Gmail för att läsa e-post och Drive för filsökning.",
+        "features": ["Visa och skapa kalenderhändelser", "Läsa e-postsammanfattningar", "Söka filer i Drive", "Kontrollera kommande händelser"]
+      },
+      "hue": {
+        "name": "Philips Hue",
+        "description": "Smarta lampor (kommer snart)",
+        "fullDescription": "Philips Hue-integration för smarta lampor kommer snart.",
+        "features": ["Styra enskilda lampor (kommer snart)", "Aktivera scener (kommer snart)", "Justera ljusstyrka och färg (kommer snart)", "Schemalägga belysning (kommer snart)"]
+      },
+      "spotify": {
+        "name": "Spotify",
+        "description": "Musiksökning och upptäckande",
+        "fullDescription": "Anslut Spotify för att se vad som spelas och söka efter låtar, artister och album via Nova.",
+        "features": ["Se vad som spelas just nu", "Söka efter musik", "Bläddra bland artister och album", "Upptäck ny musik"]
+      },
+      "sonos": {
+        "name": "Sonos",
+        "description": "Multirumsljud (kommer snart)",
+        "fullDescription": "Sonos-högtalarintegration kommer snart.",
+        "features": ["Multirumsljudstyrning (kommer snart)", "Gruppera/avgruppera högtalare (kommer snart)", "Volymkontroll (kommer snart)", "Spela från olika källor (kommer snart)"]
+      },
+      "notion": {
+        "name": "Notion",
+        "description": "Anteckningar, dokument och databaser",
+        "fullDescription": "Få åtkomst till din Notion-arbetsyta. Sök sidor, skapa anteckningar och hantera dina databaser med naturligt språk.",
+        "features": ["Söka sidor och databaser", "Skapa nya sidor", "Uppdatera databasposter", "Snabbfånga anteckningar"]
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Teamkommunikation",
+        "fullDescription": "Anslut Slack för att söka meddelanden och bläddra bland dina teamkanaler via Nova.",
+        "features": ["Söka arbetsytemeddelanden", "Lista kanaler", "Bläddra bland teamkommunikation", "Hålla sig uppdaterad"]
+      }
+    }
   },
   "commandPalette": {
     "commandPalette": "Kommandopalett",

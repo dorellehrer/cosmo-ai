@@ -2,15 +2,15 @@
 
 const features = [
   { name: 'Natural conversation', nova: true, chatgpt: true, siri: true, alexa: true },
-  { name: 'Actually takes actions', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
-  { name: 'Email integration', nova: true, chatgpt: false, siri: false, alexa: false },
   { name: 'Calendar management', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
-  { name: 'Smart home control', nova: true, chatgpt: false, siri: true, alexa: true },
+  { name: 'Email reading', nova: true, chatgpt: false, siri: false, alexa: false },
+  { name: 'Music control (Spotify)', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
+  { name: 'Web search built-in', nova: true, chatgpt: true, siri: true, alexa: true },
+  { name: 'Multiple AI models', nova: true, chatgpt: false, siri: false, alexa: false },
   { name: 'Privacy-first (no data selling)', nova: true, chatgpt: false, siri: true, alexa: false },
-  { name: 'Remembers context long-term', nova: true, chatgpt: 'partial', siri: false, alexa: false },
   { name: 'Works across all devices', nova: true, chatgpt: true, siri: 'partial', alexa: 'partial' },
-  { name: 'No subscription required', nova: true, chatgpt: false, siri: true, alexa: true },
-  { name: 'Custom automations', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
+  { name: 'Free tier available', nova: true, chatgpt: false, siri: true, alexa: true },
+  { name: 'Smart home control', nova: 'partial', chatgpt: false, siri: true, alexa: true },
 ];
 
 function CheckIcon({ type }: { type: boolean | string }) {

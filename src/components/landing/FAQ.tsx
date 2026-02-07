@@ -6,27 +6,27 @@ const faqs = [
   {
     question: 'How is Nova different from ChatGPT?',
     answer:
-      "ChatGPT is great at conversation, but it can't actually DO things. Nova connects to your real services — email, calendar, smart home devices — and takes action on your behalf. Say 'schedule a meeting' and it actually schedules it. Say 'turn off the lights' and they turn off.",
+      "ChatGPT is great at conversation, but it can't take real actions. Nova connects to your services — Google Calendar, Gmail, Spotify, Notion, Slack — and takes action on your behalf. Say 'schedule a meeting' and it creates the event. Say 'what's playing on Spotify' and it checks for you.",
   },
   {
     question: 'Is my data safe with Nova?',
     answer:
-      "Absolutely. We're privacy-first by design. Your data is encrypted end-to-end, we never sell it to third parties, and we don't use your conversations to train our models. You can export or delete your data anytime. We're also SOC 2 Type II certified.",
+      "Absolutely. We're privacy-first by design. Your integration tokens are encrypted with AES-256-GCM, we use OAuth2 for all third-party access, we never sell your data, and we don't use your conversations to train models. You can delete your account and all data anytime.",
   },
   {
     question: 'What services does Nova integrate with?',
     answer:
-      'Nova works with Gmail, Google Calendar, Outlook, Philips Hue, Sonos, Spotify, Apple Music, Slack, Notion, Todoist, and many more. We add new integrations every week based on user requests.',
+      'Nova currently works with Google (Calendar, Gmail, Drive), Spotify, Notion, and Slack. Smart home integrations (Philips Hue, Sonos) are coming soon. We\'re actively adding new integrations based on user requests.',
   },
   {
     question: 'Is there a free plan?',
     answer:
-      "Yes! Nova's free tier includes unlimited conversations, basic integrations (email, calendar), and up to 50 messages per day. Our Pro plan ($20/month) unlocks unlimited messages, priority support, and advanced integrations like smart home control.",
+      "Yes! Nova's free tier includes basic integrations and up to 50 messages per day. Our Pro plan ($20/month) unlocks unlimited messages and all integrations.",
   },
   {
     question: 'Can Nova learn my preferences?',
     answer:
-      "Definitely. Nova has long-term memory and learns from every interaction. It remembers that you like your coffee briefing at 8am, that you prefer meetings in the afternoon, and that 'movie night' means dimming the lights to 20%. The more you use it, the smarter it gets.",
+      "Nova maintains conversation context within your sessions and connects to your real services, so it can give you personalized answers based on your actual calendar, emails, and music. We're actively building longer-term memory features.",
   },
   {
     question: 'Does Nova work offline?',

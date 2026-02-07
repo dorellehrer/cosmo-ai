@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Nova AI',
-  description: 'Privacy Policy for Nova AI. Learn how we collect, use, and protect your personal data. GDPR and CCPA compliant.',
+  description: 'Privacy Policy for Nova AI. Learn how we collect, use, and protect your personal data.',
 };
 
 export default function PrivacyPage() {
@@ -49,13 +49,13 @@ export default function PrivacyPage() {
           </p>
         </div>
 
-        {/* GDPR/CCPA Badge */}
+        {/* Security badges */}
         <div className="flex justify-center gap-4 mb-8">
           <div className="px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full text-green-400 text-sm font-medium">
-            ✓ GDPR Compliant
+            ✓ AES-256 Encryption
           </div>
           <div className="px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full text-green-400 text-sm font-medium">
-            ✓ CCPA Compliant
+            ✓ OAuth2 Secured
           </div>
         </div>
 
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
                 Nova AI Inc. (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI assistant service.
               </p>
               <p className="text-white/70 leading-relaxed">
-                We comply with the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and other applicable privacy laws.
+                We are committed to protecting your data and respecting applicable privacy laws.
               </p>
             </section>
 
@@ -214,7 +214,7 @@ export default function PrivacyPage() {
                 <li>AES-256 encryption for data at rest</li>
                 <li>Regular security audits and penetration testing</li>
                 <li>Access controls and authentication mechanisms</li>
-                <li>SOC 2 Type II compliance (in progress)</li>
+                <li>Strict Content Security Policy and security headers</li>
               </ul>
             </section>
 

@@ -15,9 +15,9 @@ const posts: Record<string, {
   'introducing-nova-ai': {
     title: 'Introducing Nova: AI that actually does things',
     excerpt: 'For years, AI has promised to change how we work. Today, we\'re taking a different approach.',
-    date: 'February 1, 2026',
-    author: 'Alex Chen',
-    authorRole: 'Co-founder & CEO',
+    date: 'February 6, 2026',
+    author: 'Nova Team',
+    authorRole: '',
     readTime: '5 min read',
     category: 'Announcements',
     content: `
@@ -33,7 +33,7 @@ This is the gap we set out to close.
 
 Nova isn't trying to be a better chatbot. We're building something fundamentally different: an AI that bridges the gap between intention and action.
 
-When you tell Nova "schedule lunch with Sarah tomorrow," it doesn't just acknowledge your request — it checks your calendar, finds available times, sends an invitation, and confirms when Sarah accepts. When you say "movie night mode," your lights dim, your TV turns on, and your favorite streaming app opens.
+When you tell Nova "schedule lunch with Sarah tomorrow," it checks your Google Calendar and creates the event. Connect Spotify and say "play some jazz" — Nova finds and plays it. These aren't hypothetical features — they work today.
 
 ## Privacy First
 
@@ -54,9 +54,9 @@ Try Nova today — it's free to start.
   'privacy-first-ai': {
     title: 'Why we built Nova with privacy as a foundation',
     excerpt: 'AI assistants need access to your most personal data. Here\'s how we built trust from day one.',
-    date: 'January 28, 2026',
-    author: 'Sarah Kim',
-    authorRole: 'Co-founder & CTO',
+    date: 'February 6, 2026',
+    author: 'Nova Team',
+    authorRole: '',
     readTime: '4 min read',
     category: 'Engineering',
     content: `
@@ -82,13 +82,13 @@ We designed Nova's architecture around a simple principle: minimize data exposur
 
 **Local First**: Many operations happen on-device when possible, reducing what needs to travel to our servers.
 
-## Certifications
+## What We've Built
 
-We put our money where our mouth is:
-- SOC 2 Type II certified
-- GDPR compliant
-- CCPA compliant
-- Regular third-party security audits
+Here's what's in place today:
+- AES-256-GCM encryption for all integration tokens
+- OAuth2 for secure third-party access
+- Strict Content Security Policy and HSTS headers
+- No training on your conversations — ever
 
 ## Your Data, Your Control
 
@@ -98,67 +98,51 @@ This isn't just a feature — it's a promise.
     `.trim(),
   },
   'smart-home-integrations': {
-    title: '10 smart home automations you didn\'t know you needed',
-    excerpt: 'From "movie night mode" to "good morning routines" — here\'s how our users are using Nova.',
-    date: 'January 22, 2026',
-    author: 'Marcus Johnson',
-    authorRole: 'Product Lead',
+    title: 'Smart home automations we\'re building',
+    excerpt: 'From "movie night mode" to "good morning routines" — here\'s our vision for smart home integration.',
+    date: 'February 6, 2026',
+    author: 'Nova Team',
+    authorRole: '',
     readTime: '6 min read',
-    category: 'Tips & Tricks',
+    category: 'Roadmap',
     content: `
-Your smart home devices are powerful, but managing them individually is tedious. Nova ties everything together with natural language. Here are 10 automations our users love.
+Your smart home devices are powerful, but managing them individually is tedious. We're building Nova to tie everything together with natural language. Here's what we're working on.
 
-## 1. Movie Night Mode
+## Our Vision
 
-Just say "movie night" and Nova dims the lights to 15%, switches your TV to your streaming app, pauses any playing music, and sets your phone to Do Not Disturb.
+Imagine controlling your entire smart home with a single sentence. That's what we're building toward with Nova's smart home integration.
 
-## 2. Good Morning Routine
+## What We're Planning
 
-"Good morning" gradually brightens your bedroom lights over 10 minutes, starts your coffee maker, reads your calendar for the day, and plays your morning playlist.
+Here are the automations we're designing:
 
-## 3. Leaving Home
+**Movie Night Mode** — Say "movie night" and Nova dims the lights, pauses any playing music, and sets the mood.
 
-"I'm heading out" turns off all lights, locks the doors, sets the thermostat to energy-saving mode, and sends you a confirmation.
+**Good Morning Routine** — "Good morning" gradually brightens your lights, reads your calendar for the day, and plays your morning playlist.
 
-## 4. Focus Mode
+**Focus Mode** — "Time to focus" sets lights to a cool white, plays lo-fi beats on your speakers, and blocks notifications.
 
-"Time to focus" closes distracting apps, sets lights to a cool white, plays lo-fi beats on your speakers, and blocks notifications for 90 minutes.
+**Bedtime Wind-Down** — "Getting ready for bed" dims all lights to warm tones and starts a sleep sounds playlist.
 
-## 5. Dinner Party
+## Current Status
 
-"Dinner party for six" sets ambient lighting, plays a dinner jazz playlist, turns on the porch light for guests, and sets a 2-hour timer for the oven.
+We're actively building Philips Hue and Sonos integration. The infrastructure is in place — what remains is connecting to the device APIs and building the control tools.
 
-## 6. Bedtime Wind-Down
+In the meantime, Nova already works with Google Calendar, Gmail, Spotify, Notion, and Slack. You can use these integrations today.
 
-"Getting ready for bed" dims all lights to warm tones, locks the front door, sets tomorrow's alarm, and starts a sleep sounds playlist.
+## What's Next
 
-## 7. Workout Mode
+Smart home control is our next major milestone. We'll start with Philips Hue light control (on/off, brightness, color, scenes), then expand to Sonos multi-room audio.
 
-"Workout time" cranks up energetic music, adjusts the thermostat down 2 degrees, and sets a 45-minute timer. Afterwards, Nova logs your session.
-
-## 8. Rainy Day
-
-"It's a rainy day" adjusts your lighting to cozy warm tones, checks if any windows are open, and suggests a movie or book from your saved list.
-
-## 9. Guest Mode
-
-"Guests are coming" sets the house to a comfortable temperature, turns on the entryway lights, switches to a crowd-friendly playlist, and hides personal notifications.
-
-## 10. Emergency Off
-
-"Everything off" is the panic button — all lights off, all speakers off, TV off, thermostat to default. A single command to shut it all down.
-
-## Getting Started
-
-These automations work out of the box once you connect your smart home devices. Visit the Integrations page to link Philips Hue, Sonos, and more.
+Stay tuned for updates, or connect your existing integrations on the Integrations page to start using Nova today.
     `.trim(),
   },
   'the-action-layer': {
     title: 'The Action Layer: How Nova bridges AI and reality',
     excerpt: 'A deep dive into the architecture that lets Nova safely take actions on your behalf.',
-    date: 'January 15, 2026',
-    author: 'Sarah Kim',
-    authorRole: 'Co-founder & CTO',
+    date: 'February 6, 2026',
+    author: 'Nova Team',
+    authorRole: '',
     readTime: '8 min read',
     category: 'Engineering',
     content: `
@@ -205,9 +189,9 @@ We're working on chaining actions into complex workflows, conditional logic ("if
   'calendar-productivity': {
     title: 'Reclaim your calendar: AI-powered scheduling tips',
     excerpt: 'How to use natural language to take control of your schedule and never miss a meeting again.',
-    date: 'January 10, 2026',
-    author: 'Emma Rodriguez',
-    authorRole: 'Product Designer',
+    date: 'February 6, 2026',
+    author: 'Nova Team',
+    authorRole: '',
     readTime: '5 min read',
     category: 'Tips & Tricks',
     content: `
@@ -262,9 +246,9 @@ Connect your Google Calendar in the Integrations page, and start scheduling with
   'future-of-ai-assistants': {
     title: 'The future of AI assistants is action, not conversation',
     excerpt: 'Why the next generation of AI won\'t be about better chatbots — it\'ll be about getting things done.',
-    date: 'January 5, 2026',
-    author: 'Alex Chen',
-    authorRole: 'Co-founder & CEO',
+    date: 'February 6, 2026',
+    author: 'Nova Team',
+    authorRole: '',
     readTime: '7 min read',
     category: 'Thoughts',
     content: `
@@ -453,7 +437,7 @@ export default async function BlogPostPage({
           <div className="bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-white/10 rounded-2xl p-8 text-center">
             <h3 className="text-xl font-bold text-white mb-3">Ready to try Nova?</h3>
             <p className="text-white/60 mb-6">
-              Join thousands of users who&apos;ve made Nova part of their daily routine.
+              Try Nova today and see what AI can actually do for you.
             </p>
             <Link
               href="/sign-up"
