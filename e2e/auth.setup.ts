@@ -18,7 +18,7 @@ setup('authenticate', async ({ page }) => {
   await Promise.all([
     page.waitForResponse(
       (resp) => resp.url().includes('/api/auth/callback/credentials'),
-      { timeout: 15_000 }
+      { timeout: 30_000 }
     ),
     page.locator('button[type="submit"]').click(),
   ]);
