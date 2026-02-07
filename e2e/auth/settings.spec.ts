@@ -30,7 +30,7 @@ test.describe('Settings', () => {
 
     // Should show plan/billing section
     await expect(
-      page.getByText(/plan|subscription|billing|free|pro/i).first()
+      page.getByText(/plan|subscription|billing|trial|pro|upgrade/i).first()
     ).toBeVisible({ timeout: 10_000 });
   });
 });
