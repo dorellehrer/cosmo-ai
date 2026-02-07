@@ -87,37 +87,8 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPO_AGENT:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPO_AGENT:latest
 
-  # ─── Run Database Migrations ──────────────────
-  migrate:
-    name: Run Prisma Migrations
-    runs-on: ubuntu-latest
-    needs: [build-app]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Fetch DATABASE_URL from Secrets Manager
-        run: |
-          DB_URL=$(aws secretsmanager get-secret-value \
-            --secret-id cosmo/database-url \
-            --query SecretString --output text)
-          echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
-          echo "DIRECT_URL=$DB_URL" >> $GITHUB_ENV
-
-      - name: Run migrations
-        run: npx prisma migrate deploy
+  # ─── Database Migrations ──────────────────────
+  # Migrations run automatically on container startup via Dockerfile CMD:
+  #   sh -c "npx prisma migrate deploy || echo 'Migration skipped' && node server.js"
+  # This works because ECS containers have VPC access to RDS.
+  # GitHub Actions runners cannot reach the private RDS endpoint.
