@@ -13,7 +13,10 @@
     "electron:dev": "npm run electron:compile && NODE_ENV=development electron electron/dist/main.js",
     "electron:build": "npm run electron:compile && electron-builder",
     "electron:build:mac": "npm run electron:compile && electron-builder --mac",
-    "electron:build:win": "npm run electron:compile && electron-builder --win"
+    "electron:build:win": "npm run electron:compile && electron-builder --win",
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed"
   },
   "main": "electron/dist/main.js",
   "dependencies": {
@@ -43,6 +46,7 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",

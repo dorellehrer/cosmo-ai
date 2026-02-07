@@ -133,7 +133,7 @@ export function CommandPalette({ isOpen, onClose, onOpenShortcuts }: CommandPale
     {
       id: 'about',
       title: t('about'),
-      subtitle: t('learnAboutCosmo'),
+      subtitle: t('learnAboutNova'),
       icon: '💜',
       category: 'navigation',
       action: () => {
