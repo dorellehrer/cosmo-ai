@@ -9,6 +9,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useVoiceSettings, SUPPORTED_LANGUAGES } from '@/contexts/VoiceSettingsContext';
 import { useIntegrations } from '@/contexts/IntegrationsContext';
 import { NotificationBell } from '@/components/notifications';
+import { MODEL_LIST } from '@/lib/ai/models';
 
 // Integration icons mapping
 const INTEGRATION_ICONS: Record<string, React.ReactNode> = {
@@ -204,12 +205,7 @@ export default function SettingsPage() {
     }
   };
 
-  const AI_MODELS = [
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', tier: 'standard', description: 'Fast and efficient for everyday tasks' },
-    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku', provider: 'Anthropic', tier: 'standard', description: 'Quick and lightweight' },
-    { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', tier: 'pro', description: 'Most capable OpenAI model' },
-    { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet', provider: 'Anthropic', tier: 'pro', description: 'Excellent for writing and analysis' },
-  ];
+
 
   const connectedIntegrations = integrations.filter((i) => i.connected);
 
@@ -296,13 +292,13 @@ export default function SettingsPage() {
               <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/>
               <circle cx="12" cy="15" r="2"/>
             </svg>
-            AI Model
+            Intelligence Level
             {savingModel && <span className="text-xs text-white/40 font-normal">Saving...</span>}
           </h2>
           <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
-            <p className="text-white/60 text-sm mb-4">Choose which AI model Nova uses for conversations.</p>
+            <p className="text-white/60 text-sm mb-4">Choose the intelligence level Nova uses for conversations.</p>
             <div className="grid sm:grid-cols-2 gap-3">
-              {AI_MODELS.map((model) => {
+              {MODEL_LIST.map((model) => {
                 const isProLocked = model.tier === 'pro' && plan !== 'pro' && plan !== 'trial';
                 return (
                   <button
@@ -318,7 +314,7 @@ export default function SettingsPage() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-white">{model.name}</span>
+                      <span className="text-sm font-medium text-white">{model.icon} {model.label}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                         model.tier === 'pro'
                           ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
@@ -327,7 +323,7 @@ export default function SettingsPage() {
                         {model.tier === 'pro' ? 'Pro' : 'Included'}
                       </span>
                     </div>
-                    <p className="text-xs text-white/40">{model.provider} — {model.description}</p>
+                    <p className="text-xs text-white/40">{model.description}</p>
                   </button>
                 );
               })}

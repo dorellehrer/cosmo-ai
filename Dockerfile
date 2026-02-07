@@ -29,6 +29,7 @@ RUN npx prisma generate
 # SDK clients at module scope. These are never used for real requests.
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV OPENAI_API_KEY="sk-dummy-build-key"
+ENV ANTHROPIC_API_KEY="sk-ant-dummy-build-key"
 ENV NEXTAUTH_SECRET="dummy-build-secret"
 ENV NEXTAUTH_URL="http://localhost:3000"
 ENV NEXT_PUBLIC_APP_URL="https://www.heynova.se"

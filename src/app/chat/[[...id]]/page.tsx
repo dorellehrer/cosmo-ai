@@ -11,6 +11,7 @@ import { MessageRenderer } from '@/components/MessageRenderer';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { MODEL_LIST, DEFAULT_MODEL } from '@/lib/ai/models';
 
 interface Message {
   id: string;
@@ -1271,7 +1272,7 @@ export default function ChatPage() {
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
             {/* Model selector */}
             <div className="flex items-center gap-2 mb-2">
-              <label htmlFor="model-select" className="sr-only">AI Model</label>
+              <label htmlFor="model-select" className="sr-only">Intelligence Level</label>
               <select
                 id="model-select"
                 value={selectedModel}
@@ -1279,14 +1280,19 @@ export default function ChatPage() {
                 className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/60 focus:outline-none focus:ring-1 focus:ring-violet-500 hover:bg-white/10 transition-colors"
                 disabled={isLoading}
               >
-                <option value="gpt-4o-mini" className="bg-slate-800">GPT-4o Mini</option>
-                <option value="claude-haiku-4-5-20251001" className="bg-slate-800">Claude Haiku</option>
-                <option value="gpt-4o" className="bg-slate-800" disabled={userPlan === 'expired'}>
-                  GPT-4o {userPlan === 'expired' ? '(Pro)' : ''}
-                </option>
-                <option value="claude-sonnet-4-5-20250929" className="bg-slate-800" disabled={userPlan === 'expired'}>
-                  Claude Sonnet {userPlan === 'expired' ? '(Pro)' : ''}
-                </option>
+                {MODEL_LIST.map((model) => {
+                  const isProLocked = model.tier === 'pro' && userPlan === 'expired';
+                  return (
+                    <option
+                      key={model.id}
+                      value={model.id}
+                      className="bg-slate-800"
+                      disabled={isProLocked}
+                    >
+                      {model.icon} {model.label}{isProLocked ? ' (Pro)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             {/* Voice error */}
