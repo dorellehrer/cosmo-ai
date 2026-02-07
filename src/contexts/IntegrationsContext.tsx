@@ -13,6 +13,7 @@ export interface Integration {
   connected: boolean;
   connectedAt?: string;
   email?: string;
+  expiresAt?: string;
 }
 
 export interface IntegrationsContextType {
@@ -40,15 +41,15 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Smart lighting control',
     icon: '💡',
     color: 'from-amber-400 to-orange-500',
-    services: ['Lights', 'Scenes', 'Rooms'],
+    services: ['Coming Soon'],
   },
   {
     id: 'spotify',
     name: 'Spotify',
-    description: 'Music streaming & playback',
+    description: 'Music playback & search',
     icon: '🎵',
     color: 'from-green-500 to-green-600',
-    services: ['Playback', 'Playlists', 'Search'],
+    services: ['Playback', 'Now Playing', 'Search'],
   },
   {
     id: 'sonos',
@@ -56,7 +57,7 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Multi-room audio',
     icon: '🔊',
     color: 'from-gray-700 to-gray-900',
-    services: ['Speakers', 'Groups', 'Volume'],
+    services: ['Coming Soon'],
   },
   {
     id: 'notion',
@@ -72,7 +73,7 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Team communication',
     icon: '💬',
     color: 'from-purple-500 to-pink-500',
-    services: ['Messages', 'Channels', 'Status'],
+    services: ['Messages', 'Search', 'Channels'],
   },
 ];
 
@@ -94,7 +95,7 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
         return;
       }
       const data = await res.json();
-      const connected: { provider: string; email?: string; connectedAt: string }[] = data.integrations || [];
+      const connected: { provider: string; email?: string; connectedAt: string; expiresAt?: string }[] = data.integrations || [];
 
       setIntegrations((prev) =>
         prev.map((integration) => {
@@ -105,9 +106,10 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
               connected: true,
               connectedAt: match.connectedAt,
               email: match.email || undefined,
+              expiresAt: match.expiresAt || undefined,
             };
           }
-          return { ...integration, connected: false, connectedAt: undefined, email: undefined };
+          return { ...integration, connected: false, connectedAt: undefined, email: undefined, expiresAt: undefined };
         })
       );
     } catch {

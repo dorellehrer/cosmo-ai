@@ -113,7 +113,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Musikkontroll"
+        "description": "Musikuppspelning och sökning"
       },
       "hue": {
         "name": "Philips Hue",
@@ -153,7 +153,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Musikkontroll"
+        "description": "Musikuppspelning och sökning"
       },
       "hue": {
         "name": "Philips Hue",
@@ -226,9 +226,9 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Musiksökning och upptäckande",
-        "fullDescription": "Anslut Spotify för att se vad som spelas och söka efter låtar, artister och album via Nova.",
-        "features": ["Se vad som spelas just nu", "Söka efter musik", "Bläddra bland artister och album", "Upptäck ny musik"]
+        "description": "Musikuppspelning och sökning",
+        "fullDescription": "Anslut Spotify för att styra uppspelning, se vad som spelas och söka efter låtar, artister och album via Nova.",
+        "features": ["Spela, pausa och hoppa över spår", "Visa spår som spelas", "Sök musik", "Upptäck ny musik"]
       },
       "sonos": {
         "name": "Sonos",
@@ -240,13 +240,13 @@
         "name": "Notion",
         "description": "Anteckningar, dokument och databaser",
         "fullDescription": "Få åtkomst till din Notion-arbetsyta. Sök sidor, skapa anteckningar och hantera dina databaser med naturligt språk.",
-        "features": ["Söka sidor och databaser", "Skapa nya sidor", "Uppdatera databasposter", "Snabbfånga anteckningar"]
+        "features": ["Söka sidor och databaser", "Skapa nya sidor", "Bläddra i din arbetsyta", "Snabbfånga anteckningar"]
       },
       "slack": {
         "name": "Slack",
         "description": "Teamkommunikation",
-        "fullDescription": "Anslut Slack för att söka meddelanden och bläddra bland dina teamkanaler via Nova.",
-        "features": ["Söka arbetsytemeddelanden", "Lista kanaler", "Bläddra bland teamkommunikation", "Hålla sig uppdaterad"]
+        "fullDescription": "Anslut Slack för att söka meddelanden, skicka meddelanden till kanaler och utforska teamkommunikation via Nova.",
+        "features": ["Sök arbetsytans meddelanden", "Skicka meddelanden till kanaler", "Lista kanaler", "Håll dig uppdaterad"]
       }
     }
   },

@@ -26,6 +26,7 @@ export async function GET() {
         providerAccountId: true,
         connectedAt: true,
         scope: true,
+        expiresAt: true,
       },
     });
 

@@ -55,42 +55,49 @@ const INTEGRATION_DETAILS: Record<string, {
   features: string[];
   permissions: string[];
   dataAccess: string[];
+  examplePrompts: string[];
 }> = {
   google: {
-    fullDescription: 'Connect your Google account to access Calendar for scheduling, Gmail for email management, and Drive for file access. Nova can help you manage your day-to-day activities seamlessly.',
-    features: ['View and create calendar events', 'Read and send emails', 'Access files in Drive', 'Set reminders', 'Search across services'],
-    permissions: ['Read calendar events', 'Create calendar events', 'Read email messages', 'Send emails on your behalf', 'Read Google Drive files'],
-    dataAccess: ['Calendar events and metadata', 'Email subjects and content', 'Drive file names and metadata'],
+    fullDescription: 'Connect your Google account to access Calendar for scheduling, Gmail for reading emails, and Drive for file search. Nova can help you manage your day-to-day activities seamlessly.',
+    features: ['View and create calendar events', 'Search and read email summaries', 'Search files in Google Drive', 'Check upcoming schedule'],
+    permissions: ['Read and create calendar events', 'Read email messages (read-only)', 'Read Google Drive file metadata (read-only)'],
+    dataAccess: ['Calendar events and metadata', 'Email subjects, senders, and snippets', 'Drive file names and metadata'],
+    examplePrompts: ["What's on my calendar today?", 'Do I have any emails from my manager?', 'Search my Drive for the budget report', 'Schedule a meeting for tomorrow at 2pm'],
   },
   hue: {
-    fullDescription: 'Control your Philips Hue smart lights with voice commands. Set scenes, adjust brightness, change colors, and automate your lighting throughout your home.',
-    features: ['Control individual lights', 'Activate scenes', 'Adjust brightness and color', 'Schedule lighting', 'Group lights by room'],
-    permissions: ['Control lights', 'View light status', 'Create and modify scenes', 'Access room configurations'],
-    dataAccess: ['Light states and configurations', 'Room layouts', 'Scene settings'],
+    fullDescription: 'Philips Hue smart light integration is coming soon. Once available, Nova will be able to control your lights, set scenes, and adjust brightness throughout your home.',
+    features: ['Control individual lights (coming soon)', 'Activate scenes (coming soon)', 'Adjust brightness and color (coming soon)', 'Group lights by room (coming soon)'],
+    permissions: ['Control lights (coming soon)', 'View light status (coming soon)', 'Access room configurations (coming soon)'],
+    dataAccess: ['Light states and configurations (coming soon)', 'Room layouts (coming soon)', 'Scene settings (coming soon)'],
+    examplePrompts: [],
   },
   spotify: {
-    fullDescription: 'Stream your favorite music with Spotify. Control playback, search for songs, manage playlists, and discover new music with Nova.',
-    features: ['Play/pause/skip tracks', 'Search for music', 'Control volume', 'Manage playlists', 'Get recommendations'],
-    permissions: ['Control playback', 'Read your library', 'Modify playlists', 'Read your listening history'],
-    dataAccess: ['Current playback state', 'Playlists and saved tracks', 'Listening history'],
+    fullDescription: 'Connect Spotify to control playback, check what\'s playing, and search for songs, artists, and albums through Nova.',
+    features: ['Play, pause, and resume music', 'Skip to next or previous track', 'Check currently playing track', 'Search for songs, artists, and albums'],
+    permissions: ['Read current playback state', 'Control playback (play, pause, skip)', 'Search the Spotify catalog'],
+    dataAccess: ['Current playback state', 'Search results from the Spotify catalog'],
+    examplePrompts: ['What song is playing right now?', 'Search for songs by The Weeknd', 'Pause the music', 'Skip to the next track'],
   },
   sonos: {
-    fullDescription: 'Control your Sonos speakers throughout your home. Play music, adjust volume, group speakers together, and enjoy multi-room audio with simple commands.',
-    features: ['Multi-room audio control', 'Group/ungroup speakers', 'Volume control', 'Play from various sources', 'Set sleep timers'],
-    permissions: ['Control speakers', 'View speaker status', 'Modify groups', 'Access playback queue'],
-    dataAccess: ['Speaker configurations', 'Current playback', 'Room groups'],
+    fullDescription: 'Sonos speaker integration is coming soon. Once available, Nova will let you control multi-room audio, adjust volume, and group speakers with simple commands.',
+    features: ['Multi-room audio control (coming soon)', 'Group/ungroup speakers (coming soon)', 'Volume control (coming soon)', 'Play from various sources (coming soon)'],
+    permissions: ['Control speakers (coming soon)', 'View speaker status (coming soon)', 'Modify groups (coming soon)'],
+    dataAccess: ['Speaker configurations (coming soon)', 'Current playback (coming soon)', 'Room groups (coming soon)'],
+    examplePrompts: [],
   },
   notion: {
-    fullDescription: 'Access your Notion workspace with natural language. Search pages, create notes, update databases, and manage your knowledge base effortlessly.',
-    features: ['Search pages and databases', 'Create new pages', 'Update database entries', 'Quick capture notes', 'Link related content'],
-    permissions: ['Read pages', 'Create pages', 'Update pages', 'Search workspace'],
-    dataAccess: ['Page content', 'Database entries', 'Workspace structure'],
+    fullDescription: 'Access your Notion workspace with natural language. Search pages, create notes, and browse your knowledge base effortlessly.',
+    features: ['Search pages and databases', 'Create new pages', 'Quick capture notes'],
+    permissions: ['Read pages', 'Create pages', 'Search workspace'],
+    dataAccess: ['Page titles and content', 'Database entries', 'Workspace structure'],
+    examplePrompts: ['Search my Notion for project plans', "Create a new page called 'Meeting Notes'", 'Find my to-do list in Notion'],
   },
   slack: {
-    fullDescription: 'Connect Slack to send messages, update your status, and stay on top of team communication without leaving your conversation with Nova.',
-    features: ['Send direct messages', 'Post to channels', 'Update your status', 'Search messages', 'React to messages'],
-    permissions: ['Send messages', 'Read channels', 'Update profile', 'Search workspace'],
-    dataAccess: ['Channel memberships', 'Direct messages', 'Profile information'],
+    fullDescription: 'Connect Slack to search messages, send messages to channels, and browse your team communication through Nova.',
+    features: ['Search workspace messages', 'Send messages to channels', 'List and browse channels', 'Stay on top of team communication'],
+    permissions: ['Read channels', 'Search workspace messages', 'Send messages to channels'],
+    dataAccess: ['Channel listings and metadata', 'Message search results'],
+    examplePrompts: ['Search Slack for messages about the deployment', 'What channels am I in?', "Send 'Hello team!' to the general channel"],
   },
 };
 
@@ -177,6 +184,20 @@ export default function IntegrationDetailPage() {
                   {integration.email && ` · ${integration.email}`}
                 </p>
               )}
+              {integration.connected && integration.expiresAt && (
+                <p className={`text-sm mt-1 ${
+                  new Date(integration.expiresAt).getTime() < Date.now()
+                    ? 'text-red-400'
+                    : new Date(integration.expiresAt).getTime() < Date.now() + 24 * 60 * 60 * 1000
+                      ? 'text-amber-400'
+                      : 'text-green-400/70'
+                }`}>
+                  {new Date(integration.expiresAt).getTime() < Date.now()
+                    ? 'Token expired — reconnect required'
+                    : `Token valid until ${new Date(integration.expiresAt).toLocaleDateString()}`
+                  }
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -235,6 +256,28 @@ export default function IntegrationDetailPage() {
           </div>
         </div>
 
+        {/* Try It Out Section */}
+        {integration.connected && details.examplePrompts.length > 0 && (
+          <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Try It Out</h3>
+            <p className="text-white/60 text-sm mb-3">Try saying these in your chat with Nova:</p>
+            <div className="grid gap-2">
+              {details.examplePrompts.map((prompt, index) => (
+                <Link
+                  key={index}
+                  href={`/chat?prompt=${encodeURIComponent(prompt)}`}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 transition-colors group"
+                >
+                  <svg className="w-4 h-4 text-violet-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <span className="text-white/70 text-sm group-hover:text-white transition-colors">&ldquo;{prompt}&rdquo;</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Action Section */}
         <div className="mt-8 bg-white/5 border border-white/10 rounded-xl p-6">
           {integration.connected ? (
@@ -242,9 +285,20 @@ export default function IntegrationDetailPage() {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Manage Connection</h3>
                 <p className="text-white/60 text-sm">
-                  This integration is currently active. Disconnect to revoke access.
+                  {integration.expiresAt && new Date(integration.expiresAt).getTime() < Date.now()
+                    ? 'Your connection has expired. Reconnect to continue using this integration.'
+                    : 'This integration is currently active. Disconnect to revoke access.'
+                  }
                 </p>
               </div>
+              {integration.expiresAt && new Date(integration.expiresAt).getTime() < Date.now() && (
+                <button
+                  onClick={handleConnect}
+                  className={`px-4 py-2 rounded-lg bg-gradient-to-r ${baseIntegration.color} text-white text-sm font-medium hover:opacity-90 transition-opacity mr-2`}
+                >
+                  Reconnect
+                </button>
+              )}
               {showDisconnectConfirm ? (
                 <div className="flex items-center gap-3">
                   <span className="text-white/60 text-sm">Are you sure?</span>
@@ -279,12 +333,18 @@ export default function IntegrationDetailPage() {
                   Enable this integration to unlock its features with Nova.
                 </p>
               </div>
-              <button
-                onClick={handleConnect}
-                className={`px-6 py-2.5 rounded-xl bg-gradient-to-r ${baseIntegration.color} text-white font-medium hover:opacity-90 transition-opacity`}
-              >
-                Connect
-              </button>
+              {['hue', 'sonos'].includes(id) ? (
+                <span className="px-6 py-2.5 rounded-xl font-medium text-white/40 bg-white/10 cursor-not-allowed text-sm">
+                  Coming Soon
+                </span>
+              ) : (
+                <button
+                  onClick={handleConnect}
+                  className={`px-6 py-2.5 rounded-xl bg-gradient-to-r ${baseIntegration.color} text-white font-medium hover:opacity-90 transition-opacity`}
+                >
+                  Connect
+                </button>
+              )}
             </div>
           )}
         </div>

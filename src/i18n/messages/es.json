@@ -113,7 +113,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Control de música"
+        "description": "Reproducción y búsqueda de música"
       },
       "hue": {
         "name": "Philips Hue",
@@ -153,7 +153,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Control de música"
+        "description": "Reproducción y búsqueda de música"
       },
       "hue": {
         "name": "Philips Hue",
@@ -226,9 +226,9 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Búsqueda y descubrimiento de música",
-        "fullDescription": "Conecta Spotify para ver qué se está reproduciendo y buscar canciones, artistas y álbumes a través de Nova.",
-        "features": ["Ver la pista en reproducción", "Buscar música", "Explorar artistas y álbumes", "Descubrir música nueva"]
+        "description": "Reproducción y búsqueda de música",
+        "fullDescription": "Conecta Spotify para controlar la reproducción, ver qué se está reproduciendo y buscar canciones, artistas y álbumes a través de Nova.",
+        "features": ["Reproducir, pausar y saltar pistas", "Ver la pista en reproducción", "Buscar música", "Descubrir música nueva"]
       },
       "sonos": {
         "name": "Sonos",
@@ -240,13 +240,13 @@
         "name": "Notion",
         "description": "Notas, documentos y bases de datos",
         "fullDescription": "Accede a tu espacio de trabajo de Notion. Busca páginas, crea notas y gestiona tus bases de datos con lenguaje natural.",
-        "features": ["Buscar páginas y bases de datos", "Crear páginas nuevas", "Actualizar entradas de bases de datos", "Captura rápida de notas"]
+        "features": ["Buscar páginas y bases de datos", "Crear páginas nuevas", "Explorar tu espacio de trabajo", "Captura rápida de notas"]
       },
       "slack": {
         "name": "Slack",
         "description": "Comunicación de equipo",
-        "fullDescription": "Conecta Slack para buscar mensajes y explorar los canales de tu equipo a través de Nova.",
-        "features": ["Buscar mensajes del espacio de trabajo", "Listar canales", "Explorar comunicación del equipo", "Mantenerse actualizado"]
+        "fullDescription": "Conecta Slack para buscar mensajes, enviar mensajes a canales y explorar la comunicación de tu equipo a través de Nova.",
+        "features": ["Buscar mensajes del espacio de trabajo", "Enviar mensajes a canales", "Listar canales", "Mantenerse actualizado"]
       }
     }
   },

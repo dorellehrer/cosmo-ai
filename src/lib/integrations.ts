@@ -102,7 +102,6 @@ export const OAUTH_PROVIDERS: Record<string, () => OAuthProviderConfig> = {
     scopes: [
       'channels:read',
       'chat:write',
-      'users.profile:write',
       'search:read',
     ],
   }),

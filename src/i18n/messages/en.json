@@ -113,7 +113,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Music control"
+        "description": "Music playback & search"
       },
       "hue": {
         "name": "Philips Hue",
@@ -153,7 +153,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Music control"
+        "description": "Music playback & search"
       },
       "hue": {
         "name": "Philips Hue",
@@ -250,9 +250,9 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Music search & discovery",
-        "fullDescription": "Connect Spotify to check what's playing and search for songs, artists, and albums through Nova.",
-        "features": ["Check currently playing track", "Search for music", "Browse artists and albums", "Discover new music"]
+        "description": "Music playback & search",
+        "fullDescription": "Connect Spotify to control playback, check what's playing, and search for songs, artists, and albums through Nova.",
+        "features": ["Play, pause, and skip tracks", "Check currently playing track", "Search for music", "Discover new music"]
       },
       "sonos": {
         "name": "Sonos",
@@ -264,13 +264,13 @@
         "name": "Notion",
         "description": "Notes, docs & databases",
         "fullDescription": "Access your Notion workspace. Search pages, create notes, and manage your databases with natural language.",
-        "features": ["Search pages and databases", "Create new pages", "Update database entries", "Quick capture notes"]
+        "features": ["Search pages and databases", "Create new pages", "Quick capture notes", "Browse your workspace"]
       },
       "slack": {
         "name": "Slack",
         "description": "Team communication",
-        "fullDescription": "Connect Slack to search messages and browse your team channels through Nova.",
-        "features": ["Search workspace messages", "List channels", "Browse team communication", "Stay updated"]
+        "fullDescription": "Connect Slack to search messages, send messages to channels, and browse your team communication through Nova.",
+        "features": ["Search workspace messages", "Send messages to channels", "List channels", "Stay updated"]
       }
     }
   },

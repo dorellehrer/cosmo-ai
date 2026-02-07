@@ -113,10 +113,10 @@ function buildSystemPrompt(connectedIntegrations: ConnectedIntegration[]): strin
   }
 
   const integrationDescriptions: Record<string, string> = {
-    google: 'Google (Calendar, Gmail, Drive) — you can read calendar events, search emails, and list Drive files',
-    spotify: 'Spotify — you can check what\'s playing, search for music, and control playback',
-    notion: 'Notion — you can search pages and databases',
-    slack: 'Slack — you can search messages and channels',
+    google: 'Google (Calendar, Gmail, Drive) — you can read and create calendar events, search emails (read-only), and search Drive files',
+    spotify: 'Spotify — you can check what\'s playing, search for music, and control playback (play, pause, skip)',
+    notion: 'Notion — you can search pages and create new pages',
+    slack: 'Slack — you can search messages, list channels, and send messages to channels',
   };
 
   const connectedList = connectedIntegrations
@@ -208,6 +208,34 @@ function getIntegrationTools(connectedIntegrations: ConnectedIntegration[]): Ope
             required: ['query'],
           },
         },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'spotify_play_pause',
+          description: 'Play or pause the user\'s Spotify playback. Call this when the user wants to play, pause, or resume music.',
+          parameters: {
+            type: 'object',
+            properties: {
+              action: { type: 'string', enum: ['play', 'pause'], description: 'Whether to play or pause' },
+            },
+            required: ['action'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'spotify_skip_track',
+          description: 'Skip to the next or previous track on Spotify. Call this when the user wants to skip or go back a song.',
+          parameters: {
+            type: 'object',
+            properties: {
+              direction: { type: 'string', enum: ['next', 'previous'], description: 'Skip forward or backward' },
+            },
+            required: ['direction'],
+          },
+        },
       }
     );
   }
@@ -268,6 +296,21 @@ function getIntegrationTools(connectedIntegrations: ConnectedIntegration[]): Ope
           name: 'slack_list_channels',
           description: 'List the user\'s Slack channels. Call this when the user asks about their Slack channels.',
           parameters: { type: 'object', properties: {} },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'slack_send_message',
+          description: 'Send a message to a Slack channel. Call this when the user wants to post a message to a Slack channel.',
+          parameters: {
+            type: 'object',
+            properties: {
+              channel: { type: 'string', description: 'Channel name (without #) or channel ID' },
+              text: { type: 'string', description: 'Message text to send' },
+            },
+            required: ['channel', 'text'],
+          },
         },
       }
     );
@@ -515,6 +558,40 @@ async function executeToolCall(
         return JSON.stringify({ results: items });
       }
 
+      case 'spotify_play_pause': {
+        const token = getToken('spotify');
+        if (!token) return JSON.stringify({ error: 'Spotify not connected' });
+        const action = args.action as string;
+        const endpoint = action === 'pause'
+          ? 'https://api.spotify.com/v1/me/player/pause'
+          : 'https://api.spotify.com/v1/me/player/play';
+        const res = await fetch(endpoint, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 204 || res.status === 200) return JSON.stringify({ success: true, action });
+        if (res.status === 404) return JSON.stringify({ error: 'No active Spotify device found. Please open Spotify on a device first.' });
+        if (!res.ok) return JSON.stringify({ error: `Spotify API error: ${res.status}` });
+        return JSON.stringify({ success: true, action });
+      }
+
+      case 'spotify_skip_track': {
+        const token = getToken('spotify');
+        if (!token) return JSON.stringify({ error: 'Spotify not connected' });
+        const direction = args.direction as string;
+        const endpoint = direction === 'previous'
+          ? 'https://api.spotify.com/v1/me/player/previous'
+          : 'https://api.spotify.com/v1/me/player/next';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 204 || res.status === 200) return JSON.stringify({ success: true, direction });
+        if (res.status === 404) return JSON.stringify({ error: 'No active Spotify device found. Please open Spotify on a device first.' });
+        if (!res.ok) return JSON.stringify({ error: `Spotify API error: ${res.status}` });
+        return JSON.stringify({ success: true, direction });
+      }
+
       // ── Google Drive ──
       case 'google_drive_search': {
         const token = getToken('google');
@@ -655,6 +732,42 @@ async function executeToolCall(
           purpose: c.purpose?.value?.substring(0, 100),
         }));
         return JSON.stringify({ channels });
+      }
+
+      case 'slack_send_message': {
+        const token = getToken('slack');
+        if (!token) return JSON.stringify({ error: 'Slack not connected' });
+        let channel = args.channel as string;
+        const text = args.text as string;
+
+        // If channel is a name (not an ID), look it up
+        if (!channel.startsWith('C') && !channel.startsWith('D') && !channel.startsWith('G')) {
+          const lookupRes = await fetch(
+            'https://slack.com/api/conversations.list?types=public_channel,private_channel&limit=200',
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          const lookupData = await lookupRes.json();
+          const found = (lookupData.channels || []).find(
+            (c: { name: string; id: string }) => c.name === channel.replace('#', '')
+          );
+          if (found) {
+            channel = found.id;
+          } else {
+            return JSON.stringify({ error: `Channel "${channel}" not found` });
+          }
+        }
+
+        const res = await fetch('https://slack.com/api/chat.postMessage', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ channel, text }),
+        });
+        const data = await res.json();
+        if (!data.ok) return JSON.stringify({ error: data.error || 'Failed to send message' });
+        return JSON.stringify({ sent: true, channel: data.channel, timestamp: data.ts });
       }
 
       // ── Built-in Tools (no integration required) ──
@@ -1123,10 +1236,13 @@ export async function POST(req: Request) {
       google_drive_search: 'Searching Google Drive…',
       spotify_get_currently_playing: 'Checking what\'s playing…',
       spotify_search: 'Searching Spotify…',
+      spotify_play_pause: 'Controlling Spotify playback…',
+      spotify_skip_track: 'Skipping track…',
       notion_search: 'Searching Notion…',
       notion_create_page: 'Creating Notion page…',
       slack_search_messages: 'Searching Slack…',
       slack_list_channels: 'Loading Slack channels…',
+      slack_send_message: 'Sending Slack message…',
     };
 
     while (toolRound < MAX_TOOL_ROUNDS) {

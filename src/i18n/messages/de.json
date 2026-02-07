@@ -113,7 +113,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Musiksteuerung"
+        "description": "Musikwiedergabe & Suche"
       },
       "hue": {
         "name": "Philips Hue",
@@ -153,7 +153,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Musiksteuerung"
+        "description": "Musikwiedergabe & Suche"
       },
       "hue": {
         "name": "Philips Hue",
@@ -226,9 +226,9 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "Musiksuche und -entdeckung",
-        "fullDescription": "Verbinde Spotify, um zu sehen, was gerade läuft, und um über Nova nach Songs, Künstlern und Alben zu suchen.",
-        "features": ["Aktuell gespielten Titel prüfen", "Nach Musik suchen", "Künstler und Alben durchsuchen", "Neue Musik entdecken"]
+        "description": "Musikwiedergabe & Suche",
+        "fullDescription": "Verbinde Spotify, um die Wiedergabe zu steuern, den aktuellen Titel zu sehen und nach Songs, Künstlern und Alben zu suchen.",
+        "features": ["Wiedergabe starten, pausieren und überspringen", "Aktuell gespielten Titel anzeigen", "Musik suchen", "Neue Musik entdecken"]
       },
       "sonos": {
         "name": "Sonos",
@@ -240,13 +240,13 @@
         "name": "Notion",
         "description": "Notizen, Dokumente & Datenbanken",
         "fullDescription": "Greife auf deinen Notion-Workspace zu. Durchsuche Seiten, erstelle Notizen und verwalte deine Datenbanken mit natürlicher Sprache.",
-        "features": ["Seiten und Datenbanken durchsuchen", "Neue Seiten erstellen", "Datenbankeinträge aktualisieren", "Schnellnotizen erfassen"]
+        "features": ["Seiten und Datenbanken durchsuchen", "Neue Seiten erstellen", "Arbeitsbereich durchsuchen", "Schnellnotizen erfassen"]
       },
       "slack": {
         "name": "Slack",
         "description": "Team-Kommunikation",
-        "fullDescription": "Verbinde Slack, um Nachrichten zu durchsuchen und deine Team-Kanäle über Nova zu erkunden.",
-        "features": ["Workspace-Nachrichten durchsuchen", "Kanäle auflisten", "Team-Kommunikation durchsuchen", "Auf dem Laufenden bleiben"]
+        "fullDescription": "Verbinde Slack, um Nachrichten zu suchen, Nachrichten in Kanäle zu senden und die Teamkommunikation zu durchsuchen.",
+        "features": ["Nachrichten durchsuchen", "Nachrichten in Kanäle senden", "Kanäle auflisten", "Auf dem Laufenden bleiben"]
       }
     }
   },

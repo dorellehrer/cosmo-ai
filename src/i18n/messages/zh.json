@@ -113,7 +113,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "音乐控制"
+        "description": "音乐播放与搜索"
       },
       "hue": {
         "name": "飞利浦 Hue",
@@ -153,7 +153,7 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "音乐控制"
+        "description": "音乐播放与搜索"
       },
       "hue": {
         "name": "飞利浦 Hue",
@@ -226,9 +226,9 @@
       },
       "spotify": {
         "name": "Spotify",
-        "description": "音乐搜索与发现",
-        "fullDescription": "连接 Spotify，查看正在播放的内容，并通过 Nova 搜索歌曲、艺术家和专辑。",
-        "features": ["查看当前播放的曲目", "搜索音乐", "浏览艺术家和专辑", "发现新音乐"]
+        "description": "音乐播放与搜索",
+        "fullDescription": "连接Spotify以控制播放、查看正在播放的内容，并通过Nova搜索歌曲、艺术家和专辑。",
+        "features": ["播放、暂停和跳过曲目", "查看正在播放的曲目", "搜索音乐", "发现新音乐"]
       },
       "sonos": {
         "name": "Sonos",
@@ -240,13 +240,13 @@
         "name": "Notion",
         "description": "笔记、文档和数据库",
         "fullDescription": "访问你的 Notion 工作区。搜索页面、创建笔记、用自然语言管理数据库。",
-        "features": ["搜索页面和数据库", "创建新页面", "更新数据库条目", "快速记录笔记"]
+        "features": ["搜索页面和数据库", "创建新页面", "浏览您的工作区", "快速记录笔记"]
       },
       "slack": {
         "name": "Slack",
         "description": "团队沟通",
-        "fullDescription": "连接 Slack，通过 Nova 搜索消息和浏览团队频道。",
-        "features": ["搜索工作区消息", "列出频道", "浏览团队沟通", "保持更新"]
+        "fullDescription": "连接Slack以搜索消息、向频道发送消息并通过Nova浏览团队沟通。",
+        "features": ["搜索工作区消息", "向频道发送消息", "列出频道", "保持更新"]
       }
     }
   },
