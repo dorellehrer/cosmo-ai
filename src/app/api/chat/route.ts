@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages, hasProAccess } from "@/lib/stripe";
+import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages, hasProAccess, TRIAL_DURATION_MS } from "@/lib/stripe";
 import { checkRateLimit, RATE_LIMIT_CHAT } from '@/lib/rate-limit';
 import {
   getConnectedIntegrations,
@@ -113,7 +113,21 @@ export async function POST(req: Request) {
 
     // Check usage limits
     const today = getToday();
-    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd);
+
+    // Auto-provision trial for legacy users (created before trial system)
+    if (!user.trialEnd && !user.freeTrialUsed) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          trialEnd: new Date(Date.now() + TRIAL_DURATION_MS),
+          freeTrialUsed: true,
+        },
+      });
+      user.trialEnd = new Date(Date.now() + TRIAL_DURATION_MS);
+      user.freeTrialUsed = true;
+    }
+
+    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd, user.freeTrialUsed);
 
     const usageRecord = await prisma.usageRecord.findUnique({
       where: {

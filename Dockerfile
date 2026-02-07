@@ -32,6 +32,8 @@ ENV OPENAI_API_KEY="sk-dummy-build-key"
 ENV NEXTAUTH_SECRET="dummy-build-secret"
 ENV NEXTAUTH_URL="http://localhost:3000"
 ENV NEXT_PUBLIC_APP_URL="https://www.heynova.se"
+ARG NEXT_PUBLIC_VAPID_PUBLIC_KEY
+ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
 RUN npm run build
 
 # ── Production stage ───────────────────────────

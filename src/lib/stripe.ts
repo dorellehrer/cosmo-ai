@@ -65,7 +65,8 @@ export const CALL_COST_PER_MINUTE_CENTS = 10;
 export function getUserTier(
   stripeSubscriptionId: string | null,
   stripeCurrentPeriodEnd: Date | null,
-  trialEnd?: Date | null
+  trialEnd?: Date | null,
+  freeTrialUsed?: boolean
 ): TierName {
   // Active Stripe subscription = Pro
   if (stripeSubscriptionId && stripeCurrentPeriodEnd) {
@@ -76,6 +77,12 @@ export function getUserTier(
 
   // Active trial = Trial (full Pro access)
   if (trialEnd && new Date() <= trialEnd) {
+    return 'trial';
+  }
+
+  // Legacy user: created before the trial system — never had a trial assigned.
+  // Treat them as trial-eligible (their trial will be auto-provisioned on next request).
+  if (!trialEnd && freeTrialUsed === false) {
     return 'trial';
   }
 

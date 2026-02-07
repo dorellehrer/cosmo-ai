@@ -39,9 +39,11 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
         run: |
           docker build \
             --platform linux/amd64 \
+            --build-arg NEXT_PUBLIC_VAPID_PUBLIC_KEY="$NEXT_PUBLIC_VAPID_PUBLIC_KEY" \
             -t $ECR_REGISTRY/$ECR_REPO_APP:$IMAGE_TAG \
             -t $ECR_REGISTRY/$ECR_REPO_APP:latest \
             -f Dockerfile .

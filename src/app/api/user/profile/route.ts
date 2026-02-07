@@ -34,6 +34,7 @@ export async function GET() {
         stripeSubscriptionId: true,
         stripeCurrentPeriodEnd: true,
         trialEnd: true,
+        freeTrialUsed: true,
       },
     });
 
@@ -41,7 +42,7 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const plan = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd);
+    const plan = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd, user.freeTrialUsed);
 
     return NextResponse.json({
       id: user.id,
