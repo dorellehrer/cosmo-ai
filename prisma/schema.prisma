@@ -35,6 +35,9 @@ model User {
   // AI model preference
   preferredModel   String    @default("gpt-4o-mini")
 
+  // Custom system prompt
+  systemPrompt     String?   @db.Text
+
   // Relations
   conversations    Conversation[]
   usageRecords     UsageRecord[]
@@ -106,6 +109,7 @@ model Conversation {
   id        String   @id @default(cuid())
   title     String?  // Auto-generated or user-set title
   model     String?  // Per-conversation model override (e.g., "gpt-4o", "claude-sonnet-4-5-20250929")
+  pinned    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

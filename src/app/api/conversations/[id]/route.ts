@@ -128,7 +128,10 @@ export async function PATCH(
       );
     }
 
-    const { title } = await req.json();
+    const body = await req.json();
+    const data: Record<string, unknown> = {};
+    if (body.title !== undefined) data.title = body.title;
+    if (body.pinned !== undefined) data.pinned = Boolean(body.pinned);
 
     // Verify ownership
     const conversation = await prisma.conversation.findFirst({
@@ -147,7 +150,7 @@ export async function PATCH(
 
     const updated = await prisma.conversation.update({
       where: { id },
-      data: { title },
+      data,
     });
 
     return NextResponse.json(updated);

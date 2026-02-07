@@ -147,6 +147,10 @@
     "aiModel": "Modèle d'IA",
     "aiModelDescription": "Choisissez quel modèle d'IA Nova utilise pour les conversations.",
     "proPlan": "Plan Pro",
+    "systemPrompt": "Prompt système",
+    "systemPromptDescription": "Donnez à Nova des instructions personnalisées qui s'appliquent à chaque conversation.",
+    "systemPromptPlaceholder": "ex., Réponds toujours de manière amicale et concise. Mon nom est...",
+    "systemPromptChars": "caractères",
     "integrations": {
       "google": {
         "name": "Google",
@@ -215,7 +219,17 @@
     "stopSpeaking": "Arrêter la lecture",
     "searchConversations": "Rechercher des conversations...",
     "noSearchResults": "Aucune conversation trouvée",
-    "clearSearch": "Effacer la recherche"
+    "clearSearch": "Effacer la recherche",
+    "editMessage": "Modifier le message",
+    "saveEdit": "Enregistrer",
+    "cancelEdit": "Annuler",
+    "renameConversation": "Renommer la conversation",
+    "rename": "Renommer",
+    "exportChat": "Exporter la conversation",
+    "exportSuccess": "Conversation exportée",
+    "pinConversation": "Épingler la conversation",
+    "unpinConversation": "Désépingler la conversation",
+    "pinned": "Épinglée"
   },
   "routines": {
     "title": "Routines",

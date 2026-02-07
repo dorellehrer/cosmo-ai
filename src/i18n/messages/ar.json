@@ -147,6 +147,10 @@
     "aiModel": "نموذج الذكاء الاصطناعي",
     "aiModelDescription": "اختر نموذج الذكاء الاصطناعي الذي يستخدمه Nova للمحادثات.",
     "proPlan": "الخطة الاحترافية",
+    "systemPrompt": "موجّه النظام",
+    "systemPromptDescription": "أعطِ Nova تعليمات مخصصة تنطبق على كل محادثة.",
+    "systemPromptPlaceholder": "مثلاً، ردّ دائمًا بطريقة ودية ومختصرة. اسمي هو...",
+    "systemPromptChars": "حرف",
     "integrations": {
       "google": {
         "name": "جوجل",
@@ -215,7 +219,17 @@
     "stopSpeaking": "إيقاف القراءة",
     "searchConversations": "البحث في المحادثات...",
     "noSearchResults": "لم يتم العثور على محادثات",
-    "clearSearch": "مسح البحث"
+    "clearSearch": "مسح البحث",
+    "editMessage": "تعديل الرسالة",
+    "saveEdit": "حفظ",
+    "cancelEdit": "إلغاء",
+    "renameConversation": "إعادة تسمية المحادثة",
+    "rename": "إعادة التسمية",
+    "exportChat": "تصدير المحادثة",
+    "exportSuccess": "تم تصدير المحادثة",
+    "pinConversation": "تثبيت المحادثة",
+    "unpinConversation": "إلغاء تثبيت المحادثة",
+    "pinned": "مثبّتة"
   },
   "routines": {
     "title": "الروتينات",

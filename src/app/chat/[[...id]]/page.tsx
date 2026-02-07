@@ -23,6 +23,7 @@ interface Message {
 interface Conversation {
   id: string;
   title: string | null;
+  pinned?: boolean;
   updatedAt: string;
   messages?: { content: string }[];
 }
@@ -60,6 +61,10 @@ export default function ChatPage() {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -229,6 +234,82 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error('Failed to delete conversation:', error);
+    }
+  };
+
+  const startRenaming = (id: string, currentTitle: string | null, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setRenamingConversationId(id);
+    setRenameValue(currentTitle || '');
+  };
+
+  const cancelRenaming = () => {
+    setRenamingConversationId(null);
+    setRenameValue('');
+  };
+
+  const saveRename = async () => {
+    if (!renamingConversationId || !renameValue.trim()) {
+      cancelRenaming();
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/conversations/${renamingConversationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: renameValue.trim() }),
+      });
+
+      if (response.ok) {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === renamingConversationId ? { ...c, title: renameValue.trim() } : c
+          )
+        );
+        if (currentConversationId === renamingConversationId) {
+          setCurrentTitle(renameValue.trim());
+        }
+      }
+    } catch (error) {
+      console.error('Failed to rename conversation:', error);
+    } finally {
+      cancelRenaming();
+    }
+  };
+
+  const togglePin = async (convId: string, currentPinned: boolean, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const newPinned = !currentPinned;
+
+    // Enforce max 5 pinned (soft limit)
+    if (newPinned) {
+      const pinnedCount = conversations.filter((c) => c.pinned).length;
+      if (pinnedCount >= 5) return;
+    }
+
+    // Optimistic update
+    setConversations((prev) =>
+      prev.map((c) => (c.id === convId ? { ...c, pinned: newPinned } : c))
+    );
+
+    try {
+      await fetch(`/api/conversations/${convId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pinned: newPinned }),
+      });
+      // Re-fetch to get proper sort order
+      fetchConversations();
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+      // Revert
+      setConversations((prev) =>
+        prev.map((c) => (c.id === convId ? { ...c, pinned: currentPinned } : c))
+      );
     }
   };
 
@@ -496,6 +577,79 @@ export default function ChatPage() {
     doSend(cleanText);
   }, [isLoading, messages, doSend]);
 
+  const exportConversation = useCallback(() => {
+    if (messages.length === 0) return;
+
+    const title = currentTitle || 'Untitled';
+    const date = new Date().toLocaleDateString();
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const dateStr = new Date().toISOString().split('T')[0];
+
+    let md = `# ${title}\n*Exported from Nova AI on ${date}*\n\n---\n\n`;
+
+    for (const msg of messages) {
+      const label = msg.role === 'user' ? '**You**' : '**Nova**';
+      md += `${label}:\n\n${msg.content}\n\n---\n\n`;
+    }
+
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${slug}-${dateStr}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [messages, currentTitle]);
+
+  const startEditing = useCallback((messageId: string, content: string) => {
+    // Strip file attachment markers for editing
+    const cleanText = content.replace(/\n\n📎.*$/, '').trim();
+    setEditingMessageId(messageId);
+    setEditValue(cleanText);
+  }, []);
+
+  const cancelEditing = useCallback(() => {
+    setEditingMessageId(null);
+    setEditValue('');
+  }, []);
+
+  const saveEdit = useCallback(async () => {
+    if (!editingMessageId || !editValue.trim() || !currentConversationId || isLoading) return;
+
+    const editedText = editValue.trim();
+    cancelEditing();
+
+    try {
+      // Update message content on server
+      await fetch(`/api/conversations/${currentConversationId}/messages/${editingMessageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editedText }),
+      });
+
+      // Delete all messages after the edited one on server
+      await fetch(`/api/conversations/${currentConversationId}/messages/${editingMessageId}`, {
+        method: 'DELETE',
+      });
+
+      // Update local state: keep messages up to and including the edited one, remove the rest
+      setMessages((prev) => {
+        const idx = prev.findIndex((m) => m.id === editingMessageId);
+        if (idx === -1) return prev;
+        const kept = prev.slice(0, idx + 1);
+        kept[idx] = { ...kept[idx], content: editedText };
+        return kept;
+      });
+
+      // Re-send with edited text to get new AI response
+      doSend(editedText);
+    } catch (error) {
+      console.error('Failed to edit message:', error);
+    }
+  }, [editingMessageId, editValue, currentConversationId, isLoading, cancelEditing, doSend]);
+
   const speakMessage = useCallback((messageId: string, content: string) => {
     if (isSpeaking && speakingMessageId === messageId) {
       stopSpeaking();
@@ -633,48 +787,88 @@ export default function ChatPage() {
             ) : (
               <nav aria-label="Conversation history">
                 <ul className="space-y-1" role="list">
-                  {filteredConversations.map((conv) => (
+                  {filteredConversations.some((c) => c.pinned) && !searchQuery && (
+                    <li className="px-3 py-1">
+                      <span className="text-[10px] font-medium text-white/30 uppercase tracking-wider">{t('pinned')}</span>
+                    </li>
+                  )}
+                  {filteredConversations.map((conv, idx) => (
                     <li key={conv.id}>
-                      <Link
-                        href={`/chat/${conv.id}`}
-                        onClick={() => setSidebarOpen(false)}
-                        className={`group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all ${
-                          currentConversationId === conv.id
-                            ? 'bg-white/15 text-white'
-                            : 'text-white/70 hover:bg-white/10 hover:text-white'
-                        }`}
-                        aria-current={currentConversationId === conv.id ? 'page' : undefined}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs sm:text-sm font-medium truncate">
-                            {conv.title || conv.messages?.[0]?.content?.slice(0, 30) || t('newChat')}
-                            {!conv.title && conv.messages?.[0]?.content && conv.messages[0].content.length > 30 && '...'}
-                          </p>
-                          <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">
-                            {formatDate(conv.updatedAt)}
-                          </p>
+                      {/* Divider between pinned and unpinned */}
+                      {!searchQuery && idx > 0 && filteredConversations[idx - 1]?.pinned && !conv.pinned && (
+                        <div className="border-t border-white/10 my-1 mx-2" />
+                      )}
+                      {renamingConversationId === conv.id ? (
+                        <div className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg bg-white/15">
+                          <input
+                            type="text"
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveRename();
+                              if (e.key === 'Escape') cancelRenaming();
+                            }}
+                            onBlur={saveRename}
+                            className="flex-1 bg-white/10 border border-white/20 rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:ring-1 focus:ring-violet-500 min-w-0"
+                            autoFocus
+                          />
                         </div>
-                        <button
-                          onClick={(e) => deleteConversation(conv.id, e)}
-                          className="opacity-0 group-hover:opacity-100 p-1 sm:p-1.5 hover:bg-white/10 rounded-lg transition-all text-white/40 hover:text-red-400"
-                          aria-label={`Delete conversation: ${conv.title || 'Untitled'}`}
+                      ) : (
+                        <Link
+                          href={`/chat/${conv.id}`}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all ${
+                            currentConversationId === conv.id
+                              ? 'bg-white/15 text-white'
+                              : 'text-white/70 hover:bg-white/10 hover:text-white'
+                          }`}
+                          aria-current={currentConversationId === conv.id ? 'page' : undefined}
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
+                          <div className="flex-1 min-w-0"
+                            onDoubleClick={(e) => startRenaming(conv.id, conv.title, e as unknown as React.MouseEvent)}
                           >
-                            <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                          </svg>
-                        </button>
-                      </Link>
+                            <p className="text-xs sm:text-sm font-medium truncate">
+                              {conv.title || conv.messages?.[0]?.content?.slice(0, 30) || t('newChat')}
+                              {!conv.title && conv.messages?.[0]?.content && conv.messages[0].content.length > 30 && '...'}
+                            </p>
+                            <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">
+                              {formatDate(conv.updatedAt)}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                            <button
+                              onClick={(e) => togglePin(conv.id, !!conv.pinned, e)}
+                              className={`p-1 sm:p-1.5 hover:bg-white/10 rounded-lg transition-colors ${conv.pinned ? 'text-violet-400' : 'text-white/40 hover:text-white/70'}`}
+                              aria-label={conv.pinned ? t('unpinConversation') : t('pinConversation')}
+                              title={conv.pinned ? t('unpinConversation') : t('pinConversation')}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill={conv.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M12 17v5" />
+                                <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={(e) => startRenaming(conv.id, conv.title, e)}
+                              className="p-1 sm:p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-white/70"
+                              aria-label={t('renameConversation')}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                <path d="m15 5 4 4" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={(e) => deleteConversation(conv.id, e)}
+                              className="p-1 sm:p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-red-400"
+                              aria-label={`Delete conversation: ${conv.title || 'Untitled'}`}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                              </svg>
+                            </button>
+                          </div>
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -822,6 +1016,20 @@ export default function ChatPage() {
             {/* Header Actions */}
             <div className="flex-1" />
             <div className="flex items-center gap-2">
+              {currentConversationId && messages.length > 0 && (
+                <button
+                  onClick={exportConversation}
+                  className="p-2 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors"
+                  aria-label={t('exportChat')}
+                  title={t('exportChat')}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" x2="12" y1="15" y2="3" />
+                  </svg>
+                </button>
+              )}
               <button
                 onClick={openCommandPalette}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/70 transition-all text-sm"
@@ -905,7 +1113,39 @@ export default function ChatPage() {
                       role="article"
                       aria-label={`${message.role === 'user' ? t('youSaid') : t('cosmoSaid')}`}
                     >
-                      {message.content ? (
+                      {editingMessageId === message.id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') cancelEditing();
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                saveEdit();
+                              }
+                            }}
+                            className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+                            rows={3}
+                            autoFocus
+                          />
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={cancelEditing}
+                              className="px-3 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 text-white/70 transition-colors"
+                            >
+                              {t('cancelEdit')}
+                            </button>
+                            <button
+                              onClick={saveEdit}
+                              disabled={!editValue.trim()}
+                              className="px-3 py-1 text-xs rounded-lg bg-white/30 hover:bg-white/40 text-white font-medium transition-colors disabled:opacity-50"
+                            >
+                              {t('saveEdit')}
+                            </button>
+                          </div>
+                        </div>
+                      ) : message.content ? (
                         <>
                           <MessageRenderer content={message.content} role={message.role} />
                           <p
@@ -944,6 +1184,22 @@ export default function ChatPage() {
                         </div>
                       )}
                     </div>
+                    {/* Message actions (user messages - edit) */}
+                    {message.role === 'user' && message.content && !editingMessageId && !isLoading && (
+                      <div className="flex items-center gap-1 mt-1 opacity-0 group-hover/msg:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => startEditing(message.id, message.content)}
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors"
+                          aria-label={t('editMessage')}
+                          title={t('editMessage')}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                            <path d="m15 5 4 4" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                     {/* Message actions (assistant messages with content) */}
                     {message.role === 'assistant' && message.content && (
                       <div className="flex items-center gap-1 mt-1 opacity-0 group-hover/msg:opacity-100 transition-opacity">

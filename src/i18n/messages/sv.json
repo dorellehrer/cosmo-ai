@@ -147,6 +147,10 @@
     "aiModel": "AI-modell",
     "aiModelDescription": "Välj vilken AI-modell Nova använder för konversationer.",
     "proPlan": "Pro-plan",
+    "systemPrompt": "Systemprompt",
+    "systemPromptDescription": "Ge Nova anpassade instruktioner som gäller för varje konversation.",
+    "systemPromptPlaceholder": "t.ex., Svara alltid vänligt och kortfattat. Mitt namn är...",
+    "systemPromptChars": "tecken",
     "integrations": {
       "google": {
         "name": "Google",
@@ -215,7 +219,17 @@
     "stopSpeaking": "Sluta läsa",
     "searchConversations": "Sök konversationer...",
     "noSearchResults": "Inga konversationer hittades",
-    "clearSearch": "Rensa sökning"
+    "clearSearch": "Rensa sökning",
+    "editMessage": "Redigera meddelande",
+    "saveEdit": "Spara",
+    "cancelEdit": "Avbryt",
+    "renameConversation": "Byt namn på konversation",
+    "rename": "Byt namn",
+    "exportChat": "Exportera konversation",
+    "exportSuccess": "Konversation exporterad",
+    "pinConversation": "Fäst konversation",
+    "unpinConversation": "Lossa konversation",
+    "pinned": "Fäst"
   },
   "routines": {
     "title": "Rutiner",

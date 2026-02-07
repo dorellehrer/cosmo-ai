@@ -77,6 +77,9 @@ export default function SettingsPage() {
   });
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [savingSystemPrompt, setSavingSystemPrompt] = useState(false);
+  const [systemPromptTimeout, setSystemPromptTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Load profile from API
   useEffect(() => {
@@ -86,6 +89,7 @@ export default function SettingsPage() {
         if (data.name) setName(data.name);
         if (data.plan) setPlan(data.plan);
         if (data.preferredModel) setPreferredModel(data.preferredModel);
+        if (data.systemPrompt) setSystemPrompt(data.systemPrompt);
       })
       .catch((err) => console.error('Failed to load profile:', err))
       .finally(() => setProfileLoading(false));
@@ -119,6 +123,35 @@ export default function SettingsPage() {
     const value = e.target.value;
     setName(value);
     saveName(value);
+  };
+
+  const saveSystemPrompt = useCallback(
+    (value: string) => {
+      if (systemPromptTimeout) clearTimeout(systemPromptTimeout);
+      const timeout = setTimeout(async () => {
+        setSavingSystemPrompt(true);
+        try {
+          await fetch('/api/user/profile', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ systemPrompt: value }),
+          });
+        } catch (err) {
+          console.error('Failed to save system prompt:', err);
+        } finally {
+          setSavingSystemPrompt(false);
+        }
+      }, 800);
+      setSystemPromptTimeout(timeout);
+    },
+    [systemPromptTimeout]
+  );
+
+  const handleSystemPromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length > 1000) return;
+    setSystemPrompt(value);
+    saveSystemPrompt(value);
   };
 
   const toggleVoiceResponses = () => {
@@ -299,6 +332,35 @@ export default function SettingsPage() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* System Prompt Section */}
+        <section className="mb-8 sm:mb-12" aria-labelledby="system-prompt-heading">
+          <h2 id="system-prompt-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400" aria-hidden="true">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" x2="8" y1="13" y2="13"/>
+              <line x1="16" x2="8" y1="17" y2="17"/>
+              <line x1="10" x2="8" y1="9" y2="9"/>
+            </svg>
+            {t('systemPrompt')}
+            {savingSystemPrompt && <span className="text-xs text-white/40 font-normal">Saving...</span>}
+          </h2>
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <p className="text-white/60 text-sm mb-3">{t('systemPromptDescription')}</p>
+            <textarea
+              value={systemPrompt}
+              onChange={handleSystemPromptChange}
+              placeholder={t('systemPromptPlaceholder')}
+              disabled={profileLoading}
+              rows={4}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none transition-colors disabled:opacity-50"
+            />
+            <p className="text-white/30 text-xs mt-2 text-right">
+              {systemPrompt.length}/1000 {t('systemPromptChars')}
+            </p>
           </div>
         </section>
 

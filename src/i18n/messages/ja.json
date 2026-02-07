@@ -147,6 +147,10 @@
     "aiModel": "AIモデル",
     "aiModelDescription": "Novaが会話に使用するAIモデルを選択してください。",
     "proPlan": "Proプラン",
+    "systemPrompt": "システムプロンプト",
+    "systemPromptDescription": "すべての会話に適用されるカスタム指示をNovaに設定します。",
+    "systemPromptPlaceholder": "例：いつもフレンドリーで簡潔に返答してください。私の名前は...",
+    "systemPromptChars": "文字",
     "integrations": {
       "google": {
         "name": "Google",
@@ -215,7 +219,17 @@
     "stopSpeaking": "読み上げを停止",
     "searchConversations": "会話を検索...",
     "noSearchResults": "会話が見つかりません",
-    "clearSearch": "検索をクリア"
+    "clearSearch": "検索をクリア",
+    "editMessage": "メッセージを編集",
+    "saveEdit": "保存",
+    "cancelEdit": "キャンセル",
+    "renameConversation": "会話の名前を変更",
+    "rename": "名前を変更",
+    "exportChat": "会話をエクスポート",
+    "exportSuccess": "会話をエクスポートしました",
+    "pinConversation": "会話をピン留め",
+    "unpinConversation": "会話のピン留めを解除",
+    "pinned": "ピン留め済み"
   },
   "routines": {
     "title": "ルーティン",

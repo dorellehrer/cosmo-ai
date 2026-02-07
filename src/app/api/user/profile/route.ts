@@ -29,6 +29,7 @@ export async function GET() {
         email: true,
         createdAt: true,
         preferredModel: true,
+        systemPrompt: true,
         stripeSubscriptionId: true,
         stripeCurrentPeriodEnd: true,
       },
@@ -49,6 +50,7 @@ export async function GET() {
       createdAt: user.createdAt,
       plan: isPro ? 'pro' : 'free',
       preferredModel: user.preferredModel || DEFAULT_MODEL,
+      systemPrompt: user.systemPrompt || '',
     });
   } catch (error) {
     console.error('GET /api/user/profile error:', error);
@@ -73,7 +75,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const data: Record<string, string> = {};
+    const data: Record<string, string | null> = {};
 
     // Name update
     if (body.name !== undefined) {
@@ -92,6 +94,18 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Invalid model' }, { status: 400 });
       }
       data.preferredModel = body.preferredModel;
+    }
+
+    // System prompt update
+    if (body.systemPrompt !== undefined) {
+      if (typeof body.systemPrompt !== 'string') {
+        return NextResponse.json({ error: 'Invalid system prompt' }, { status: 400 });
+      }
+      const trimmed = body.systemPrompt.trim();
+      if (trimmed.length > 1000) {
+        return NextResponse.json({ error: 'System prompt too long (max 1000 characters)' }, { status: 400 });
+      }
+      data.systemPrompt = trimmed || null;
     }
 
     if (Object.keys(data).length === 0) {

@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
     const conversations = await prisma.conversation.findMany({
       where,
-      orderBy: { updatedAt: "desc" },
+      orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
       take: 50,
       include: {
         messages: {

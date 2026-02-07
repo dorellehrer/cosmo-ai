@@ -223,8 +223,13 @@ export async function POST(req: Request) {
 
     // Fetch user's connected integrations for tool use
     const connectedIntegrations = await getConnectedIntegrations(user.id);
-    const systemPrompt = buildSystemPrompt(connectedIntegrations);
+    let systemPrompt = buildSystemPrompt(connectedIntegrations);
     const tools = getIntegrationTools(connectedIntegrations);
+
+    // Append user's custom system prompt if set
+    if (user.systemPrompt) {
+      systemPrompt += `\n\nUser instructions: ${user.systemPrompt}`;
+    }
 
     // Resolve model: request override → conversation model → user preference → default
     const modelId = requestModel || conversation.model || user.preferredModel || DEFAULT_MODEL;

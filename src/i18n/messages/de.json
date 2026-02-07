@@ -147,6 +147,10 @@
     "aiModel": "KI-Modell",
     "aiModelDescription": "Wähle aus, welches KI-Modell Nova für Unterhaltungen verwendet.",
     "proPlan": "Pro-Tarif",
+    "systemPrompt": "System-Prompt",
+    "systemPromptDescription": "Gib Nova benutzerdefinierte Anweisungen, die für jedes Gespräch gelten.",
+    "systemPromptPlaceholder": "z.B., Antworte immer freundlich und knapp. Mein Name ist...",
+    "systemPromptChars": "Zeichen",
     "integrations": {
       "google": {
         "name": "Google",
@@ -215,7 +219,17 @@
     "stopSpeaking": "Vorlesen beenden",
     "searchConversations": "Gespräche durchsuchen...",
     "noSearchResults": "Keine Gespräche gefunden",
-    "clearSearch": "Suche löschen"
+    "clearSearch": "Suche löschen",
+    "editMessage": "Nachricht bearbeiten",
+    "saveEdit": "Speichern",
+    "cancelEdit": "Abbrechen",
+    "renameConversation": "Gespräch umbenennen",
+    "rename": "Umbenennen",
+    "exportChat": "Gespräch exportieren",
+    "exportSuccess": "Gespräch exportiert",
+    "pinConversation": "Gespräch anheften",
+    "unpinConversation": "Gespräch loslösen",
+    "pinned": "Angeheftet"
   },
   "routines": {
     "title": "Routinen",
