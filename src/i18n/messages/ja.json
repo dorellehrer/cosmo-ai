@@ -138,14 +138,15 @@
     "voiceDescription": "Novaが返答を音声で読み上げます",
     "notifications": "通知",
     "notificationsDescription": "リマインダーや更新のアラートを受け取る",
-    "darkMode": "ダークモード",
-    "darkModeDescription": "常にオン（居心地がいい）",
     "dangerZone": "危険ゾーン",
     "deleteAccount": "アカウント削除",
     "deleteAccountDescription": "アカウント、会話、接続されたすべての連携を完全に削除します。",
     "deleteMyAccount": "アカウントを削除",
     "language": "言語",
     "languageDescription": "ご希望の言語を選択してください",
+    "aiModel": "AIモデル",
+    "aiModelDescription": "Novaが会話に使用するAIモデルを選択してください。",
+    "proPlan": "Proプラン",
     "integrations": {
       "google": {
         "name": "Google",
@@ -198,7 +199,54 @@
       "music": "🎵 音楽を再生"
     },
     "loadingConversations": "会話を読み込み中...",
-    "loadingConversation": "会話を読み込み中..."
+    "loadingConversation": "会話を読み込み中...",
+    "attachFile": "ファイルを添付",
+    "addMessageToFiles": "ファイルにメッセージを追加...",
+    "stopGenerating": "生成を停止",
+    "voiceInput": "音声入力",
+    "listening": "聞き取り中...",
+    "tapToSpeak": "タップして話す",
+    "voiceNotSupported": "このブラウザでは音声入力に対応していません",
+    "copyMessage": "メッセージをコピー",
+    "copied": "コピーしました！",
+    "regenerate": "回答を再生成",
+    "regenerating": "再生成中...",
+    "speakMessage": "読み上げる",
+    "stopSpeaking": "読み上げを停止",
+    "searchConversations": "会話を検索...",
+    "noSearchResults": "会話が見つかりません",
+    "clearSearch": "検索をクリア"
+  },
+  "routines": {
+    "title": "ルーティン",
+    "subtitle": "繰り返しタスクを自動化",
+    "create": "ルーティンを作成",
+    "createRoutine": "新規ルーティンを作成",
+    "createFirst": "最初のルーティンを作成",
+    "emptyTitle": "まだルーティンがありません",
+    "emptyDescription": "ルーティンを使えば、毎朝カレンダーをチェックしたり、Slackで日次サマリーを送信したりといった繰り返しタスクを自動化できます。",
+    "name": "名前",
+    "namePlaceholder": "例: 朝のブリーフィング",
+    "nameRequired": "名前は必須です",
+    "description": "説明（任意）",
+    "descriptionPlaceholder": "例: カレンダーをチェックしてSlackにサマリーを送信",
+    "schedule": "スケジュール",
+    "scheduleRequired": "スケジュールは必須です",
+    "preset": "プリセット",
+    "customCron": "カスタムcron",
+    "toolChain": "ステップ",
+    "toolChainHint": "ツールは順番に実行されます。各ステップは前のステップの結果を使用できます。",
+    "toolRequired": "少なくとも1つのツールが必要です",
+    "selectTool": "ツールを選択...",
+    "addStep": "ステップを追加",
+    "enable": "ルーティンを有効化",
+    "disable": "ルーティンを無効化",
+    "delete": "ルーティンを削除",
+    "deleteConfirm": "このルーティンを削除しますか？",
+    "viewHistory": "実行履歴を表示",
+    "executionHistory": "実行履歴",
+    "noHistory": "まだ実行がありません",
+    "createFailed": "ルーティンの作成に失敗しました"
   },
   "notFound": {
     "title": "ページが見つかりません",
@@ -215,38 +263,38 @@
       "google": {
         "name": "Google",
         "description": "カレンダー、Gmail、ドライブ",
-        "fullDescription": "Googleアカウントを接続して、スケジュール管理のカレンダー、メール閲覧のGmail、ファイル検索のDriveにアクセスできます。",
-        "features": ["カレンダーの予定を表示・作成", "メールの要約を読む", "ドライブのファイルを検索", "今後の予定を確認"]
+        "fullDescription": "Googleアカウントを接続して、カレンダーの予定を管理し、Gmailでメールの送受信を行い、Driveでファイルを検索できます。",
+        "features": ["カレンダーの予定を表示・作成・更新・削除", "メールの要約を読んでメールを送信", "ドライブのファイルを検索", "カレンダーの完全管理"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "スマートライト（近日公開）",
-        "fullDescription": "Philips Hueスマートライト連携は近日公開予定です。",
-        "features": ["個別のライトを操作（近日公開）", "シーンを有効化（近日公開）", "明るさと色を調整（近日公開）", "照明スケジュール設定（近日公開）"]
+        "description": "スマートライト操作",
+        "fullDescription": "Philips Hueを接続して、スマートライトの操作、シーンの有効化、Novaを通じた明るさや色の調整ができます。",
+        "features": ["個別のライトを操作", "シーンを有効化", "明るさと色を調整", "すべてのライトとシーンを一覧表示"]
       },
       "spotify": {
         "name": "Spotify",
         "description": "音楽再生と検索",
-        "fullDescription": "Spotifyを接続して、再生を操作し、再生中の曲を確認し、曲、アーティスト、アルバムを検索します。",
-        "features": ["トラックの再生・一時停止・スキップ", "再生中のトラックを確認", "音楽を検索", "新しい音楽を発見"]
+        "fullDescription": "Spotifyを接続して、再生を操作し、再生中の曲を確認し、プレイリストを閲覧し、Novaを通じて曲、アーティスト、アルバムを検索します。",
+        "features": ["トラックの再生・一時停止・スキップ", "再生中のトラックを確認", "プレイリストを閲覧", "音楽を検索"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "マルチルームオーディオ（近日公開）",
-        "fullDescription": "Sonosスピーカー連携は近日公開予定です。",
-        "features": ["マルチルームオーディオ操作（近日公開）", "スピーカーのグループ化/解除（近日公開）", "音量調整（近日公開）", "様々なソースから再生（近日公開）"]
+        "description": "マルチルームオーディオ",
+        "fullDescription": "Sonosを接続して、マルチルームオーディオの操作、音量の調整、Novaを通じたスピーカーグループの管理ができます。",
+        "features": ["マルチルームオーディオ操作", "トラックの再生・一時停止・スキップ", "音量調整", "スピーカーグループを一覧表示"]
       },
       "notion": {
         "name": "Notion",
         "description": "メモ、ドキュメント＆データベース",
-        "fullDescription": "Notionワークスペースにアクセス。ページの検索、メモの作成、自然言語でのデータベース管理ができます。",
-        "features": ["ページとデータベースを検索", "新しいページを作成", "ワークスペースを閲覧", "クイックメモを取る"]
+        "fullDescription": "Notionワークスペースにアクセス。ページの検索、メモの作成と更新、自然言語でのデータベース管理ができます。",
+        "features": ["ページとデータベースを検索", "新しいページを作成", "既存のページを更新", "クイックメモを取る"]
       },
       "slack": {
         "name": "Slack",
         "description": "チームコミュニケーション",
-        "fullDescription": "Slackを接続して、メッセージを検索し、チャンネルにメッセージを送信し、チームのコミュニケーションを閲覧します。",
-        "features": ["ワークスペースのメッセージを検索", "チャンネルにメッセージを送信", "チャンネル一覧", "最新情報を確認"]
+        "fullDescription": "Slackを接続して、メッセージを検索し、チャンネルにメッセージを送信し、DMsを送り、スレッドに返信し、Novaを通じてチームのコミュニケーションを閲覧します。",
+        "features": ["ワークスペースのメッセージを検索", "チャンネルにメッセージを送信", "ダイレクトメッセージを送信", "スレッドに返信"]
       }
     }
   },

@@ -101,3 +101,42 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to install skill' }, { status: 500 });
   }
 }
+
+// PATCH /api/agent/skills — Toggle a skill's enabled state
+export async function PATCH(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const rateLimitPatch = checkRateLimit(`agent:skills:toggle:${session.user.id}`, RATE_LIMIT_API);
+    if (!rateLimitPatch.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: rateLimitPatch.headers }
+      );
+    }
+
+    const body = await req.json();
+    const { skillId, enabled } = body;
+
+    if (!skillId || typeof enabled !== 'boolean') {
+      return NextResponse.json({ error: 'skillId and enabled (boolean) are required' }, { status: 400 });
+    }
+
+    const result = await prisma.agentSkill.updateMany({
+      where: { userId: session.user.id, skillId },
+      data: { enabled },
+    });
+
+    if (result.count === 0) {
+      return NextResponse.json({ error: 'Skill not found or not installed' }, { status: 404 });
+    }
+
+    return NextResponse.json({ updated: true, skillId, enabled });
+  } catch (error) {
+    console.error('Failed to toggle skill:', error);
+    return NextResponse.json({ error: 'Failed to toggle skill' }, { status: 500 });
+  }
+}

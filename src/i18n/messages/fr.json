@@ -138,14 +138,15 @@
     "voiceDescription": "Nova parlera les réponses à voix haute",
     "notifications": "Notifications",
     "notificationsDescription": "Recevez des alertes pour les rappels et mises à jour",
-    "darkMode": "Mode sombre",
-    "darkModeDescription": "Toujours activé (c'est cosy)",
     "dangerZone": "Zone de Danger",
     "deleteAccount": "Supprimer le compte",
     "deleteAccountDescription": "Cela supprimera définitivement votre compte, vos conversations et toutes les intégrations connectées.",
     "deleteMyAccount": "Supprimer mon compte",
     "language": "Langue",
     "languageDescription": "Choisissez votre langue préférée",
+    "aiModel": "Modèle d'IA",
+    "aiModelDescription": "Choisissez quel modèle d'IA Nova utilise pour les conversations.",
+    "proPlan": "Plan Pro",
     "integrations": {
       "google": {
         "name": "Google",
@@ -198,7 +199,54 @@
       "music": "🎵 Jouer de la musique"
     },
     "loadingConversations": "Chargement des conversations...",
-    "loadingConversation": "Chargement de la conversation..."
+    "loadingConversation": "Chargement de la conversation...",
+    "attachFile": "Joindre un fichier",
+    "addMessageToFiles": "Ajoutez un message à vos fichiers...",
+    "stopGenerating": "Arrêter la génération",
+    "voiceInput": "Saisie vocale",
+    "listening": "Écoute en cours...",
+    "tapToSpeak": "Appuyez pour parler",
+    "voiceNotSupported": "La saisie vocale n'est pas prise en charge par ce navigateur",
+    "copyMessage": "Copier le message",
+    "copied": "Copié !",
+    "regenerate": "Régénérer la réponse",
+    "regenerating": "Régénération...",
+    "speakMessage": "Lire à voix haute",
+    "stopSpeaking": "Arrêter la lecture",
+    "searchConversations": "Rechercher des conversations...",
+    "noSearchResults": "Aucune conversation trouvée",
+    "clearSearch": "Effacer la recherche"
+  },
+  "routines": {
+    "title": "Routines",
+    "subtitle": "Automatisez les tâches récurrentes",
+    "create": "Créer une Routine",
+    "createRoutine": "Créer une Nouvelle Routine",
+    "createFirst": "Créez votre première routine",
+    "emptyTitle": "Aucune routine pour le moment",
+    "emptyDescription": "Les routines vous permettent d'automatiser les tâches récurrentes, comme vérifier votre agenda chaque matin ou envoyer un résumé quotidien sur Slack.",
+    "name": "Nom",
+    "namePlaceholder": "ex., Briefing matinal",
+    "nameRequired": "Le nom est requis",
+    "description": "Description (facultatif)",
+    "descriptionPlaceholder": "ex., Vérifier l'agenda et envoyer un résumé sur Slack",
+    "schedule": "Programmation",
+    "scheduleRequired": "La programmation est requise",
+    "preset": "Prédéfini",
+    "customCron": "Cron personnalisé",
+    "toolChain": "Étapes",
+    "toolChainHint": "Les outils s'exécutent dans l'ordre. Chaque étape peut utiliser le résultat de l'étape précédente.",
+    "toolRequired": "Au moins un outil est requis",
+    "selectTool": "Sélectionner un outil...",
+    "addStep": "Ajouter une étape",
+    "enable": "Activer la routine",
+    "disable": "Désactiver la routine",
+    "delete": "Supprimer la routine",
+    "deleteConfirm": "Supprimer cette routine ?",
+    "viewHistory": "Voir l'historique d'exécution",
+    "executionHistory": "Historique d'Exécution",
+    "noHistory": "Aucune exécution pour le moment",
+    "createFailed": "Échec de la création de la routine"
   },
   "notFound": {
     "title": "Page introuvable",
@@ -215,38 +263,38 @@
       "google": {
         "name": "Google",
         "description": "Agenda, Gmail, Drive",
-        "fullDescription": "Connectez votre compte Google pour accéder à l'Agenda pour la planification, Gmail pour lire les e-mails et Drive pour la recherche de fichiers.",
-        "features": ["Afficher et créer des événements", "Lire les résumés d'e-mails", "Rechercher des fichiers dans Drive", "Consulter les événements à venir"]
+        "fullDescription": "Connectez votre compte Google pour gérer les événements de l'Agenda, envoyer et lire des e-mails via Gmail, et rechercher des fichiers dans Drive.",
+        "features": ["Afficher, créer, modifier et supprimer des événements", "Lire les résumés d'e-mails et envoyer des e-mails", "Rechercher des fichiers dans Drive", "Gestion complète de l'agenda"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "Éclairage intelligent (bientôt disponible)",
-        "fullDescription": "L'intégration des lumières connectées Philips Hue arrive bientôt.",
-        "features": ["Contrôler les lumières individuelles (bientôt)", "Activer des scènes (bientôt)", "Ajuster la luminosité et la couleur (bientôt)", "Programmer l'éclairage (bientôt)"]
+        "description": "Contrôle d'éclairage intelligent",
+        "fullDescription": "Connectez Philips Hue pour contrôler vos lumières intelligentes, activer des scènes et ajuster la luminosité et les couleurs via Nova.",
+        "features": ["Contrôler les lumières individuelles", "Activer des scènes", "Ajuster la luminosité et la couleur", "Lister toutes les lumières et scènes"]
       },
       "spotify": {
         "name": "Spotify",
         "description": "Lecture et recherche musicale",
-        "fullDescription": "Connectez Spotify pour contrôler la lecture, voir ce qui joue et rechercher des chansons, artistes et albums via Nova.",
-        "features": ["Lire, mettre en pause et passer des pistes", "Voir le titre en cours", "Rechercher de la musique", "Découvrir de la musique"]
+        "fullDescription": "Connectez Spotify pour contrôler la lecture, voir ce qui joue, parcourir les playlists et rechercher des chansons, artistes et albums via Nova.",
+        "features": ["Lire, mettre en pause et passer des pistes", "Voir le titre en cours", "Parcourir vos playlists", "Rechercher de la musique"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "Audio multi-pièces (bientôt disponible)",
-        "fullDescription": "L'intégration des enceintes Sonos arrive bientôt.",
-        "features": ["Contrôle audio multi-pièces (bientôt)", "Grouper/séparer les enceintes (bientôt)", "Contrôle du volume (bientôt)", "Lecture depuis différentes sources (bientôt)"]
+        "description": "Audio multi-pièces",
+        "fullDescription": "Connectez Sonos pour contrôler l'audio multi-pièces, ajuster le volume et gérer les groupes d'enceintes via Nova.",
+        "features": ["Contrôle audio multi-pièces", "Lecture, pause et saut de pistes", "Contrôle du volume", "Lister les groupes d'enceintes"]
       },
       "notion": {
         "name": "Notion",
         "description": "Notes, documents et bases de données",
-        "fullDescription": "Accédez à votre espace de travail Notion. Recherchez des pages, créez des notes et gérez vos bases de données en langage naturel.",
-        "features": ["Rechercher des pages et bases de données", "Créer de nouvelles pages", "Parcourir votre espace de travail", "Capture rapide de notes"]
+        "fullDescription": "Accédez à votre espace de travail Notion. Recherchez des pages, créez et mettez à jour des notes, et gérez vos bases de données en langage naturel.",
+        "features": ["Rechercher des pages et bases de données", "Créer de nouvelles pages", "Mettre à jour les pages existantes", "Capture rapide de notes"]
       },
       "slack": {
         "name": "Slack",
         "description": "Communication d'équipe",
-        "fullDescription": "Connectez Slack pour rechercher des messages, envoyer des messages dans les canaux et parcourir la communication de votre équipe via Nova.",
-        "features": ["Rechercher des messages", "Envoyer des messages dans les canaux", "Lister les canaux", "Rester informé"]
+        "fullDescription": "Connectez Slack pour rechercher des messages, envoyer des messages dans les canaux, envoyer des DMs, répondre dans les fils de discussion et parcourir la communication de votre équipe via Nova.",
+        "features": ["Rechercher les messages de l'espace de travail", "Envoyer des messages dans les canaux", "Envoyer des messages directs", "Répondre dans les fils de discussion"]
       }
     }
   },

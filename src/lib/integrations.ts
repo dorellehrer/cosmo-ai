@@ -63,6 +63,7 @@ export const OAUTH_PROVIDERS: Record<string, () => OAuthProviderConfig> = {
     scopes: [
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/gmail.send',
       'https://www.googleapis.com/auth/drive.readonly',
       'https://www.googleapis.com/auth/userinfo.email',
     ],
@@ -105,10 +106,24 @@ export const OAUTH_PROVIDERS: Record<string, () => OAuthProviderConfig> = {
       'search:read',
     ],
   }),
+  hue: () => ({
+    clientId: process.env.HUE_CLIENT_ID || '',
+    clientSecret: process.env.HUE_CLIENT_SECRET || '',
+    authUrl: 'https://api.meethue.com/v2/oauth2/authorize',
+    tokenUrl: 'https://api.meethue.com/v2/oauth2/token',
+    scopes: [],
+  }),
+  sonos: () => ({
+    clientId: process.env.SONOS_CLIENT_ID || '',
+    clientSecret: process.env.SONOS_CLIENT_SECRET || '',
+    authUrl: 'https://api.sonos.com/login/v3/oauth',
+    tokenUrl: 'https://api.sonos.com/login/v3/oauth/access',
+    scopes: ['playback-control-all'],
+  }),
 };
 
 /** Providers that don't use standard OAuth (need custom flow) */
-export const NON_OAUTH_PROVIDERS = ['hue', 'sonos'];
+export const NON_OAUTH_PROVIDERS: string[] = [];
 
 /** All known provider IDs */
 export const ALL_PROVIDERS = ['google', 'spotify', 'notion', 'slack', 'hue', 'sonos'] as const;
@@ -240,6 +255,29 @@ export async function fetchProviderUserInfo(
       });
       const data = await res.json();
       return { email: data.user?.email, id: data.user?.id };
+    }
+    case 'hue': {
+      // Hue CLIP v2 API — get bridge configuration
+      const res = await fetch('https://api.meethue.com/route/api/config', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return { id: data.bridgeid || 'hue-user' };
+      }
+      return { id: 'hue-user' };
+    }
+    case 'sonos': {
+      // Sonos Control API — get households
+      const res = await fetch('https://api.ws.sonos.com/control/api/v1/households', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const hhId = data.households?.[0]?.id;
+        return { id: hhId || 'sonos-user' };
+      }
+      return { id: 'sonos-user' };
     }
     default:
       return {};

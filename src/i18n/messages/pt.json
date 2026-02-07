@@ -138,14 +138,15 @@
     "voiceDescription": "O Nova falará as respostas em voz alta",
     "notifications": "Notificações",
     "notificationsDescription": "Receba alertas para lembretes e atualizações",
-    "darkMode": "Modo escuro",
-    "darkModeDescription": "Sempre ativo (é aconchegante)",
     "dangerZone": "Zona de Perigo",
     "deleteAccount": "Excluir conta",
     "deleteAccountDescription": "Isso excluirá permanentemente sua conta, conversas e todas as integrações conectadas.",
     "deleteMyAccount": "Excluir minha conta",
     "language": "Idioma",
     "languageDescription": "Escolha seu idioma preferido",
+    "aiModel": "Modelo de IA",
+    "aiModelDescription": "Escolha qual modelo de IA o Nova usa para conversas.",
+    "proPlan": "Plano Pro",
     "integrations": {
       "google": {
         "name": "Google",
@@ -198,7 +199,54 @@
       "music": "🎵 Tocar música"
     },
     "loadingConversations": "Carregando conversas...",
-    "loadingConversation": "Carregando conversa..."
+    "loadingConversation": "Carregando conversa...",
+    "attachFile": "Anexar arquivo",
+    "addMessageToFiles": "Adicione uma mensagem aos seus arquivos...",
+    "stopGenerating": "Parar geração",
+    "voiceInput": "Entrada de voz",
+    "listening": "Ouvindo...",
+    "tapToSpeak": "Toque para falar",
+    "voiceNotSupported": "Entrada de voz não é compatível com este navegador",
+    "copyMessage": "Copiar mensagem",
+    "copied": "Copiado!",
+    "regenerate": "Gerar nova resposta",
+    "regenerating": "Gerando novamente...",
+    "speakMessage": "Ler em voz alta",
+    "stopSpeaking": "Parar leitura",
+    "searchConversations": "Buscar conversas...",
+    "noSearchResults": "Nenhuma conversa encontrada",
+    "clearSearch": "Limpar busca"
+  },
+  "routines": {
+    "title": "Rotinas",
+    "subtitle": "Automatize tarefas recorrentes",
+    "create": "Criar Rotina",
+    "createRoutine": "Criar Nova Rotina",
+    "createFirst": "Crie sua primeira rotina",
+    "emptyTitle": "Ainda não há rotinas",
+    "emptyDescription": "As rotinas permitem automatizar tarefas recorrentes, como verificar seu calendário todas as manhãs ou enviar um resumo diário no Slack.",
+    "name": "Nome",
+    "namePlaceholder": "ex., Briefing matinal",
+    "nameRequired": "O nome é obrigatório",
+    "description": "Descrição (opcional)",
+    "descriptionPlaceholder": "ex., Verificar calendário e enviar resumo para o Slack",
+    "schedule": "Agendamento",
+    "scheduleRequired": "O agendamento é obrigatório",
+    "preset": "Predefinido",
+    "customCron": "Cron personalizado",
+    "toolChain": "Etapas",
+    "toolChainHint": "As ferramentas são executadas em ordem. Cada etapa pode usar o resultado da etapa anterior.",
+    "toolRequired": "Pelo menos uma ferramenta é necessária",
+    "selectTool": "Selecione uma ferramenta...",
+    "addStep": "Adicionar etapa",
+    "enable": "Ativar rotina",
+    "disable": "Desativar rotina",
+    "delete": "Excluir rotina",
+    "deleteConfirm": "Excluir esta rotina?",
+    "viewHistory": "Ver histórico de execução",
+    "executionHistory": "Histórico de Execução",
+    "noHistory": "Ainda não há execuções",
+    "createFailed": "Falha ao criar a rotina"
   },
   "notFound": {
     "title": "Página não encontrada",
@@ -215,38 +263,38 @@
       "google": {
         "name": "Google",
         "description": "Calendário, Gmail, Drive",
-        "fullDescription": "Conecte sua conta Google para acessar o Calendário para agendamentos, Gmail para leitura de e-mails e Drive para busca de arquivos.",
-        "features": ["Ver e criar eventos no calendário", "Ler resumos de e-mails", "Buscar arquivos no Drive", "Verificar próximos eventos"]
+        "fullDescription": "Conecte sua conta Google para gerenciar eventos do Calendário, enviar e ler e-mails pelo Gmail, e buscar arquivos no Drive.",
+        "features": ["Ver, criar, atualizar e excluir eventos do calendário", "Ler resumos de e-mails e enviar e-mails", "Buscar arquivos no Drive", "Gerenciamento completo do calendário"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "Luzes inteligentes (em breve)",
-        "fullDescription": "A integração com luzes inteligentes Philips Hue estará disponível em breve.",
-        "features": ["Controlar luzes individuais (em breve)", "Ativar cenas (em breve)", "Ajustar brilho e cor (em breve)", "Programar iluminação (em breve)"]
+        "description": "Controle de iluminação inteligente",
+        "fullDescription": "Conecte o Philips Hue para controlar suas luzes inteligentes, ativar cenas e ajustar o brilho e as cores pelo Nova.",
+        "features": ["Controlar luzes individuais", "Ativar cenas", "Ajustar brilho e cor", "Listar todas as luzes e cenas"]
       },
       "spotify": {
         "name": "Spotify",
         "description": "Reprodução e busca de música",
-        "fullDescription": "Conecte o Spotify para controlar a reprodução, ver o que está tocando e buscar músicas, artistas e álbuns pelo Nova.",
-        "features": ["Reproduzir, pausar e pular faixas", "Ver a faixa em reprodução", "Buscar músicas", "Descobrir novas músicas"]
+        "fullDescription": "Conecte o Spotify para controlar a reprodução, ver o que está tocando, explorar playlists e buscar músicas, artistas e álbuns pelo Nova.",
+        "features": ["Reproduzir, pausar e pular faixas", "Ver a faixa em reprodução", "Explorar suas playlists", "Buscar músicas"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "Áudio multiambiente (em breve)",
-        "fullDescription": "A integração com alto-falantes Sonos estará disponível em breve.",
-        "features": ["Controle de áudio multiambiente (em breve)", "Agrupar/desagrupar alto-falantes (em breve)", "Controle de volume (em breve)", "Reproduzir de várias fontes (em breve)"]
+        "description": "Áudio multiambiente",
+        "fullDescription": "Conecte o Sonos para controlar o áudio multiambiente, ajustar o volume e gerenciar grupos de alto-falantes pelo Nova.",
+        "features": ["Controle de áudio multiambiente", "Reproduzir, pausar e pular faixas", "Controle de volume", "Listar grupos de alto-falantes"]
       },
       "notion": {
         "name": "Notion",
         "description": "Notas, documentos e bancos de dados",
-        "fullDescription": "Acesse seu espaço de trabalho do Notion. Pesquise páginas, crie notas e gerencie seus bancos de dados com linguagem natural.",
-        "features": ["Pesquisar páginas e bancos de dados", "Criar novas páginas", "Explorar seu workspace", "Captura rápida de notas"]
+        "fullDescription": "Acesse seu espaço de trabalho do Notion. Pesquise páginas, crie e atualize notas, e gerencie seus bancos de dados com linguagem natural.",
+        "features": ["Pesquisar páginas e bancos de dados", "Criar novas páginas", "Atualizar páginas existentes", "Captura rápida de notas"]
       },
       "slack": {
         "name": "Slack",
         "description": "Comunicação de equipe",
-        "fullDescription": "Conecte o Slack para buscar mensagens, enviar mensagens em canais e explorar a comunicação da equipe pelo Nova.",
-        "features": ["Buscar mensagens do workspace", "Enviar mensagens em canais", "Listar canais", "Manter-se atualizado"]
+        "fullDescription": "Conecte o Slack para buscar mensagens, enviar mensagens em canais, enviar DMs, responder em threads e explorar a comunicação da equipe pelo Nova.",
+        "features": ["Buscar mensagens do workspace", "Enviar mensagens em canais", "Enviar mensagens diretas", "Responder em threads"]
       }
     }
   },

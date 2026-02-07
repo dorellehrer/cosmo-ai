@@ -58,46 +58,46 @@ const INTEGRATION_DETAILS: Record<string, {
   examplePrompts: string[];
 }> = {
   google: {
-    fullDescription: 'Connect your Google account to access Calendar for scheduling, Gmail for reading emails, and Drive for file search. Nova can help you manage your day-to-day activities seamlessly.',
-    features: ['View and create calendar events', 'Search and read email summaries', 'Search files in Google Drive', 'Check upcoming schedule'],
-    permissions: ['Read and create calendar events', 'Read email messages (read-only)', 'Read Google Drive file metadata (read-only)'],
+    fullDescription: 'Connect your Google account to manage Calendar events (create, update, delete), send and read emails via Gmail, and search Drive files. Nova can help you manage your day-to-day activities seamlessly.',
+    features: ['View, create, update, and delete calendar events', 'Send emails and read email summaries', 'Search files in Google Drive', 'Full calendar management'],
+    permissions: ['Full calendar access (read, create, update, delete)', 'Read and send email messages', 'Read Google Drive file metadata (read-only)'],
     dataAccess: ['Calendar events and metadata', 'Email subjects, senders, and snippets', 'Drive file names and metadata'],
-    examplePrompts: ["What's on my calendar today?", 'Do I have any emails from my manager?', 'Search my Drive for the budget report', 'Schedule a meeting for tomorrow at 2pm'],
+    examplePrompts: ["What's on my calendar today?", 'Do I have any emails from my manager?', 'Move my 2pm meeting to 3pm', 'Send an email to john@example.com about the project update'],
   },
   hue: {
-    fullDescription: 'Philips Hue smart light integration is coming soon. Once available, Nova will be able to control your lights, set scenes, and adjust brightness throughout your home.',
-    features: ['Control individual lights (coming soon)', 'Activate scenes (coming soon)', 'Adjust brightness and color (coming soon)', 'Group lights by room (coming soon)'],
-    permissions: ['Control lights (coming soon)', 'View light status (coming soon)', 'Access room configurations (coming soon)'],
-    dataAccess: ['Light states and configurations (coming soon)', 'Room layouts (coming soon)', 'Scene settings (coming soon)'],
-    examplePrompts: [],
+    fullDescription: 'Connect Philips Hue to control your smart lights, activate scenes, and adjust brightness and colors through Nova. Manage your entire home lighting with natural language.',
+    features: ['Control individual lights (on/off, brightness, color)', 'Activate scenes like Relax, Energize, and Read', 'List all lights and their status', 'List and activate scenes'],
+    permissions: ['Control lights (on/off, brightness, color)', 'View light status', 'Access scenes and room configurations'],
+    dataAccess: ['Light states and configurations', 'Room layouts', 'Scene settings'],
+    examplePrompts: ['Turn off the living room lights', 'Set brightness to 50%', 'What lights are on?', 'Activate the relax scene'],
   },
   spotify: {
-    fullDescription: 'Connect Spotify to control playback, check what\'s playing, and search for songs, artists, and albums through Nova.',
-    features: ['Play, pause, and resume music', 'Skip to next or previous track', 'Check currently playing track', 'Search for songs, artists, and albums'],
-    permissions: ['Read current playback state', 'Control playback (play, pause, skip)', 'Search the Spotify catalog'],
-    dataAccess: ['Current playback state', 'Search results from the Spotify catalog'],
-    examplePrompts: ['What song is playing right now?', 'Search for songs by The Weeknd', 'Pause the music', 'Skip to the next track'],
+    fullDescription: 'Connect Spotify to control playback, check what\'s playing, browse your playlists, and search for songs, artists, and albums through Nova.',
+    features: ['Play, pause, and resume music', 'Skip to next or previous track', 'Check currently playing track', 'Browse your playlists', 'Search for songs, artists, and albums'],
+    permissions: ['Read current playback state', 'Control playback (play, pause, skip)', 'Read playlists', 'Search the Spotify catalog'],
+    dataAccess: ['Current playback state', 'Your playlists', 'Search results from the Spotify catalog'],
+    examplePrompts: ['What song is playing right now?', 'Show me my playlists', 'Search for songs by The Weeknd', 'Skip to the next track'],
   },
   sonos: {
-    fullDescription: 'Sonos speaker integration is coming soon. Once available, Nova will let you control multi-room audio, adjust volume, and group speakers with simple commands.',
-    features: ['Multi-room audio control (coming soon)', 'Group/ungroup speakers (coming soon)', 'Volume control (coming soon)', 'Play from various sources (coming soon)'],
-    permissions: ['Control speakers (coming soon)', 'View speaker status (coming soon)', 'Modify groups (coming soon)'],
-    dataAccess: ['Speaker configurations (coming soon)', 'Current playback (coming soon)', 'Room groups (coming soon)'],
-    examplePrompts: [],
+    fullDescription: 'Connect Sonos to control multi-room audio, adjust volume, and manage speaker groups through Nova. Play, pause, skip, and adjust volume across all your speakers.',
+    features: ['Multi-room audio control', 'Play, pause, and skip tracks', 'Volume control (0-100)', 'List speaker groups and players'],
+    permissions: ['Control playback on all speakers', 'Adjust group volume', 'View speaker groups and status'],
+    dataAccess: ['Speaker group configurations', 'Current playback state', 'Player information'],
+    examplePrompts: ['What speakers are available?', 'Pause the music in the living room', 'Set the volume to 30', 'Skip to the next song'],
   },
   notion: {
-    fullDescription: 'Access your Notion workspace with natural language. Search pages, create notes, and browse your knowledge base effortlessly.',
-    features: ['Search pages and databases', 'Create new pages', 'Quick capture notes'],
-    permissions: ['Read pages', 'Create pages', 'Search workspace'],
+    fullDescription: 'Access your Notion workspace with natural language. Search pages, create and update notes, and browse your knowledge base effortlessly.',
+    features: ['Search pages and databases', 'Create new pages', 'Update existing pages', 'Quick capture notes'],
+    permissions: ['Read pages', 'Create and update pages', 'Search workspace'],
     dataAccess: ['Page titles and content', 'Database entries', 'Workspace structure'],
-    examplePrompts: ['Search my Notion for project plans', "Create a new page called 'Meeting Notes'", 'Find my to-do list in Notion'],
+    examplePrompts: ['Search my Notion for project plans', "Create a new page called 'Meeting Notes'", 'Update my project page with the latest status', 'Find my to-do list in Notion'],
   },
   slack: {
-    fullDescription: 'Connect Slack to search messages, send messages to channels, and browse your team communication through Nova.',
-    features: ['Search workspace messages', 'Send messages to channels', 'List and browse channels', 'Stay on top of team communication'],
-    permissions: ['Read channels', 'Search workspace messages', 'Send messages to channels'],
-    dataAccess: ['Channel listings and metadata', 'Message search results'],
-    examplePrompts: ['Search Slack for messages about the deployment', 'What channels am I in?', "Send 'Hello team!' to the general channel"],
+    fullDescription: 'Connect Slack to search messages, send messages to channels, send direct messages, reply in threads, and browse your team communication through Nova.',
+    features: ['Search workspace messages', 'Send messages to channels', 'Send direct messages', 'Reply in threads', 'List and browse channels'],
+    permissions: ['Read channels', 'Search workspace messages', 'Send messages to channels and DMs'],
+    dataAccess: ['Channel listings and metadata', 'Message search results', 'Direct message conversations'],
+    examplePrompts: ['Search Slack for messages about the deployment', 'What channels am I in?', "Send 'Hello team!' to the general channel", 'Send a DM to my colleague'],
   },
 };
 
@@ -333,18 +333,12 @@ export default function IntegrationDetailPage() {
                   Enable this integration to unlock its features with Nova.
                 </p>
               </div>
-              {['hue', 'sonos'].includes(id) ? (
-                <span className="px-6 py-2.5 rounded-xl font-medium text-white/40 bg-white/10 cursor-not-allowed text-sm">
-                  Coming Soon
-                </span>
-              ) : (
-                <button
-                  onClick={handleConnect}
-                  className={`px-6 py-2.5 rounded-xl bg-gradient-to-r ${baseIntegration.color} text-white font-medium hover:opacity-90 transition-opacity`}
-                >
-                  Connect
-                </button>
-              )}
+              <button
+                onClick={handleConnect}
+                className={`px-6 py-2.5 rounded-xl bg-gradient-to-r ${baseIntegration.color} text-white font-medium hover:opacity-90 transition-opacity`}
+              >
+                Connect
+              </button>
             </div>
           )}
         </div>

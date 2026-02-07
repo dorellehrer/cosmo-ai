@@ -61,8 +61,10 @@ export default function SettingsPage() {
   });
   const [name, setName] = useState('');
   const [plan, setPlan] = useState('free');
+  const [preferredModel, setPreferredModel] = useState('gpt-4o-mini');
   const [profileLoading, setProfileLoading] = useState(true);
   const [savingName, setSavingName] = useState(false);
+  const [savingModel, setSavingModel] = useState(false);
   const [nameTimeout, setNameTimeout] = useState<NodeJS.Timeout | null>(null);
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
   const [voiceResponses, setVoiceResponses] = useState(() => {
@@ -83,6 +85,7 @@ export default function SettingsPage() {
       .then((data) => {
         if (data.name) setName(data.name);
         if (data.plan) setPlan(data.plan);
+        if (data.preferredModel) setPreferredModel(data.preferredModel);
       })
       .catch((err) => console.error('Failed to load profile:', err))
       .finally(() => setProfileLoading(false));
@@ -151,6 +154,29 @@ export default function SettingsPage() {
       setDisconnectingId(null);
     }, 300);
   };
+
+  const handleModelChange = async (modelId: string) => {
+    setPreferredModel(modelId);
+    setSavingModel(true);
+    try {
+      await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferredModel: modelId }),
+      });
+    } catch (err) {
+      console.error('Failed to save model:', err);
+    } finally {
+      setSavingModel(false);
+    }
+  };
+
+  const AI_MODELS = [
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI', tier: 'free', description: 'Fast and efficient for everyday tasks' },
+    { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku', provider: 'Anthropic', tier: 'free', description: 'Quick and lightweight' },
+    { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', tier: 'pro', description: 'Most capable OpenAI model' },
+    { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet', provider: 'Anthropic', tier: 'pro', description: 'Excellent for writing and analysis' },
+  ];
 
   const connectedIntegrations = integrations.filter((i) => i.connected);
 
@@ -227,6 +253,52 @@ export default function SettingsPage() {
           <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
             <p className="text-white/60 text-sm mb-4">{t('languageDescription')}</p>
             <LanguageSwitcher variant="grid" />
+          </div>
+        </section>
+
+        {/* AI Model Section */}
+        <section className="mb-8 sm:mb-12" aria-labelledby="model-heading">
+          <h2 id="model-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400" aria-hidden="true">
+              <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/>
+              <circle cx="12" cy="15" r="2"/>
+            </svg>
+            AI Model
+            {savingModel && <span className="text-xs text-white/40 font-normal">Saving...</span>}
+          </h2>
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <p className="text-white/60 text-sm mb-4">Choose which AI model Nova uses for conversations.</p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {AI_MODELS.map((model) => {
+                const isProLocked = model.tier === 'pro' && plan !== 'pro';
+                return (
+                  <button
+                    key={model.id}
+                    onClick={() => !isProLocked && handleModelChange(model.id)}
+                    disabled={isProLocked}
+                    className={`text-left p-3 rounded-xl border transition-all ${
+                      preferredModel === model.id
+                        ? 'bg-violet-500/20 border-violet-500/50'
+                        : isProLocked
+                          ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
+                          : 'bg-white/[0.02] border-white/10 hover:bg-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-white">{model.name}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                        model.tier === 'pro'
+                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      }`}>
+                        {model.tier === 'pro' ? 'Pro' : 'Free'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/40">{model.provider} — {model.description}</p>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -522,21 +594,6 @@ export default function SettingsPage() {
                 <span className={`absolute top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform ${
                   notificationsEnabled ? 'end-0.5 sm:end-1' : 'start-0.5 sm:start-1'
                 }`} />
-              </button>
-            </div>
-            <div className="p-3 sm:p-4 flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <h3 className="text-sm sm:text-base text-white font-medium">{t('darkMode')}</h3>
-                <p className="text-white/40 text-xs sm:text-sm">{t('darkModeDescription')}</p>
-              </div>
-              <button 
-                className="w-11 sm:w-12 h-6 sm:h-7 bg-violet-500 rounded-full relative transition-colors cursor-not-allowed opacity-50 shrink-0"
-                role="switch"
-                aria-checked="true"
-                aria-disabled="true"
-                aria-label={t('darkMode')}
-              >
-                <span className="absolute end-0.5 sm:end-1 top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform" />
               </button>
             </div>
           </div>

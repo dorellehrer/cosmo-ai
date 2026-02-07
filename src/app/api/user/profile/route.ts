@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { MODELS, DEFAULT_MODEL } from '@/lib/ai/models';
 
 // GET /api/user/profile — fetch current user profile
 export async function GET() {
@@ -27,6 +28,7 @@ export async function GET() {
         name: true,
         email: true,
         createdAt: true,
+        preferredModel: true,
         stripeSubscriptionId: true,
         stripeCurrentPeriodEnd: true,
       },
@@ -46,6 +48,7 @@ export async function GET() {
       email: user.email,
       createdAt: user.createdAt,
       plan: isPro ? 'pro' : 'free',
+      preferredModel: user.preferredModel || DEFAULT_MODEL,
     });
   } catch (error) {
     console.error('GET /api/user/profile error:', error);
@@ -53,7 +56,7 @@ export async function GET() {
   }
 }
 
-// PATCH /api/user/profile — update user profile (name)
+// PATCH /api/user/profile — update user profile (name, preferredModel)
 export async function PATCH(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -70,20 +73,35 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const { name } = body;
+    const data: Record<string, string> = {};
 
-    if (typeof name !== 'string' || name.trim().length === 0) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    // Name update
+    if (body.name !== undefined) {
+      if (typeof body.name !== 'string' || body.name.trim().length === 0) {
+        return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+      }
+      if (body.name.trim().length > 100) {
+        return NextResponse.json({ error: 'Name too long (max 100 characters)' }, { status: 400 });
+      }
+      data.name = body.name.trim();
     }
 
-    if (name.trim().length > 100) {
-      return NextResponse.json({ error: 'Name too long (max 100 characters)' }, { status: 400 });
+    // Model preference update
+    if (body.preferredModel !== undefined) {
+      if (typeof body.preferredModel !== 'string' || !MODELS[body.preferredModel]) {
+        return NextResponse.json({ error: 'Invalid model' }, { status: 400 });
+      }
+      data.preferredModel = body.preferredModel;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
     const user = await prisma.user.update({
       where: { id: session.user.id },
-      data: { name: name.trim() },
-      select: { id: true, name: true, email: true },
+      data,
+      select: { id: true, name: true, email: true, preferredModel: true },
     });
 
     return NextResponse.json(user);

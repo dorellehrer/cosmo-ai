@@ -1,0 +1,31 @@
+# ── Cosmo AI — Terraform Variables Example ────────────
+# Copy to terraform.tfvars and fill in your values.
+
+project_name = "cosmo"
+environment  = "production"
+aws_region   = "eu-north-1"
+
+# Networking
+vpc_cidr = "10.0.0.0/16"
+
+# Database
+db_instance_class = "db.t4g.micro"
+db_name           = "cosmo"
+db_username       = "cosmo_admin"
+
+# ECS — App
+app_cpu           = 512
+app_memory        = 1024
+app_desired_count = 1
+
+# ECS — Agent (per container)
+agent_cpu    = 256
+agent_memory = 512
+
+# GitHub OIDC (for CI/CD deploy role)
+github_org  = "your-github-org"
+github_repo = "cosmo-ai"
+
+# Application
+app_url     = "https://www.heynova.se"
+cron_secret = "your-cron-secret-here"

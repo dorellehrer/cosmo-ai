@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/conversations - List all conversations for the current user
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -22,8 +22,20 @@ export async function GET() {
       );
     }
 
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get('q')?.trim();
+
+    const where: Record<string, unknown> = { userId: session.user.id };
+
+    if (query && query.length >= 2) {
+      where.OR = [
+        { title: { contains: query, mode: 'insensitive' } },
+        { messages: { some: { content: { contains: query, mode: 'insensitive' } } } },
+      ];
+    }
+
     const conversations = await prisma.conversation.findMany({
-      where: { userId: session.user.id },
+      where,
       orderBy: { updatedAt: "desc" },
       take: 50,
       include: {

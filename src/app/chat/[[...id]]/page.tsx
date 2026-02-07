@@ -8,6 +8,9 @@ import { ShortcutBadge } from '@/components/ShortcutHint';
 import { useKeyboardShortcuts } from '@/contexts/KeyboardShortcutsContext';
 import { NotificationBell } from '@/components/notifications';
 import { MessageRenderer } from '@/components/MessageRenderer';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface Message {
   id: string;
@@ -32,6 +35,9 @@ export default function ChatPage() {
   const t = useTranslations('chat');
   const common = useTranslations('common');
   const { openCommandPalette } = useKeyboardShortcuts();
+  const { settings: voiceSettings } = useVoiceSettings();
+  const { speak, stop: stopSpeaking, isSpeaking } = useTextToSpeech(voiceSettings.language);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
 
   const suggestions = [
     { key: 'email', text: t('suggestions.email') },
@@ -49,8 +55,16 @@ export default function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
+  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -61,9 +75,12 @@ export default function ChatPage() {
   }, [messages]);
 
   // Fetch conversations list
-  const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async (query?: string) => {
     try {
-      const response = await fetch('/api/conversations');
+      const url = query && query.length >= 2
+        ? `/api/conversations?q=${encodeURIComponent(query)}`
+        : '/api/conversations';
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setConversations(data);
@@ -78,6 +95,44 @@ export default function ChatPage() {
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
+
+  // Debounced search for conversations
+  useEffect(() => {
+    if (!searchQuery.trim()) return;
+    const timer = setTimeout(() => {
+      fetchConversations(searchQuery.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, fetchConversations]);
+
+  // Reset search: re-fetch all when query is cleared
+  useEffect(() => {
+    if (searchQuery === '') {
+      fetchConversations();
+    }
+  }, [searchQuery, fetchConversations]);
+
+  // Client-side filtered conversations
+  const filteredConversations = searchQuery.trim()
+    ? conversations.filter((c) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          c.title?.toLowerCase().includes(q) ||
+          c.messages?.[0]?.content?.toLowerCase().includes(q)
+        );
+      })
+    : conversations;
+
+  // Load user's preferred model
+  useEffect(() => {
+    fetch('/api/user/profile')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.preferredModel) setSelectedModel(data.preferredModel);
+        if (data.plan) setUserPlan(data.plan);
+      })
+      .catch(() => {});
+  }, []);
 
   // Local keyboard shortcuts (global ones like Cmd+K handled by KeyboardShortcutsContext)
   useEffect(() => {
@@ -177,20 +232,60 @@ export default function ChatPage() {
     }
   };
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const maxSize = 10 * 1024 * 1024; // 10 MB
+    const valid = files.filter((f) => f.size <= maxSize);
+    setAttachedFiles((prev) => [...prev, ...valid]);
+    // Reset file input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const autoResizeTextarea = useCallback(() => {
+    const el = inputRef.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+    }
+  }, []);
+
+  const stopGeneration = useCallback(() => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setIsLoading(false);
+  }, []);
+
+  const doSend = useCallback(async (text: string, files: File[] = []) => {
+    if ((!text.trim() && files.length === 0) || isLoading) return;
+
+    const fileNames = files.map((f) => f.name);
+    const displayContent = fileNames.length > 0
+      ? `${text.trim()}${fileNames.length > 0 ? `\n\n📎 ${fileNames.join(', ')}` : ''}`
+      : text.trim();
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input.trim(),
+      content: displayContent || `📎 ${fileNames.join(', ')}`,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setAttachedFiles([]);
     setIsLoading(true);
+    // Reset textarea height
+    if (inputRef.current) inputRef.current.style.height = 'auto';
 
     // Add placeholder for assistant message
     const assistantId = (Date.now() + 1).toString();
@@ -202,18 +297,47 @@ export default function ChatPage() {
     };
     setMessages((prev) => [...prev, assistantMessage]);
 
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage].map((m) => ({
+      let response: Response;
+
+      if (files.length > 0) {
+        // Use FormData for file uploads
+        const formData = new FormData();
+        formData.append('messages', JSON.stringify(
+          [...messages, { role: 'user', content: text.trim() }].map((m) => ({
             role: m.role,
             content: m.content,
-          })),
-          conversationId: currentConversationId,
-        }),
-      });
+          }))
+        ));
+        if (currentConversationId) formData.append('conversationId', currentConversationId);
+        formData.append('model', selectedModel);
+        for (const file of files) {
+          formData.append('files', file);
+        }
+        response = await fetch('/api/chat', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+        });
+      } else {
+        // Standard JSON request
+        response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [...messages, userMessage].map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
+            conversationId: currentConversationId,
+            model: selectedModel,
+          }),
+          signal: controller.signal,
+        });
+      }
 
       if (!response.ok) throw new Error('Failed to get response');
 
@@ -235,14 +359,14 @@ export default function ChatPage() {
 
               try {
                 const parsed = JSON.parse(data);
-                
+
                 // Handle conversationId from new conversation
                 if (parsed.conversationId && !currentConversationId) {
                   setCurrentConversationId(parsed.conversationId);
                   // Update URL without full navigation
                   window.history.replaceState(null, '', `/chat/${parsed.conversationId}`);
                 }
-                
+
                 // Handle title update
                 if (parsed.title) {
                   setCurrentTitle(parsed.title);
@@ -260,7 +384,7 @@ export default function ChatPage() {
                     )
                   );
                 }
-                
+
                 // Handle content
                 if (parsed.content) {
                   setMessages((prev) =>
@@ -279,6 +403,8 @@ export default function ChatPage() {
         }
       }
     } catch (error) {
+      // Don't show error for user-initiated abort
+      if (error instanceof DOMException && error.name === 'AbortError') return;
       console.error('Error:', error);
       setMessages((prev) =>
         prev.map((m) =>
@@ -288,16 +414,118 @@ export default function ChatPage() {
         )
       );
     } finally {
+      abortControllerRef.current = null;
       setIsLoading(false);
       // Refresh conversations list
       fetchConversations();
     }
+  }, [isLoading, messages, currentConversationId, selectedModel, fetchConversations, t]);
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    doSend(input, [...attachedFiles]);
   };
+
+  // Voice input
+  const handleVoiceAutoSubmit = useCallback((transcript: string) => {
+    doSend(transcript);
+  }, [doSend]);
+
+  const {
+    isSupported: voiceSupported,
+    isListening,
+    transcript: voiceTranscript,
+    interimTranscript,
+    error: voiceError,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition(
+    {
+      language: voiceSettings.language,
+      autoSubmit: voiceSettings.autoSubmit,
+      autoSubmitDelay: voiceSettings.autoSubmitDelay,
+    },
+    handleVoiceAutoSubmit
+  );
+
+  // Sync voice transcript to input field
+  useEffect(() => {
+    if (isListening && (voiceTranscript || interimTranscript)) {
+      setInput(voiceTranscript + (interimTranscript ? ' ' + interimTranscript : ''));
+      autoResizeTextarea();
+    }
+  }, [voiceTranscript, interimTranscript, isListening, autoResizeTextarea]);
+
+  // Clear transcript after send completes
+  useEffect(() => {
+    if (!isLoading && voiceTranscript) {
+      resetTranscript();
+    }
+  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
     inputRef.current?.focus();
   };
+
+  const copyMessage = useCallback(async (messageId: string, content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setCopiedMessageId(messageId);
+    setTimeout(() => setCopiedMessageId(null), 2000);
+  }, []);
+
+  const regenerateLastResponse = useCallback(() => {
+    if (isLoading || messages.length < 2) return;
+    // Find last user message (the one before the last assistant message)
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
+    if (!lastUserMsg) return;
+    // Remove last assistant message
+    setMessages((prev) => prev.slice(0, -1));
+    // Re-send last user message text (strip file markers)
+    const cleanText = lastUserMsg.content.replace(/\n\n📎.*$/, '').trim();
+    doSend(cleanText);
+  }, [isLoading, messages, doSend]);
+
+  const speakMessage = useCallback((messageId: string, content: string) => {
+    if (isSpeaking && speakingMessageId === messageId) {
+      stopSpeaking();
+      setSpeakingMessageId(null);
+    } else {
+      speak(content);
+      setSpeakingMessageId(messageId);
+    }
+  }, [isSpeaking, speakingMessageId, speak, stopSpeaking]);
+
+  // Clear speaking state when TTS finishes
+  useEffect(() => {
+    if (!isSpeaking) setSpeakingMessageId(null);
+  }, [isSpeaking]);
+
+  // Auto-speak completed responses when voice responses enabled
+  const prevLoadingRef = useRef(false);
+  useEffect(() => {
+    if (prevLoadingRef.current && !isLoading) {
+      // Streaming just finished — check if voice responses are enabled
+      if (typeof window !== 'undefined' && localStorage.getItem('nova-voice-responses') === 'true') {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg?.role === 'assistant' && lastMsg.content) {
+          speak(lastMsg.content);
+          setSpeakingMessageId(lastMsg.id);
+        }
+      }
+    }
+    prevLoadingRef.current = isLoading;
+  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -358,6 +586,35 @@ export default function ChatPage() {
             </button>
           </div>
 
+          {/* Conversation Search */}
+          <div className="px-3 pt-2">
+            <div className="relative">
+              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Escape') setSearchQuery(''); }}
+                placeholder={t('searchConversations')}
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-8 py-1.5 text-xs text-white/80 placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  aria-label={t('clearSearch')}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Conversations List */}
           <div className="flex-1 overflow-y-auto p-2">
             {loadingConversations ? (
@@ -369,10 +626,14 @@ export default function ChatPage() {
               <div className="text-center py-8 text-white/40 text-xs sm:text-sm">
                 {t('noConversations')}
               </div>
+            ) : filteredConversations.length === 0 ? (
+              <div className="text-center py-8 text-white/40 text-xs sm:text-sm">
+                {t('noSearchResults')}
+              </div>
             ) : (
               <nav aria-label="Conversation history">
                 <ul className="space-y-1" role="list">
-                  {conversations.map((conv) => (
+                  {filteredConversations.map((conv) => (
                     <li key={conv.id}>
                       <Link
                         href={`/chat/${conv.id}`}
@@ -446,6 +707,27 @@ export default function ChatPage() {
                 <path d="M3 8h18"/>
               </svg>
               <span className="flex-1">Integrations</span>
+            </Link>
+            <Link
+              href="/routines"
+              className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-all text-sm group"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 8v4l3 3"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              <span className="flex-1">Routines</span>
             </Link>
             <Link
               href="/settings"
@@ -607,11 +889,11 @@ export default function ChatPage() {
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4" role="log" aria-live="polite" aria-atomic="false">
-                {messages.map((message) => (
+                {messages.map((message, index) => (
                   <div
                     key={message.id}
-                    className={`flex ${
-                      message.role === 'user' ? 'justify-end' : 'justify-start'
+                    className={`group/msg flex flex-col ${
+                      message.role === 'user' ? 'items-end' : 'items-start'
                     } animate-fade-in`}
                   >
                     <div
@@ -662,6 +944,64 @@ export default function ChatPage() {
                         </div>
                       )}
                     </div>
+                    {/* Message actions (assistant messages with content) */}
+                    {message.role === 'assistant' && message.content && (
+                      <div className="flex items-center gap-1 mt-1 opacity-0 group-hover/msg:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => copyMessage(message.id, message.content)}
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors"
+                          aria-label={copiedMessageId === message.id ? t('copied') : t('copyMessage')}
+                          title={copiedMessageId === message.id ? t('copied') : t('copyMessage')}
+                        >
+                          {copiedMessageId === message.id ? (
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => speakMessage(message.id, message.content)}
+                          className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors ${
+                            isSpeaking && speakingMessageId === message.id
+                              ? 'text-violet-400'
+                              : 'text-white/40 hover:text-white/70'
+                          }`}
+                          aria-label={isSpeaking && speakingMessageId === message.id ? t('stopSpeaking') : t('speakMessage')}
+                          title={isSpeaking && speakingMessageId === message.id ? t('stopSpeaking') : t('speakMessage')}
+                        >
+                          {isSpeaking && speakingMessageId === message.id ? (
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="6" y="4" width="4" height="16" />
+                              <rect x="14" y="4" width="4" height="16" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                            </svg>
+                          )}
+                        </button>
+                        {index === messages.length - 1 && !isLoading && (
+                          <button
+                            onClick={regenerateLastResponse}
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/70 transition-colors"
+                            aria-label={t('regenerate')}
+                            title={t('regenerate')}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                              <path d="M21 3v5h-5" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -673,54 +1013,144 @@ export default function ChatPage() {
         {/* Input Area */}
         <footer className="border-t border-white/10 backdrop-blur-sm bg-white/5 safe-area-inset">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-            <form onSubmit={sendMessage} className="flex gap-2 sm:gap-3" role="search">
+            {/* Model selector */}
+            <div className="flex items-center gap-2 mb-2">
+              <label htmlFor="model-select" className="sr-only">AI Model</label>
+              <select
+                id="model-select"
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/60 focus:outline-none focus:ring-1 focus:ring-violet-500 hover:bg-white/10 transition-colors"
+                disabled={isLoading}
+              >
+                <option value="gpt-4o-mini" className="bg-slate-800">GPT-4o Mini</option>
+                <option value="claude-haiku-4-5-20251001" className="bg-slate-800">Claude Haiku</option>
+                <option value="gpt-4o" className="bg-slate-800" disabled={userPlan !== 'pro'}>
+                  GPT-4o {userPlan !== 'pro' ? '(Pro)' : ''}
+                </option>
+                <option value="claude-sonnet-4-5-20250929" className="bg-slate-800" disabled={userPlan !== 'pro'}>
+                  Claude Sonnet {userPlan !== 'pro' ? '(Pro)' : ''}
+                </option>
+              </select>
+            </div>
+            {/* Voice error */}
+            {voiceError && (
+              <div className="mb-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-300">
+                {voiceError}
+              </div>
+            )}
+            {/* File preview chips */}
+            {attachedFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {attachedFiles.map((file, i) => (
+                  <div key={`${file.name}-${i}`} className="flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1 text-xs text-white/80">
+                    {file.type.startsWith('image/') ? (
+                      <svg className="w-3.5 h-3.5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" strokeWidth="2"/><path d="m21 15-5-5L5 21" strokeWidth="2"/></svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" strokeWidth="2"/><path d="M14 2v6h6" strokeWidth="2"/></svg>
+                    )}
+                    <span className="truncate max-w-[120px]">{file.name}</span>
+                    <span className="text-white/40">{formatFileSize(file.size)}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="ml-0.5 hover:text-red-400 transition-colors"
+                      aria-label={`Remove ${file.name}`}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round"/></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <form ref={formRef} onSubmit={sendMessage} className="flex items-end gap-2 sm:gap-3">
               <label htmlFor="chat-input" className="sr-only">{t('askAnything')}</label>
+              {/* File upload button */}
               <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/png,image/jpeg,image/gif,image/webp,.pdf,.csv,.txt"
+                multiple
+                onChange={handleFileSelect}
+                aria-label={t('attachFile')}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading}
+                className="p-2.5 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white/50 hover:text-white/80 disabled:opacity-50 transition-all border border-white/10 shrink-0"
+                aria-label={t('attachFile')}
+                title={t('attachFile')}
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </button>
+              {/* Voice input button */}
+              {voiceSupported && (
+                <button
+                  type="button"
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={isLoading}
+                  className={`p-2.5 sm:p-3 rounded-full transition-all border shrink-0 ${
+                    isListening
+                      ? 'bg-red-500/20 border-red-500/50 text-red-400 animate-pulse'
+                      : 'bg-white/10 hover:bg-white/20 text-white/50 hover:text-white/80 border-white/10'
+                  } disabled:opacity-50`}
+                  aria-label={isListening ? t('listening') : t('voiceInput')}
+                  title={isListening ? t('listening') : t('tapToSpeak')}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" x2="12" y1="19" y2="22" />
+                  </svg>
+                </button>
+              )}
+              <textarea
                 id="chat-input"
                 ref={inputRef}
-                type="text"
+                rows={1}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={t('askAnything')}
-                className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  autoResizeTextarea();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    formRef.current?.requestSubmit();
+                  }
+                }}
+                placeholder={attachedFiles.length > 0 ? t('addMessageToFiles') : t('askAnything')}
+                className="flex-1 bg-white/10 border border-white/20 rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all resize-none overflow-y-auto"
+                style={{ maxHeight: 200 }}
                 disabled={isLoading}
                 autoComplete="off"
               />
-              <button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm sm:text-base font-medium transition-all min-w-[60px] sm:min-w-[80px]"
-                aria-label={isLoading ? t('sending') : common('send')}
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span className="sr-only">{t('sending')}</span>
-                  </span>
-                ) : (
-                  common('send')
-                )}
-              </button>
+              {isLoading ? (
+                <button
+                  type="button"
+                  onClick={stopGeneration}
+                  className="p-2.5 sm:p-3 bg-white/20 hover:bg-white/30 rounded-full text-white transition-all shrink-0 border border-white/20"
+                  aria-label={t('stopGenerating')}
+                  title={t('stopGenerating')}
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!input.trim() && attachedFiles.length === 0}
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-full text-white text-sm sm:text-base font-medium transition-all min-w-[60px] sm:min-w-[80px] shrink-0"
+                  aria-label={common('send')}
+                >
+                  {common('send')}
+                </button>
+              )}
             </form>
           </div>
         </footer>

@@ -138,14 +138,15 @@
     "voiceDescription": "Nova läser upp svaren högt",
     "notifications": "Notiser",
     "notificationsDescription": "Få aviseringar för påminnelser och uppdateringar",
-    "darkMode": "Mörkt läge",
-    "darkModeDescription": "Alltid på (det är mysigt)",
     "dangerZone": "Farozon",
     "deleteAccount": "Radera konto",
     "deleteAccountDescription": "Detta kommer permanent radera ditt konto, konversationer och alla anslutna integrationer.",
     "deleteMyAccount": "Radera mitt konto",
     "language": "Språk",
     "languageDescription": "Välj ditt föredragna språk",
+    "aiModel": "AI-modell",
+    "aiModelDescription": "Välj vilken AI-modell Nova använder för konversationer.",
+    "proPlan": "Pro-plan",
     "integrations": {
       "google": {
         "name": "Google",
@@ -198,7 +199,54 @@
       "music": "🎵 Spela musik"
     },
     "loadingConversations": "Laddar konversationer...",
-    "loadingConversation": "Laddar konversation..."
+    "loadingConversation": "Laddar konversation...",
+    "attachFile": "Bifoga fil",
+    "addMessageToFiles": "Lägg till ett meddelande till dina filer...",
+    "stopGenerating": "Stoppa generering",
+    "voiceInput": "Röstinmatning",
+    "listening": "Lyssnar...",
+    "tapToSpeak": "Tryck för att tala",
+    "voiceNotSupported": "Röstinmatning stöds inte i den här webbläsaren",
+    "copyMessage": "Kopiera meddelande",
+    "copied": "Kopierat!",
+    "regenerate": "Generera nytt svar",
+    "regenerating": "Genererar om...",
+    "speakMessage": "Läs upp",
+    "stopSpeaking": "Sluta läsa",
+    "searchConversations": "Sök konversationer...",
+    "noSearchResults": "Inga konversationer hittades",
+    "clearSearch": "Rensa sökning"
+  },
+  "routines": {
+    "title": "Rutiner",
+    "subtitle": "Automatisera återkommande uppgifter",
+    "create": "Skapa Rutin",
+    "createRoutine": "Skapa Ny Rutin",
+    "createFirst": "Skapa din första rutin",
+    "emptyTitle": "Inga rutiner ännu",
+    "emptyDescription": "Rutiner låter dig automatisera återkommande uppgifter, som att kolla din kalender varje morgon eller skicka en daglig sammanfattning på Slack.",
+    "name": "Namn",
+    "namePlaceholder": "t.ex., Morgongenomgång",
+    "nameRequired": "Namn krävs",
+    "description": "Beskrivning (valfritt)",
+    "descriptionPlaceholder": "t.ex., Kolla kalender och skicka sammanfattning till Slack",
+    "schedule": "Schema",
+    "scheduleRequired": "Schema krävs",
+    "preset": "Förinställning",
+    "customCron": "Anpassad cron",
+    "toolChain": "Steg",
+    "toolChainHint": "Verktyg körs i ordning. Varje steg kan använda föregående stegs resultat.",
+    "toolRequired": "Minst ett verktyg krävs",
+    "selectTool": "Välj ett verktyg...",
+    "addStep": "Lägg till steg",
+    "enable": "Aktivera rutin",
+    "disable": "Inaktivera rutin",
+    "delete": "Ta bort rutin",
+    "deleteConfirm": "Ta bort denna rutin?",
+    "viewHistory": "Visa körhistorik",
+    "executionHistory": "Körhistorik",
+    "noHistory": "Inga körningar ännu",
+    "createFailed": "Misslyckades skapa rutin"
   },
   "notFound": {
     "title": "Sidan hittades inte",
@@ -215,38 +263,38 @@
       "google": {
         "name": "Google",
         "description": "Kalender, Gmail, Drive",
-        "fullDescription": "Anslut ditt Google-konto för att komma åt Kalender för schemaläggning, Gmail för att läsa e-post och Drive för filsökning.",
-        "features": ["Visa och skapa kalenderhändelser", "Läsa e-postsammanfattningar", "Söka filer i Drive", "Kontrollera kommande händelser"]
+        "fullDescription": "Anslut ditt Google-konto för att hantera kalenderhändelser, skicka och läsa e-post via Gmail och söka filer i Drive.",
+        "features": ["Visa, skapa, uppdatera och ta bort kalenderhändelser", "Läsa e-postsammanfattningar och skicka e-post", "Söka filer i Drive", "Fullständig kalenderhantering"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "Smarta lampor (kommer snart)",
-        "fullDescription": "Philips Hue-integration för smarta lampor kommer snart.",
-        "features": ["Styra enskilda lampor (kommer snart)", "Aktivera scener (kommer snart)", "Justera ljusstyrka och färg (kommer snart)", "Schemalägga belysning (kommer snart)"]
+        "description": "Smart belysningsstyrning",
+        "fullDescription": "Anslut Philips Hue för att styra dina smarta lampor, aktivera scener och justera ljusstyrka och färger via Nova.",
+        "features": ["Styra enskilda lampor", "Aktivera scener", "Justera ljusstyrka och färg", "Lista alla lampor och scener"]
       },
       "spotify": {
         "name": "Spotify",
         "description": "Musikuppspelning och sökning",
-        "fullDescription": "Anslut Spotify för att styra uppspelning, se vad som spelas och söka efter låtar, artister och album via Nova.",
-        "features": ["Spela, pausa och hoppa över spår", "Visa spår som spelas", "Sök musik", "Upptäck ny musik"]
+        "fullDescription": "Anslut Spotify för att styra uppspelning, se vad som spelas, bläddra bland spellistor och söka efter låtar, artister och album via Nova.",
+        "features": ["Spela, pausa och hoppa över spår", "Visa spår som spelas", "Bläddra bland dina spellistor", "Sök musik"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "Multirumsljud (kommer snart)",
-        "fullDescription": "Sonos-högtalarintegration kommer snart.",
-        "features": ["Multirumsljudstyrning (kommer snart)", "Gruppera/avgruppera högtalare (kommer snart)", "Volymkontroll (kommer snart)", "Spela från olika källor (kommer snart)"]
+        "description": "Multirumsljud",
+        "fullDescription": "Anslut Sonos för att styra multirumsljud, justera volymen och hantera högtalargrupper via Nova.",
+        "features": ["Multirumsljudstyrning", "Spela, pausa och hoppa över spår", "Volymkontroll", "Lista högtalargrupper"]
       },
       "notion": {
         "name": "Notion",
         "description": "Anteckningar, dokument och databaser",
-        "fullDescription": "Få åtkomst till din Notion-arbetsyta. Sök sidor, skapa anteckningar och hantera dina databaser med naturligt språk.",
-        "features": ["Söka sidor och databaser", "Skapa nya sidor", "Bläddra i din arbetsyta", "Snabbfånga anteckningar"]
+        "fullDescription": "Få åtkomst till din Notion-arbetsyta. Sök sidor, skapa och uppdatera anteckningar och hantera dina databaser med naturligt språk.",
+        "features": ["Söka sidor och databaser", "Skapa nya sidor", "Uppdatera befintliga sidor", "Snabbfånga anteckningar"]
       },
       "slack": {
         "name": "Slack",
         "description": "Teamkommunikation",
-        "fullDescription": "Anslut Slack för att söka meddelanden, skicka meddelanden till kanaler och utforska teamkommunikation via Nova.",
-        "features": ["Sök arbetsytans meddelanden", "Skicka meddelanden till kanaler", "Lista kanaler", "Håll dig uppdaterad"]
+        "fullDescription": "Anslut Slack för att söka meddelanden, skicka meddelanden till kanaler, skicka DMs, svara i trådar och utforska teamkommunikation via Nova.",
+        "features": ["Sök arbetsytans meddelanden", "Skicka meddelanden till kanaler", "Skicka direktmeddelanden", "Svara i trådar"]
       }
     }
   },

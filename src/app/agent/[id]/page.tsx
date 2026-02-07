@@ -102,18 +102,6 @@ export default function AgentDashboardPage() {
     destroyed: 'bg-gray-600',
   }[agent.status] || 'bg-gray-400';
 
-  function getChannelIcon(type: string): string {
-    const icons: Record<string, string> = {
-      whatsapp: '💬',
-      telegram: '✈️',
-      discord: '🎮',
-      slack: '💼',
-      gmail: '📧',
-      webchat: '🌐',
-    };
-    return icons[type] || '📡';
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -219,96 +207,15 @@ export default function AgentDashboardPage() {
         )}
 
         {activeTab === 'channels' && (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Connected Channels</h2>
-              <button className="px-4 py-2 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 transition-colors">
-                + Add Channel
-              </button>
-            </div>
-
-            {channels.length === 0 ? (
-              <EmptyState icon="📡" title="No channels connected" description="Connect WhatsApp, Telegram, or Discord to reach your agent from anywhere." />
-            ) : (
-              channels.map(ch => (
-                <div key={ch.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getChannelIcon(ch.channelType)}</span>
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">{ch.channelName}</div>
-                      <div className="text-xs text-gray-500">{ch.channelType}</div>
-                    </div>
-                  </div>
-                  <StatusBadge status={ch.status} />
-                </div>
-              ))
-            )}
-
-            {/* Quick-add channel cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
-              {[
-                { type: 'whatsapp', name: 'WhatsApp', icon: '📱', desc: 'Scan QR to pair' },
-                { type: 'telegram', name: 'Telegram', icon: '✈️', desc: 'Enter bot token' },
-                { type: 'discord', name: 'Discord', icon: '🎮', desc: 'OAuth invite' },
-                { type: 'slack', name: 'Slack', icon: '💼', desc: 'OAuth install' },
-                { type: 'gmail', name: 'Gmail', icon: '📧', desc: 'Google OAuth' },
-                { type: 'webchat', name: 'Web Chat', icon: '🌐', desc: 'Embedded widget' },
-              ].filter(c => !channels.find(ch => ch.channelType === c.type))
-                .map(c => (
-                  <button
-                    key={c.type}
-                    className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm text-left hover:ring-2 hover:ring-violet-500 transition-all"
-                  >
-                    <span className="text-2xl">{c.icon}</span>
-                    <div className="font-medium text-gray-900 dark:text-white text-sm mt-2">{c.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{c.desc}</div>
-                  </button>
-                ))}
-            </div>
-          </div>
+          <ChannelsTab channels={channels} onUpdate={fetchAgent} />
         )}
 
         {activeTab === 'skills' && (
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills & Capabilities</h2>
-
-            {skills.length === 0 ? (
-              <EmptyState icon="⚡" title="No skills installed" description="Install skills to give your agent new capabilities." />
-            ) : (
-              skills.map(skill => (
-                <div key={skill.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-white">{skill.name}</div>
-                    <div className="text-xs text-gray-500">{skill.description}</div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={skill.enabled} readOnly className="sr-only peer" />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-600" />
-                  </label>
-                </div>
-              ))
-            )}
-          </div>
+          <SkillsTab skills={skills} onUpdate={fetchAgent} />
         )}
 
         {activeTab === 'memory' && (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Agent Memory</h2>
-              <button className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
-                Clear All Memory
-              </button>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-              <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
-                {stats.memoryCount === 0
-                  ? 'Your agent hasn\'t stored any memories yet. Start chatting to build its memory!'
-                  : `Your agent has ${stats.memoryCount} memories stored. It uses these to remember your preferences, tasks, and context.`
-                }
-              </p>
-            </div>
-          </div>
+          <MemoryTab memoryCount={stats.memoryCount} onUpdate={fetchAgent} />
         )}
 
         {activeTab === 'settings' && (
@@ -528,6 +435,310 @@ function SettingField({ label, children }: { label: string; children: React.Reac
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function SkillsTab({ skills, onUpdate }: { skills: AgentSkillResponse[]; onUpdate: () => void }) {
+  const [toggling, setToggling] = useState<string | null>(null);
+
+  async function handleToggle(skillId: string, enabled: boolean) {
+    setToggling(skillId);
+    try {
+      await fetch('/api/agent/skills', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skillId, enabled }),
+      });
+      onUpdate();
+    } catch {
+      // error silenced — UI reflects server state via onUpdate
+    } finally {
+      setToggling(null);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills & Capabilities</h2>
+      {skills.length === 0 ? (
+        <EmptyState icon="⚡" title="No skills installed" description="Install skills to give your agent new capabilities." />
+      ) : (
+        skills.map(skill => (
+          <div key={skill.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
+            <div>
+              <div className="font-medium text-gray-900 dark:text-white">{skill.name}</div>
+              <div className="text-xs text-gray-500">{skill.description}</div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={skill.enabled}
+                onChange={() => handleToggle(skill.skillId, !skill.enabled)}
+                disabled={toggling === skill.skillId}
+                className="sr-only peer"
+              />
+              <div className={`w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-600 ${toggling === skill.skillId ? 'opacity-50' : ''}`} />
+            </label>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+interface MemoryEntry {
+  id: string;
+  content: string;
+  category: string;
+  createdAt: string;
+}
+
+function MemoryTab({ memoryCount, onUpdate }: { memoryCount: number; onUpdate: () => void }) {
+  const [memories, setMemories] = useState<MemoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [clearing, setClearing] = useState(false);
+
+  useEffect(() => {
+    async function fetchMemories() {
+      try {
+        const params = new URLSearchParams({ limit: '50' });
+        if (categoryFilter) params.set('category', categoryFilter);
+        const res = await fetch(`/api/agent/memory?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMemories(data.memories || []);
+        }
+      } catch {
+        // silenced
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchMemories();
+  }, [categoryFilter]);
+
+  async function handleClearAll() {
+    if (!confirm('Are you sure you want to clear all agent memories? This cannot be undone.')) return;
+    setClearing(true);
+    try {
+      await fetch('/api/agent/memory', { method: 'DELETE' });
+      setMemories([]);
+      onUpdate();
+    } catch {
+      // silenced
+    } finally {
+      setClearing(false);
+    }
+  }
+
+  const categoryColors: Record<string, string> = {
+    general: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    preference: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    task: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    fact: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Agent Memory</h2>
+        <div className="flex gap-2">
+          <select
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
+            className="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value="">All categories</option>
+            <option value="general">General</option>
+            <option value="preference">Preferences</option>
+            <option value="task">Tasks</option>
+            <option value="fact">Facts</option>
+          </select>
+          <button
+            onClick={handleClearAll}
+            disabled={clearing || memoryCount === 0}
+            className="px-4 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors disabled:opacity-50"
+          >
+            {clearing ? 'Clearing...' : 'Clear All'}
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm text-center">
+          <div className="w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+      ) : memories.length === 0 ? (
+        <EmptyState
+          icon="🧠"
+          title={memoryCount === 0 ? 'No memories yet' : 'No matching memories'}
+          description={memoryCount === 0 ? 'Start chatting to build your agent\'s memory!' : 'Try a different category filter.'}
+        />
+      ) : (
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {memories.map(memory => (
+            <div key={memory.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${categoryColors[memory.category] || categoryColors.general}`}>
+                  {memory.category}
+                </span>
+                <span className="text-xs text-gray-400">
+                  {new Date(memory.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">{memory.content}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CHANNEL_CONFIGS: { type: string; name: string; icon: string; desc: string; fields: { key: string; label: string; placeholder: string; type?: string }[] }[] = [
+  { type: 'telegram', name: 'Telegram', icon: '✈️', desc: 'Enter bot token', fields: [
+    { key: 'botToken', label: 'Bot Token', placeholder: '123456:ABC-DEF...' },
+  ]},
+  { type: 'discord', name: 'Discord', icon: '🎮', desc: 'Enter bot token', fields: [
+    { key: 'botToken', label: 'Bot Token', placeholder: 'Your Discord bot token' },
+    { key: 'guildId', label: 'Guild ID', placeholder: 'Server ID' },
+  ]},
+  { type: 'whatsapp', name: 'WhatsApp', icon: '📱', desc: 'Twilio credentials', fields: [
+    { key: 'accountSid', label: 'Account SID', placeholder: 'AC...' },
+    { key: 'authToken', label: 'Auth Token', placeholder: 'Your auth token', type: 'password' },
+    { key: 'phoneNumber', label: 'Phone Number', placeholder: '+1234567890' },
+  ]},
+  { type: 'webchat', name: 'Web Chat', icon: '🌐', desc: 'Auto-generated', fields: [] },
+];
+
+function ChannelsTab({ channels, onUpdate }: { channels: AgentChannelResponse[]; onUpdate: () => void }) {
+  const [addingType, setAddingType] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function getChannelIcon(type: string): string {
+    const icons: Record<string, string> = { whatsapp: '💬', telegram: '✈️', discord: '🎮', slack: '💼', gmail: '📧', webchat: '🌐' };
+    return icons[type] || '📡';
+  }
+
+  async function handleAddChannel(channelType: string) {
+    setSaving(true);
+    setError(null);
+    const config = CHANNEL_CONFIGS.find(c => c.type === channelType);
+    try {
+      const res = await fetch('/api/agent/channels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channelType,
+          channelName: config?.name || channelType,
+          config: config?.fields.length ? formData : undefined,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to add channel');
+        return;
+      }
+      setAddingType(null);
+      setFormData({});
+      onUpdate();
+    } catch {
+      setError('Network error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const channelConfig = CHANNEL_CONFIGS.find(c => c.type === addingType);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Connected Channels</h2>
+      </div>
+
+      {channels.length === 0 && !addingType ? (
+        <EmptyState icon="📡" title="No channels connected" description="Connect WhatsApp, Telegram, or Discord to reach your agent from anywhere." />
+      ) : (
+        channels.map(ch => (
+          <div key={ch.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{getChannelIcon(ch.channelType)}</span>
+              <div>
+                <div className="font-medium text-gray-900 dark:text-white">{ch.channelName}</div>
+                <div className="text-xs text-gray-500">{ch.channelType}</div>
+              </div>
+            </div>
+            <StatusBadge status={ch.status} />
+          </div>
+        ))
+      )}
+
+      {/* Add channel modal */}
+      {addingType && channelConfig && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border-2 border-violet-500/30">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">{channelConfig.icon}</span>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Connect {channelConfig.name}</h3>
+          </div>
+          {channelConfig.fields.length > 0 ? (
+            <div className="space-y-3">
+              {channelConfig.fields.map(field => (
+                <div key={field.key}>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{field.label}</label>
+                  <input
+                    type={field.type || 'text'}
+                    placeholder={field.placeholder}
+                    value={formData[field.key] || ''}
+                    onChange={e => setFormData(prev => ({ ...prev, [field.key]: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              This channel will be auto-configured with a WebSocket endpoint.
+            </p>
+          )}
+          {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={() => handleAddChannel(addingType)}
+              disabled={saving}
+              className="flex-1 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50"
+            >
+              {saving ? 'Connecting...' : 'Connect'}
+            </button>
+            <button
+              onClick={() => { setAddingType(null); setFormData({}); setError(null); }}
+              className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Quick-add channel cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+        {CHANNEL_CONFIGS.filter(c => !channels.find(ch => ch.channelType === c.type))
+          .map(c => (
+            <button
+              key={c.type}
+              onClick={() => { setAddingType(c.type); setFormData({}); setError(null); }}
+              className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm text-left hover:ring-2 hover:ring-violet-500 transition-all"
+            >
+              <span className="text-2xl">{c.icon}</span>
+              <div className="font-medium text-gray-900 dark:text-white text-sm mt-2">{c.name}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{c.desc}</div>
+            </button>
+          ))}
+      </div>
     </div>
   );
 }

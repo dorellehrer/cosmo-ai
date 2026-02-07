@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { storeApiKeySecret } from '@/lib/aws';
 
 // GET /api/agent/channels — List connected channels
 export async function GET() {
@@ -90,10 +91,31 @@ export async function POST(req: Request) {
       },
     });
 
-    // TODO: In production, this is where we'd:
-    // 1. Store channel credentials in AWS Secrets Manager
-    // 2. Notify the agent container to connect to the new channel
-    // 3. Set up webhooks for incoming messages
+    // Store channel credentials in AWS Secrets Manager if config provided
+    if (config && typeof config === 'object') {
+      try {
+        const secretArn = await storeApiKeySecret(
+          session.user.id,
+          `channel-${channelType}-${channel.id}`,
+          JSON.stringify(config)
+        );
+
+        await prisma.agentChannel.update({
+          where: { id: channel.id },
+          data: {
+            configSecretArn: secretArn,
+            status: 'connected',
+          },
+        });
+
+        return NextResponse.json({
+          channel: { ...channel, configSecretArn: secretArn, status: 'connected' },
+        }, { status: 201 });
+      } catch (secretError) {
+        console.error('Failed to store channel credentials:', secretError);
+        // Channel was created but credentials failed — keep as pending
+      }
+    }
 
     return NextResponse.json({ channel }, { status: 201 });
   } catch (error) {

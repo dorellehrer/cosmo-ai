@@ -138,14 +138,15 @@
     "voiceDescription": "Nova spricht Antworten laut aus",
     "notifications": "Benachrichtigungen",
     "notificationsDescription": "Erhalte Alarme für Erinnerungen und Updates",
-    "darkMode": "Dunkelmodus",
-    "darkModeDescription": "Immer an (ist gemütlich)",
     "dangerZone": "Gefahrenzone",
     "deleteAccount": "Konto löschen",
     "deleteAccountDescription": "Dies löscht dein Konto, Gespräche und alle verbundenen Integrationen dauerhaft.",
     "deleteMyAccount": "Mein Konto löschen",
     "language": "Sprache",
     "languageDescription": "Wähle deine bevorzugte Sprache",
+    "aiModel": "KI-Modell",
+    "aiModelDescription": "Wähle aus, welches KI-Modell Nova für Unterhaltungen verwendet.",
+    "proPlan": "Pro-Tarif",
     "integrations": {
       "google": {
         "name": "Google",
@@ -198,7 +199,54 @@
       "music": "🎵 Musik abspielen"
     },
     "loadingConversations": "Gespräche werden geladen...",
-    "loadingConversation": "Gespräch wird geladen..."
+    "loadingConversation": "Gespräch wird geladen...",
+    "attachFile": "Datei anhängen",
+    "addMessageToFiles": "Nachricht zu Ihren Dateien hinzufügen...",
+    "stopGenerating": "Generierung stoppen",
+    "voiceInput": "Spracheingabe",
+    "listening": "Höre zu...",
+    "tapToSpeak": "Tippen zum Sprechen",
+    "voiceNotSupported": "Spracheingabe wird in diesem Browser nicht unterstützt",
+    "copyMessage": "Nachricht kopieren",
+    "copied": "Kopiert!",
+    "regenerate": "Antwort neu generieren",
+    "regenerating": "Wird neu generiert...",
+    "speakMessage": "Vorlesen",
+    "stopSpeaking": "Vorlesen beenden",
+    "searchConversations": "Gespräche durchsuchen...",
+    "noSearchResults": "Keine Gespräche gefunden",
+    "clearSearch": "Suche löschen"
+  },
+  "routines": {
+    "title": "Routinen",
+    "subtitle": "Automatisiere wiederkehrende Aufgaben",
+    "create": "Routine Erstellen",
+    "createRoutine": "Neue Routine Erstellen",
+    "createFirst": "Erstelle deine erste Routine",
+    "emptyTitle": "Noch keine Routinen",
+    "emptyDescription": "Routinen ermöglichen dir, wiederkehrende Aufgaben zu automatisieren – wie jeden Morgen deinen Kalender zu prüfen oder täglich eine Zusammenfassung auf Slack zu senden.",
+    "name": "Name",
+    "namePlaceholder": "z.B., Morgen-Briefing",
+    "nameRequired": "Name ist erforderlich",
+    "description": "Beschreibung (optional)",
+    "descriptionPlaceholder": "z.B., Kalender prüfen und Zusammenfassung an Slack senden",
+    "schedule": "Zeitplan",
+    "scheduleRequired": "Zeitplan ist erforderlich",
+    "preset": "Vorgabe",
+    "customCron": "Benutzerdefinierter Cron",
+    "toolChain": "Schritte",
+    "toolChainHint": "Tools werden der Reihe nach ausgeführt. Jeder Schritt kann das Ergebnis des vorherigen Schritts verwenden.",
+    "toolRequired": "Mindestens ein Tool ist erforderlich",
+    "selectTool": "Tool auswählen...",
+    "addStep": "Schritt hinzufügen",
+    "enable": "Routine aktivieren",
+    "disable": "Routine deaktivieren",
+    "delete": "Routine löschen",
+    "deleteConfirm": "Diese Routine löschen?",
+    "viewHistory": "Ausführungsverlauf anzeigen",
+    "executionHistory": "Ausführungsverlauf",
+    "noHistory": "Noch keine Ausführungen",
+    "createFailed": "Fehler beim Erstellen der Routine"
   },
   "notFound": {
     "title": "Seite nicht gefunden",
@@ -215,38 +263,38 @@
       "google": {
         "name": "Google",
         "description": "Kalender, Gmail, Drive",
-        "fullDescription": "Verbinde dein Google-Konto, um auf den Kalender zur Terminplanung, Gmail zum Lesen von E-Mails und Drive zur Dateisuche zuzugreifen.",
-        "features": ["Kalendertermine anzeigen und erstellen", "E-Mail-Zusammenfassungen lesen", "Dateien in Drive suchen", "Anstehende Termine prüfen"]
+        "fullDescription": "Verbinde dein Google-Konto, um Kalendertermine zu verwalten, E-Mails über Gmail zu senden und zu lesen und Dateien in Drive zu suchen.",
+        "features": ["Kalendertermine anzeigen, erstellen, bearbeiten und löschen", "E-Mail-Zusammenfassungen lesen und E-Mails senden", "Dateien in Drive suchen", "Vollständige Kalenderverwaltung"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "Intelligente Beleuchtung (demnächst)",
-        "fullDescription": "Die Philips Hue Smart-Light-Integration kommt bald.",
-        "features": ["Einzelne Lampen steuern (demnächst)", "Szenen aktivieren (demnächst)", "Helligkeit und Farbe anpassen (demnächst)", "Beleuchtung planen (demnächst)"]
+        "description": "Intelligente Lichtsteuerung",
+        "fullDescription": "Verbinde Philips Hue, um deine smarten Lampen zu steuern, Szenen zu aktivieren und Helligkeit sowie Farben über Nova anzupassen.",
+        "features": ["Einzelne Lampen steuern", "Szenen aktivieren", "Helligkeit und Farbe anpassen", "Alle Lampen und Szenen auflisten"]
       },
       "spotify": {
         "name": "Spotify",
         "description": "Musikwiedergabe & Suche",
-        "fullDescription": "Verbinde Spotify, um die Wiedergabe zu steuern, den aktuellen Titel zu sehen und nach Songs, Künstlern und Alben zu suchen.",
-        "features": ["Wiedergabe starten, pausieren und überspringen", "Aktuell gespielten Titel anzeigen", "Musik suchen", "Neue Musik entdecken"]
+        "fullDescription": "Verbinde Spotify, um die Wiedergabe zu steuern, den aktuellen Titel zu sehen, Playlists zu durchstöbern und nach Songs, Künstlern und Alben über Nova zu suchen.",
+        "features": ["Wiedergabe starten, pausieren und überspringen", "Aktuell gespielten Titel anzeigen", "Deine Playlists durchstöbern", "Musik suchen"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "Multiroom-Audio (demnächst)",
-        "fullDescription": "Die Sonos-Lautsprecher-Integration kommt bald.",
-        "features": ["Multiroom-Audio-Steuerung (demnächst)", "Lautsprecher gruppieren/trennen (demnächst)", "Lautstärkeregelung (demnächst)", "Von verschiedenen Quellen abspielen (demnächst)"]
+        "description": "Multiroom-Audio",
+        "fullDescription": "Verbinde Sonos, um Multiroom-Audio zu steuern, die Lautstärke anzupassen und Lautsprechergruppen über Nova zu verwalten.",
+        "features": ["Multiroom-Audio-Steuerung", "Wiedergabe starten, pausieren und überspringen", "Lautstärkeregelung", "Lautsprechergruppen anzeigen"]
       },
       "notion": {
         "name": "Notion",
         "description": "Notizen, Dokumente & Datenbanken",
-        "fullDescription": "Greife auf deinen Notion-Workspace zu. Durchsuche Seiten, erstelle Notizen und verwalte deine Datenbanken mit natürlicher Sprache.",
-        "features": ["Seiten und Datenbanken durchsuchen", "Neue Seiten erstellen", "Arbeitsbereich durchsuchen", "Schnellnotizen erfassen"]
+        "fullDescription": "Greife auf deinen Notion-Workspace zu. Durchsuche Seiten, erstelle und aktualisiere Notizen und verwalte deine Datenbanken mit natürlicher Sprache.",
+        "features": ["Seiten und Datenbanken durchsuchen", "Neue Seiten erstellen", "Bestehende Seiten aktualisieren", "Schnellnotizen erfassen"]
       },
       "slack": {
         "name": "Slack",
         "description": "Team-Kommunikation",
-        "fullDescription": "Verbinde Slack, um Nachrichten zu suchen, Nachrichten in Kanäle zu senden und die Teamkommunikation zu durchsuchen.",
-        "features": ["Nachrichten durchsuchen", "Nachrichten in Kanäle senden", "Kanäle auflisten", "Auf dem Laufenden bleiben"]
+        "fullDescription": "Verbinde Slack, um Nachrichten zu suchen, Nachrichten in Kanäle zu senden, DMs zu schicken, in Threads zu antworten und die Teamkommunikation über Nova zu durchsuchen.",
+        "features": ["Workspace-Nachrichten durchsuchen", "Nachrichten in Kanäle senden", "Direktnachrichten senden", "In Threads antworten"]
       }
     }
   },

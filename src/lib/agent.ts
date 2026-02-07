@@ -152,8 +152,25 @@ export async function* provisionAgent(
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Agent provisioning failed:', error);
 
-    // Update agent status to error
+    // Clean up AWS resources on failure
     if (agentInstance) {
+      // Stop ECS task if it was launched
+      if (agentInstance.awsTaskArn || agentInstance.awsClusterArn) {
+        try {
+          const latest = await prisma.agentInstance.findUnique({ where: { id: agentInstance.id } });
+          if (latest?.awsTaskArn && latest?.awsClusterArn) {
+            await stopAgentTask(latest.awsClusterArn, latest.awsTaskArn, 'Cleanup: provisioning failed');
+          }
+        } catch { /* Task may not exist yet */ }
+      }
+
+      // Delete API key secret if it was stored
+      if (agentInstance.apiKeySecretArn) {
+        try {
+          await deleteApiKeySecret(agentInstance.userId, agentInstance.modelProvider);
+        } catch { /* Secret may not exist yet */ }
+      }
+
       await prisma.agentInstance.update({
         where: { id: agentInstance.id },
         data: { status: 'error', errorMessage: message },
@@ -252,6 +269,17 @@ export async function restartAgent(userId: string, agentId: string): Promise<voi
         },
       });
     }
+  }).catch(async (err) => {
+    console.error(`Restart background wait failed for agent ${agentId}:`, err);
+    try {
+      await prisma.agentInstance.update({
+        where: { id: agentId },
+        data: {
+          status: 'error',
+          errorMessage: err instanceof Error ? err.message : 'Restart failed',
+        },
+      });
+    } catch { /* DB update best-effort */ }
   });
 }
 

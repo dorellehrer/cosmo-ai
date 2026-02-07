@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 // Routes that require authentication
-const protectedRoutes = ["/chat", "/settings", "/agent"];
+const protectedRoutes = ["/chat", "/settings", "/agent", "/routines"];
 
 // Routes that should redirect to chat if already authenticated
 const authRoutes = ["/sign-in", "/sign-up"];

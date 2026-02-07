@@ -41,7 +41,7 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Smart lighting control',
     icon: '💡',
     color: 'from-amber-400 to-orange-500',
-    services: ['Coming Soon'],
+    services: ['Lights', 'Scenes', 'Colors'],
   },
   {
     id: 'spotify',
@@ -49,7 +49,7 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Music playback & search',
     icon: '🎵',
     color: 'from-green-500 to-green-600',
-    services: ['Playback', 'Now Playing', 'Search'],
+    services: ['Playback', 'Now Playing', 'Search', 'Playlists'],
   },
   {
     id: 'sonos',
@@ -57,7 +57,7 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Multi-room audio',
     icon: '🔊',
     color: 'from-gray-700 to-gray-900',
-    services: ['Coming Soon'],
+    services: ['Playback', 'Volume', 'Groups'],
   },
   {
     id: 'notion',
@@ -73,7 +73,7 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
     description: 'Team communication',
     icon: '💬',
     color: 'from-purple-500 to-pink-500',
-    services: ['Messages', 'Search', 'Channels'],
+    services: ['Messages', 'Search', 'Channels', 'DMs'],
   },
 ];
 

@@ -138,14 +138,15 @@
     "voiceDescription": "Nova will speak responses out loud",
     "notifications": "Notifications",
     "notificationsDescription": "Get alerts for reminders and updates",
-    "darkMode": "Dark mode",
-    "darkModeDescription": "Always on (it's cozy)",
     "dangerZone": "Danger Zone",
     "deleteAccount": "Delete account",
     "deleteAccountDescription": "This will permanently delete your account, conversations, and all connected integrations.",
     "deleteMyAccount": "Delete my account",
     "language": "Language",
     "languageDescription": "Choose your preferred language",
+    "aiModel": "AI Model",
+    "aiModelDescription": "Choose which AI model Nova uses for conversations.",
+    "proPlan": "Pro Plan",
     "integrations": {
       "google": {
         "name": "Google",
@@ -198,7 +199,54 @@
       "music": "🎵 Play some music"
     },
     "loadingConversations": "Loading conversations...",
-    "loadingConversation": "Loading conversation..."
+    "loadingConversation": "Loading conversation...",
+    "attachFile": "Attach file",
+    "addMessageToFiles": "Add a message to your files...",
+    "stopGenerating": "Stop generating",
+    "voiceInput": "Voice input",
+    "listening": "Listening...",
+    "tapToSpeak": "Tap to speak",
+    "voiceNotSupported": "Voice input not supported in this browser",
+    "copyMessage": "Copy message",
+    "copied": "Copied!",
+    "regenerate": "Regenerate response",
+    "regenerating": "Regenerating...",
+    "speakMessage": "Read aloud",
+    "stopSpeaking": "Stop reading",
+    "searchConversations": "Search conversations...",
+    "noSearchResults": "No conversations found",
+    "clearSearch": "Clear search"
+  },
+  "routines": {
+    "title": "Routines",
+    "subtitle": "Automate recurring tasks",
+    "create": "Create Routine",
+    "createRoutine": "Create New Routine",
+    "createFirst": "Create your first routine",
+    "emptyTitle": "No routines yet",
+    "emptyDescription": "Routines let you automate recurring tasks — like checking your calendar every morning or sending a daily summary on Slack.",
+    "name": "Name",
+    "namePlaceholder": "e.g., Morning briefing",
+    "nameRequired": "Name is required",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "e.g., Check calendar and send summary to Slack",
+    "schedule": "Schedule",
+    "scheduleRequired": "Schedule is required",
+    "preset": "Preset",
+    "customCron": "Custom cron",
+    "toolChain": "Steps",
+    "toolChainHint": "Tools run in order. Each step can use the previous step's result.",
+    "toolRequired": "At least one tool is required",
+    "selectTool": "Select a tool...",
+    "addStep": "Add step",
+    "enable": "Enable routine",
+    "disable": "Disable routine",
+    "delete": "Delete routine",
+    "deleteConfirm": "Delete this routine?",
+    "viewHistory": "View execution history",
+    "executionHistory": "Execution History",
+    "noHistory": "No executions yet",
+    "createFailed": "Failed to create routine"
   },
   "notFound": {
     "title": "Page not found",
@@ -239,38 +287,38 @@
       "google": {
         "name": "Google",
         "description": "Calendar, Gmail, Drive",
-        "fullDescription": "Connect your Google account to access Calendar for scheduling, Gmail for reading emails, and Drive for file search.",
-        "features": ["View and create calendar events", "Read email summaries", "Search files in Drive", "Check upcoming events"]
+        "fullDescription": "Connect your Google account to manage Calendar events, send and read emails via Gmail, and search Drive files.",
+        "features": ["View, create, update, and delete calendar events", "Read email summaries and send emails", "Search files in Drive", "Full calendar management"]
       },
       "hue": {
         "name": "Philips Hue",
-        "description": "Smart lighting (coming soon)",
-        "fullDescription": "Philips Hue smart light integration is coming soon. Connect to control lights, set scenes, and adjust brightness.",
-        "features": ["Control individual lights (coming soon)", "Activate scenes (coming soon)", "Adjust brightness and color (coming soon)", "Schedule lighting (coming soon)"]
+        "description": "Smart lighting control",
+        "fullDescription": "Connect Philips Hue to control your smart lights, activate scenes, and adjust brightness and colors through Nova.",
+        "features": ["Control individual lights", "Activate scenes", "Adjust brightness and color", "List all lights and scenes"]
       },
       "spotify": {
         "name": "Spotify",
         "description": "Music playback & search",
-        "fullDescription": "Connect Spotify to control playback, check what's playing, and search for songs, artists, and albums through Nova.",
-        "features": ["Play, pause, and skip tracks", "Check currently playing track", "Search for music", "Discover new music"]
+        "fullDescription": "Connect Spotify to control playback, check what's playing, browse playlists, and search for songs, artists, and albums through Nova.",
+        "features": ["Play, pause, and skip tracks", "Check currently playing track", "Browse your playlists", "Search for music"]
       },
       "sonos": {
         "name": "Sonos",
-        "description": "Multi-room audio (coming soon)",
-        "fullDescription": "Sonos speaker integration is coming soon. Control multi-room audio, adjust volume, and group speakers.",
-        "features": ["Multi-room audio control (coming soon)", "Group/ungroup speakers (coming soon)", "Volume control (coming soon)", "Play from various sources (coming soon)"]
+        "description": "Multi-room audio",
+        "fullDescription": "Connect Sonos to control multi-room audio, adjust volume, and manage speaker groups through Nova.",
+        "features": ["Multi-room audio control", "Play, pause, and skip tracks", "Volume control", "List speaker groups"]
       },
       "notion": {
         "name": "Notion",
         "description": "Notes, docs & databases",
-        "fullDescription": "Access your Notion workspace. Search pages, create notes, and manage your databases with natural language.",
-        "features": ["Search pages and databases", "Create new pages", "Quick capture notes", "Browse your workspace"]
+        "fullDescription": "Access your Notion workspace. Search pages, create and update notes, and manage your databases with natural language.",
+        "features": ["Search pages and databases", "Create new pages", "Update existing pages", "Quick capture notes"]
       },
       "slack": {
         "name": "Slack",
         "description": "Team communication",
-        "fullDescription": "Connect Slack to search messages, send messages to channels, and browse your team communication through Nova.",
-        "features": ["Search workspace messages", "Send messages to channels", "List channels", "Stay updated"]
+        "fullDescription": "Connect Slack to search messages, send messages to channels, send DMs, reply in threads, and browse your team communication through Nova.",
+        "features": ["Search workspace messages", "Send messages to channels", "Send direct messages", "Reply in threads"]
       }
     }
   },

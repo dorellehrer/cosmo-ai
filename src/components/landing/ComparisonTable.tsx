@@ -10,7 +10,7 @@ const features = [
   { name: 'Privacy-first (no data selling)', nova: true, chatgpt: false, siri: true, alexa: false },
   { name: 'Works across all devices', nova: true, chatgpt: true, siri: 'partial', alexa: 'partial' },
   { name: 'Free tier available', nova: true, chatgpt: false, siri: true, alexa: true },
-  { name: 'Smart home control', nova: 'partial', chatgpt: false, siri: true, alexa: true },
+  { name: 'Smart home control', nova: true, chatgpt: false, siri: true, alexa: true },
 ];
 
 function CheckIcon({ type }: { type: boolean | string }) {
