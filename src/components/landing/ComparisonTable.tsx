@@ -1,16 +1,16 @@
 'use client';
 
 const features = [
-  { name: 'Natural conversation', cosmo: true, chatgpt: true, siri: true, alexa: true },
-  { name: 'Actually takes actions', cosmo: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
-  { name: 'Email integration', cosmo: true, chatgpt: false, siri: false, alexa: false },
-  { name: 'Calendar management', cosmo: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
-  { name: 'Smart home control', cosmo: true, chatgpt: false, siri: true, alexa: true },
-  { name: 'Privacy-first (no data selling)', cosmo: true, chatgpt: false, siri: true, alexa: false },
-  { name: 'Remembers context long-term', cosmo: true, chatgpt: 'partial', siri: false, alexa: false },
-  { name: 'Works across all devices', cosmo: true, chatgpt: true, siri: 'partial', alexa: 'partial' },
-  { name: 'No subscription required', cosmo: true, chatgpt: false, siri: true, alexa: true },
-  { name: 'Custom automations', cosmo: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
+  { name: 'Natural conversation', nova: true, chatgpt: true, siri: true, alexa: true },
+  { name: 'Actually takes actions', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
+  { name: 'Email integration', nova: true, chatgpt: false, siri: false, alexa: false },
+  { name: 'Calendar management', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
+  { name: 'Smart home control', nova: true, chatgpt: false, siri: true, alexa: true },
+  { name: 'Privacy-first (no data selling)', nova: true, chatgpt: false, siri: true, alexa: false },
+  { name: 'Remembers context long-term', nova: true, chatgpt: 'partial', siri: false, alexa: false },
+  { name: 'Works across all devices', nova: true, chatgpt: true, siri: 'partial', alexa: 'partial' },
+  { name: 'No subscription required', nova: true, chatgpt: false, siri: true, alexa: true },
+  { name: 'Custom automations', nova: true, chatgpt: false, siri: 'partial', alexa: 'partial' },
 ];
 
 function CheckIcon({ type }: { type: boolean | string }) {
@@ -46,10 +46,10 @@ export function ComparisonTable() {
           id="comparison-heading"
           className="text-3xl sm:text-4xl font-bold text-white mb-4"
         >
-          Why Cosmo?
+          Why Nova?
         </h2>
         <p className="text-white/60 text-lg max-w-2xl mx-auto">
-          See how Cosmo compares to other AI assistants
+          See how Nova compares to other AI assistants
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export function ComparisonTable() {
                   <span className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-sm">
                     ✨
                   </span>
-                  <span className="text-white font-semibold">Cosmo</span>
+                  <span className="text-white font-semibold">Nova</span>
                 </div>
               </th>
               <th className="py-4 px-4 text-center text-white/60 font-medium">ChatGPT</th>
@@ -80,7 +80,7 @@ export function ComparisonTable() {
               >
                 <td className="py-4 px-6 text-white/80">{feature.name}</td>
                 <td className="py-4 px-4 text-center bg-violet-500/5">
-                  <CheckIcon type={feature.cosmo} />
+                  <CheckIcon type={feature.nova} />
                 </td>
                 <td className="py-4 px-4 text-center">
                   <CheckIcon type={feature.chatgpt} />
@@ -107,8 +107,8 @@ export function ComparisonTable() {
             <h3 className="text-white font-medium mb-3">{feature.name}</h3>
             <div className="grid grid-cols-4 gap-2 text-center text-xs">
               <div>
-                <div className="text-white/40 mb-1">Cosmo</div>
-                <CheckIcon type={feature.cosmo} />
+                <div className="text-white/40 mb-1">Nova</div>
+                <CheckIcon type={feature.nova} />
               </div>
               <div>
                 <div className="text-white/40 mb-1">ChatGPT</div>

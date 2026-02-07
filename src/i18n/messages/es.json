@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Cosmo",
+    "cosmo": "Nova",
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
     "getStarted": "Comenzar",
@@ -14,27 +14,28 @@
     "loading": "Cargando...",
     "error": "Error",
     "success": "Éxito",
-    "copyright": "© 2026 Cosmo AI. Todos los derechos reservados.",
+    "copyright": "© 2026 Nova AI. Todos los derechos reservados.",
     "privacy": "Privacidad",
     "terms": "Términos",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "download": "Descargar"
   },
   "landing": {
     "skipToContent": "Saltar al contenido principal",
     "mainNav": "Navegación principal",
-    "heroTitle": "Conoce a Cosmo",
+    "heroTitle": "Conoce a Nova",
     "heroSubtitle": "Tu IA que realmente hace cosas",
-    "heroDescription": "No es solo otro chatbot. Cosmo se conecta a tu vida — calendario, correo, hogar inteligente y más. Dile lo que necesitas y lo hace realidad.",
+    "heroDescription": "No es solo otro chatbot. Nova se conecta a tu vida — calendario, correo, hogar inteligente y más. Dile lo que necesitas y lo hace realidad.",
     "startChatting": "Empieza a chatear — es gratis",
     "watchDemo": "Ver demo",
     "featuresHeading": "Todo lo que necesitas, a una conversación de distancia",
     "ctaHeading": "¿Listo para conocer a tu nuevo compañero de IA?",
-    "ctaDescription": "Únete a miles de personas que han hecho de Cosmo parte de su rutina diaria. Es gratis para empezar.",
+    "ctaDescription": "Únete a miles de personas que han hecho de Nova parte de su rutina diaria. Es gratis para empezar.",
     "getStartedFree": "Comienza gratis",
     "features": {
       "email": {
         "title": "Correo y Calendario",
-        "description": "Revisa correos, programa reuniones, recibe recordatorios. Cosmo mantiene tu día organizado."
+        "description": "Revisa correos, programa reuniones, recibe recordatorios. Nova mantiene tu día organizado."
       },
       "smartHome": {
         "title": "Hogar Inteligente",
@@ -50,7 +51,7 @@
       },
       "everywhere": {
         "title": "Funciona en Todas Partes",
-        "description": "Web, móvil, voz. Accede a Cosmo desde cualquier dispositivo, en cualquier momento."
+        "description": "Web, móvil, voz. Accede a Nova desde cualquier dispositivo, en cualquier momento."
       },
       "noSetup": {
         "title": "Sin Configuración",
@@ -60,9 +61,9 @@
   },
   "auth": {
     "welcomeBack": "Bienvenido de nuevo",
-    "signInToContinue": "Inicia sesión para continuar en Cosmo",
+    "signInToContinue": "Inicia sesión para continuar en Nova",
     "createAccount": "Crea tu cuenta",
-    "joinThousands": "Únete a miles que usan Cosmo cada día",
+    "joinThousands": "Únete a miles que usan Nova cada día",
     "email": "Correo electrónico",
     "emailPlaceholder": "tu@ejemplo.com",
     "password": "Contraseña",
@@ -70,7 +71,7 @@
     "passwordHint": "Al menos 6 caracteres",
     "name": "Nombre",
     "nameOptional": "(opcional)",
-    "namePlaceholder": "¿Cómo debería llamarte Cosmo?",
+    "namePlaceholder": "¿Cómo debería llamarte Nova?",
     "signingIn": "Iniciando sesión...",
     "creatingAccount": "Creando cuenta...",
     "dontHaveAccount": "¿No tienes una cuenta?",
@@ -87,7 +88,7 @@
   },
   "onboarding": {
     "step1Emoji": "👋",
-    "step1Title": "¡Hola! Soy Cosmo",
+    "step1Title": "¡Hola! Soy Nova",
     "step1Subtitle": "¿Cómo debería llamarte?",
     "yourName": "Tu nombre",
     "step2Emoji": "🔌",
@@ -104,7 +105,7 @@
       "music": "\"Pon música relajante\"",
       "reminder": "\"Recuérdame llamar a mamá a las 5pm\""
     },
-    "startChatting": "Empieza a chatear con Cosmo",
+    "startChatting": "Empieza a chatear con Nova",
     "integrations": {
       "google": {
         "name": "Google",
@@ -134,7 +135,7 @@
     "connect": "Conectar",
     "preferences": "Preferencias",
     "voiceResponses": "Respuestas de voz",
-    "voiceDescription": "Cosmo hablará las respuestas en voz alta",
+    "voiceDescription": "Nova hablará las respuestas en voz alta",
     "notifications": "Notificaciones",
     "notificationsDescription": "Recibe alertas para recordatorios y actualizaciones",
     "darkMode": "Modo oscuro",
@@ -182,12 +183,12 @@
     "newConversation": "Nueva conversación",
     "yourCompanion": "Tu compañero de IA",
     "openSidebar": "Abrir barra lateral",
-    "greeting": "Hola, soy Cosmo",
+    "greeting": "Hola, soy Nova",
     "greetingDescription": "Tu asistente personal de IA. Puedo ayudarte con tareas, responder preguntas y hacer tu vida más fácil. ¿Qué te gustaría hacer hoy?",
-    "askAnything": "Pregúntale cualquier cosa a Cosmo...",
+    "askAnything": "Pregúntale cualquier cosa a Nova...",
     "youSaid": "Tú dijiste",
-    "cosmoSaid": "Cosmo dijo",
-    "typing": "Cosmo está escribiendo...",
+    "cosmoSaid": "Nova dijo",
+    "typing": "Nova está escribiendo...",
     "sending": "Enviando...",
     "errorMessage": "Lo siento, algo salió mal. Por favor, inténtalo de nuevo.",
     "suggestions": {
@@ -203,11 +204,11 @@
     "title": "Página no encontrada",
     "description": "Hmm, no pude encontrar lo que buscas. Volvamos al camino correcto.",
     "goHome": "Ir al inicio",
-    "chatWithCosmo": "Chatear con Cosmo"
+    "chatWithNova": "Chatear con Nova"
   },
   "meta": {
-    "title": "Cosmo AI - Tu Compañero Personal de IA",
-    "description": "Conoce a Cosmo, tu asistente de IA amigable que realmente hace las cosas. Hogar inteligente, calendario, correos y más, todo en un solo lugar."
+    "title": "Nova AI - Tu Compañero Personal de IA",
+    "description": "Conoce a Nova, tu asistente de IA amigable que realmente hace las cosas. Hogar inteligente, calendario, correos y más, todo en un solo lugar."
   },
   "commandPalette": {
     "commandPalette": "Command Palette",
@@ -229,16 +230,16 @@
     "pricing": "Pricing",
     "viewPlans": "View subscription plans",
     "about": "About",
-    "learnAboutCosmo": "Learn about Cosmo",
+    "learnAboutNova": "Learn about Nova",
     "untitled": "Untitled conversation",
     "toNavigate": "to navigate",
     "toSelect": "to select",
-    "poweredBy": "Powered by Cosmo ✨"
+    "poweredBy": "Powered by Nova ✨"
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "pageTitle": "Keyboard Shortcuts",
-    "pageDescription": "Master Cosmo with these keyboard shortcuts. Work faster, type less.",
+    "pageDescription": "Master Nova with these keyboard shortcuts. Work faster, type less.",
     "close": "Close",
     "general": "General",
     "chatActions": "Chat",
@@ -272,7 +273,7 @@
       },
       "navigation": {
         "title": "Navigation",
-        "description": "Move around Cosmo quickly"
+        "description": "Move around Nova quickly"
       },
       "commandPalette": {
         "title": "Command Palette",
@@ -283,7 +284,7 @@
       "cmdK": {
         "keys": "⌘K",
         "description": "Open command palette",
-        "detail": "The fastest way to do anything in Cosmo."
+        "detail": "The fastest way to do anything in Nova."
       },
       "question": {
         "keys": "?",
@@ -298,7 +299,7 @@
       "cmdN": {
         "keys": "⌘N",
         "description": "New chat",
-        "detail": "Start a fresh conversation with Cosmo."
+        "detail": "Start a fresh conversation with Nova."
       },
       "cmdB": {
         "keys": "⌘B",
@@ -308,7 +309,7 @@
       "cmdEnter": {
         "keys": "⌘↵",
         "description": "Send message",
-        "detail": "Send your message to Cosmo."
+        "detail": "Send your message to Nova."
       },
       "cmdComma": {
         "keys": "⌘,",
@@ -355,6 +356,54 @@
         "description": "Select item",
         "detail": "Execute the selected command."
       }
+    }
+  },
+  "download": {
+    "badge": "Disponible en todas partes",
+    "title": "Lleva Nova a todos tus dispositivos",
+    "subtitle": "Descarga la app de escritorio para macOS o Windows, o instálala en tu teléfono como app — sin tienda de aplicaciones.",
+    "macos": {
+      "title": "macOS",
+      "badge": "Apple Silicon e Intel",
+      "step1Title": "Descarga el archivo .dmg",
+      "step1Desc": "Haz clic en el botón de abajo para descargar el instalador más reciente.",
+      "step2Title": "Abre y arrastra a Aplicaciones",
+      "step2Desc": "Abre el archivo descargado y arrastra Nova a la carpeta Aplicaciones.",
+      "step3Title": "Abre Nova",
+      "step3Desc": "Abre Nova desde Aplicaciones o Spotlight (⌘+Space).",
+      "cta": "Descargar para macOS"
+    },
+    "windows": {
+      "title": "Windows",
+      "badge": "Windows 10+",
+      "step1Title": "Descarga el instalador",
+      "step1Desc": "Haz clic en el botón de abajo para obtener el instalador .exe.",
+      "step2Title": "Ejecuta el instalador",
+      "step2Desc": "Haz doble clic en el archivo descargado y sigue el asistente de instalación.",
+      "step3Title": "Abre Nova",
+      "step3Desc": "Encuentra Nova en el menú Inicio o en el acceso directo del escritorio.",
+      "cta": "Descargar para Windows"
+    },
+    "mobile": {
+      "title": "Móvil (PWA)",
+      "badge": "Sin tienda de aplicaciones",
+      "iosTitle": "iPhone e iPad (Safari)",
+      "iosStep1Title": "Toca el botón Compartir",
+      "iosStep1Desc": "En la parte inferior de Safari, toca el ícono de compartir.",
+      "iosStep2Title": "Toca \"Añadir a pantalla de inicio\"",
+      "iosStep2Desc": "Desplázate hacia abajo y toca la opción con el ícono +.",
+      "iosStep3Title": "Toca \"Añadir\"",
+      "iosStep3Desc": "Nova aparecerá en tu pantalla de inicio como una app nativa.",
+      "androidTitle": "Android (Chrome)",
+      "androidStep1Title": "Toca el menú (⋮)",
+      "androidStep1Desc": "En Chrome, toca el menú de tres puntos en la esquina superior derecha.",
+      "androidStep2Title": "Toca \"Añadir a pantalla de inicio\"",
+      "androidStep2Desc": "Nova se instalará y aparecerá en tu pantalla de inicio."
+    },
+    "web": {
+      "title": "¿Prefieres el navegador?",
+      "desc": "Nova funciona genial en cualquier navegador moderno. Sin descarga necesaria.",
+      "cta": "Abrir en el navegador"
     }
   }
 }

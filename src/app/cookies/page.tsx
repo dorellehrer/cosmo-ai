@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Cookie Policy - Cosmo AI',
-  description: 'Cookie Policy for Cosmo AI. Learn about how we use cookies and similar technologies on our platform.',
+  title: 'Cookie Policy - Nova AI',
+  description: 'Cookie Policy for Nova AI. Learn about how we use cookies and similar technologies on our platform.',
 };
 
 const cookieTypes = [
@@ -63,7 +63,7 @@ export default function CookiesPage() {
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Cosmo</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -113,7 +113,7 @@ export default function CookiesPage() {
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 sm:p-8">
             <h2 className="text-xl font-semibold text-white mb-4">How We Use Cookies</h2>
             <p className="text-white/70 leading-relaxed mb-4">
-              Cosmo AI uses cookies and similar technologies to:
+              Nova AI uses cookies and similar technologies to:
             </p>
             <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
               <li>Keep you signed in and maintain your session</li>
@@ -186,7 +186,7 @@ export default function CookiesPage() {
             
             <div className="space-y-4">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <h4 className="text-white font-medium mb-2">🔧 Cookie Settings on Cosmo</h4>
+                <h4 className="text-white font-medium mb-2">🔧 Cookie Settings on Nova</h4>
                 <p className="text-white/60 text-sm">
                   When you first visit our site, you can choose which optional cookies to accept. You can change these preferences anytime by clicking the &quot;Cookie Settings&quot; link in the footer.
                 </p>
@@ -220,7 +220,7 @@ export default function CookiesPage() {
             
             <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
               <p className="text-yellow-200/90 text-sm">
-                <strong>Note:</strong> Blocking some cookies may impact your experience on Cosmo. Essential cookies cannot be disabled as they are necessary for the website to function.
+                <strong>Note:</strong> Blocking some cookies may impact your experience on Nova. Essential cookies cannot be disabled as they are necessary for the website to function.
               </p>
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function CookiesPage() {
               If you have any questions about our use of cookies, please contact us:
             </p>
             <ul className="text-white/70 space-y-2 ml-4">
-              <li>Email: <a href="mailto:privacy@cosmo.ai" className="text-violet-400 hover:text-violet-300">privacy@cosmo.ai</a></li>
+              <li>Email: <a href="mailto:privacy@heynova.se" className="text-violet-400 hover:text-violet-300">privacy@heynova.se</a></li>
               <li>Or visit our <Link href="/contact" className="text-violet-400 hover:text-violet-300">Contact page</Link></li>
             </ul>
           </div>
@@ -293,7 +293,7 @@ export default function CookiesPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex gap-6 text-white/40 text-sm">

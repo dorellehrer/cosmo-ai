@@ -33,7 +33,7 @@ export default async function NotFound() {
             href="/chat"
             className="px-6 py-3 border border-white/20 hover:bg-white/10 rounded-full text-white font-medium transition-all text-center"
           >
-            {t('chatWithCosmo')}
+            {t('chatWithNova')}
           </Link>
         </div>
       </div>

@@ -1,14 +1,21 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import BlogContent from '@/components/blog/BlogContent';
 
 export const metadata: Metadata = {
-  title: 'Blog - Cosmo AI',
-  description: 'Updates, insights, and stories from the Cosmo AI team. Learn about AI, productivity, and the future of personal assistants.',
+  title: 'Blog — Nova AI',
+  description:
+    'Updates, insights, and stories from the Nova team. Learn about AI, productivity, and the future of personal assistants.',
+  openGraph: {
+    title: 'Blog — Nova AI',
+    description:
+      'Updates, insights, and stories from the Nova team. Learn about AI, productivity, and the future of personal assistants.',
+  },
 };
 
 const featuredPost = {
-  slug: 'introducing-cosmo-ai',
-  title: 'Introducing Cosmo: AI that actually does things',
+  slug: 'introducing-nova-ai',
+  title: 'Introducing Nova: AI that actually does things',
   excerpt: 'For years, AI has promised to change how we work. Today, we\'re taking a different approach — building AI that takes real actions in the real world.',
   date: 'February 1, 2026',
   author: 'Alex Chen',
@@ -21,7 +28,7 @@ const featuredPost = {
 const posts = [
   {
     slug: 'privacy-first-ai',
-    title: 'Why we built Cosmo with privacy as a foundation',
+    title: 'Why we built Nova with privacy as a foundation',
     excerpt: 'AI assistants need access to your most personal data. Here\'s how we built trust from day one.',
     date: 'January 28, 2026',
     author: 'Sarah Kim',
@@ -32,7 +39,7 @@ const posts = [
   {
     slug: 'smart-home-integrations',
     title: '10 smart home automations you didn\'t know you needed',
-    excerpt: 'From "movie night mode" to "good morning routines" — here\'s how our users are using Cosmo.',
+    excerpt: 'From "movie night mode" to "good morning routines" — here\'s how our users are using Nova.',
     date: 'January 22, 2026',
     author: 'Marcus Johnson',
     readTime: '6 min read',
@@ -41,8 +48,8 @@ const posts = [
   },
   {
     slug: 'the-action-layer',
-    title: 'The Action Layer: How Cosmo bridges AI and reality',
-    excerpt: 'A deep dive into the architecture that lets Cosmo safely take actions on your behalf.',
+    title: 'The Action Layer: How Nova bridges AI and reality',
+    excerpt: 'A deep dive into the architecture that lets Nova safely take actions on your behalf.',
     date: 'January 15, 2026',
     author: 'Sarah Kim',
     readTime: '8 min read',
@@ -89,7 +96,7 @@ export default function BlogPage() {
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Cosmo</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -113,92 +120,17 @@ export default function BlogPage() {
         <section className="pt-16 sm:pt-24 pb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Blog</h1>
           <p className="text-lg text-white/60 max-w-2xl">
-            Updates, insights, and stories from the Cosmo team. Learn about AI, productivity, 
+            Updates, insights, and stories from the Nova team. Learn about AI, productivity, 
             and the future of personal assistants.
           </p>
         </section>
 
-        {/* Categories */}
-        <section className="pb-12">
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category.name}
-                className={`px-4 py-2 rounded-full text-sm transition-all ${
-                  category.name === 'All'
-                    ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white'
-                    : 'bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {category.name}
-                <span className="ml-2 text-white/40">({category.count})</span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Post */}
-        <section className="pb-16">
-          <Link
-            href={`/blog/${featuredPost.slug}`}
-            className="block bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-white/10 rounded-2xl p-8 sm:p-12 hover:bg-white/5 transition-all group"
-          >
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-5xl sm:text-6xl shrink-0">
-                {featuredPost.image}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="px-3 py-1 bg-violet-500/20 text-violet-300 rounded-full text-xs font-medium">
-                    {featuredPost.category}
-                  </span>
-                  <span className="text-white/40 text-sm">{featuredPost.date}</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 group-hover:text-violet-300 transition-colors">
-                  {featuredPost.title}
-                </h2>
-                <p className="text-white/60 mb-4 line-clamp-2">{featuredPost.excerpt}</p>
-                <div className="flex items-center gap-4">
-                  <span className="text-white/80 text-sm">{featuredPost.author}</span>
-                  <span className="text-white/40">•</span>
-                  <span className="text-white/40 text-sm">{featuredPost.readTime}</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </section>
-
-        {/* Post Grid */}
-        <section className="pb-24">
-          <h2 className="text-2xl font-bold text-white mb-8">Latest Posts</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all group"
-              >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center text-2xl mb-4">
-                  {post.image}
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2 py-0.5 bg-white/10 text-white/60 rounded text-xs">
-                    {post.category}
-                  </span>
-                  <span className="text-white/40 text-xs">{post.date}</span>
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-violet-300 transition-colors line-clamp-2">
-                  {post.title}
-                </h3>
-                <p className="text-white/50 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/60">{post.author}</span>
-                  <span className="text-white/40">{post.readTime}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Interactive content (client component) */}
+        <BlogContent
+          featuredPost={featuredPost}
+          posts={posts}
+          categories={categories}
+        />
 
         {/* Newsletter CTA */}
         <section className="pb-24">
@@ -233,7 +165,7 @@ export default function BlogPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-white/40 text-sm">

@@ -61,7 +61,7 @@ export function HeroDemo() {
           <div className="w-3 h-3 rounded-full bg-green-500/80" />
         </div>
         <div className="flex-1 bg-slate-700/50 rounded-md px-4 py-1 text-sm text-white/40 text-center">
-          cosmo.ai/chat
+          heynova.se/chat
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export function HeroDemo() {
         {/* Input bar */}
         <div className="mt-4 pt-4 border-t border-white/10">
           <div className="flex items-center gap-2 bg-white/5 rounded-full px-4 py-2.5">
-            <span className="text-white/40 text-sm">Message Cosmo...</span>
+            <span className="text-white/40 text-sm">Message Nova...</span>
             <div className="ml-auto w-8 h-8 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 flex items-center justify-center">
               <span className="text-white text-sm">↑</span>
             </div>
@@ -114,7 +114,7 @@ export function HeroDemo() {
       <div className="text-center mt-4">
         <span className="text-white/40 text-xs flex items-center justify-center gap-2">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          Live demo — watch Cosmo in action
+          Live demo — watch Nova in action
         </span>
       </div>
     </div>

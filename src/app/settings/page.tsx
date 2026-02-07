@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useVoiceSettings, SUPPORTED_LANGUAGES } from '@/contexts/VoiceSettingsContext';
@@ -49,6 +51,7 @@ const INTEGRATION_ICONS: Record<string, React.ReactNode> = {
 export default function SettingsPage() {
   const t = useTranslations('settings');
   const common = useTranslations('common');
+  const router = useRouter();
   const { settings: voiceSettings, updateSettings: updateVoiceSettings } = useVoiceSettings();
   const { integrations, disconnectIntegration, connectedCount } = useIntegrations();
   // Check if speech recognition is supported using lazy initial state
@@ -57,7 +60,89 @@ export default function SettingsPage() {
     return !!(window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
   });
   const [name, setName] = useState('');
+  const [plan, setPlan] = useState('free');
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [savingName, setSavingName] = useState(false);
+  const [nameTimeout, setNameTimeout] = useState<NodeJS.Timeout | null>(null);
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
+  const [voiceResponses, setVoiceResponses] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('nova-voice-responses') === 'true';
+  });
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem('nova-notifications-enabled') !== 'false';
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Load profile from API
+  useEffect(() => {
+    fetch('/api/user/profile')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.name) setName(data.name);
+        if (data.plan) setPlan(data.plan);
+      })
+      .catch((err) => console.error('Failed to load profile:', err))
+      .finally(() => setProfileLoading(false));
+  }, []);
+
+  // Auto-save name with debounce
+  const saveName = useCallback(
+    (value: string) => {
+      if (nameTimeout) clearTimeout(nameTimeout);
+      const timeout = setTimeout(async () => {
+        if (!value.trim()) return;
+        setSavingName(true);
+        try {
+          await fetch('/api/user/profile', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: value.trim() }),
+          });
+        } catch (err) {
+          console.error('Failed to save name:', err);
+        } finally {
+          setSavingName(false);
+        }
+      }, 800);
+      setNameTimeout(timeout);
+    },
+    [nameTimeout]
+  );
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setName(value);
+    saveName(value);
+  };
+
+  const toggleVoiceResponses = () => {
+    const next = !voiceResponses;
+    setVoiceResponses(next);
+    localStorage.setItem('nova-voice-responses', String(next));
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deleteConfirm) {
+      setDeleteConfirm(true);
+      return;
+    }
+    setDeleting(true);
+    try {
+      const res = await fetch('/api/user/delete', { method: 'DELETE' });
+      if (res.ok) {
+        await signOut({ redirect: false });
+        router.push('/');
+      }
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+    } finally {
+      setDeleting(false);
+      setDeleteConfirm(false);
+    }
+  };
 
   const handleDisconnect = (id: string) => {
     setDisconnectingId(id);
@@ -121,12 +206,13 @@ export default function SettingsPage() {
                   id="name-input"
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t('yourName')}
-                  className="w-full bg-transparent text-lg sm:text-xl font-semibold text-white placeholder-white/40 focus:outline-none border-b border-transparent focus:border-violet-500 transition-colors truncate"
+                  onChange={handleNameChange}
+                  placeholder={profileLoading ? 'Loading...' : t('yourName')}
+                  disabled={profileLoading}
+                  className="w-full bg-transparent text-lg sm:text-xl font-semibold text-white placeholder-white/40 focus:outline-none border-b border-transparent focus:border-violet-500 transition-colors truncate disabled:opacity-50"
                 />
                 <p className="text-white/40 text-xs sm:text-sm mt-1">
-                  {t('freePlan')}
+                  {savingName ? 'Saving...' : plan === 'pro' ? t('proPlan') ?? 'Pro Plan' : t('freePlan')}
                 </p>
               </div>
             </div>
@@ -235,7 +321,7 @@ export default function SettingsPage() {
               </div>
               <h3 className="text-white font-medium mb-2">No integrations connected</h3>
               <p className="text-white/40 text-sm mb-4">
-                Connect your apps to let Cosmo help you more
+                Connect your apps to let Nova help you more
               </p>
               <Link
                 href="/integrations"
@@ -400,12 +486,17 @@ export default function SettingsPage() {
                 </p>
               </div>
               <button 
-                className="w-11 sm:w-12 h-6 sm:h-7 bg-white/20 rounded-full relative transition-colors shrink-0"
+                onClick={toggleVoiceResponses}
+                className={`w-11 sm:w-12 h-6 sm:h-7 rounded-full relative transition-colors shrink-0 ${
+                  voiceResponses ? 'bg-violet-500' : 'bg-white/20'
+                }`}
                 role="switch"
-                aria-checked="false"
+                aria-checked={voiceResponses}
                 aria-label={t('voiceResponses')}
               >
-                <span className="absolute start-0.5 sm:start-1 top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform" />
+                <span className={`absolute top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform ${
+                  voiceResponses ? 'end-0.5 sm:end-1' : 'start-0.5 sm:start-1'
+                }`} />
               </button>
             </div>
             <div className="p-3 sm:p-4 flex items-center justify-between gap-4">
@@ -416,12 +507,21 @@ export default function SettingsPage() {
                 </p>
               </div>
               <button 
-                className="w-11 sm:w-12 h-6 sm:h-7 bg-violet-500 rounded-full relative transition-colors shrink-0"
+                onClick={() => {
+                  const next = !notificationsEnabled;
+                  setNotificationsEnabled(next);
+                  localStorage.setItem('nova-notifications-enabled', String(next));
+                }}
+                className={`w-11 sm:w-12 h-6 sm:h-7 rounded-full relative transition-colors shrink-0 ${
+                  notificationsEnabled ? 'bg-violet-500' : 'bg-white/20'
+                }`}
                 role="switch"
-                aria-checked="true"
+                aria-checked={notificationsEnabled}
                 aria-label={t('notifications')}
               >
-                <span className="absolute end-0.5 sm:end-1 top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform" />
+                <span className={`absolute top-0.5 sm:top-1 w-5 h-5 bg-white rounded-full transition-transform ${
+                  notificationsEnabled ? 'end-0.5 sm:end-1' : 'start-0.5 sm:start-1'
+                }`} />
               </button>
             </div>
             <div className="p-3 sm:p-4 flex items-center justify-between gap-4">
@@ -452,12 +552,29 @@ export default function SettingsPage() {
             <p className="text-white/40 text-xs sm:text-sm mb-3 sm:mb-4">
               {t('deleteAccountDescription')}
             </p>
-            <button 
-              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 text-xs sm:text-sm font-medium transition-colors"
-              aria-label={t('deleteMyAccount')}
-            >
-              {t('deleteMyAccount')}
-            </button>
+            {deleteConfirm && (
+              <p className="text-red-400 text-xs sm:text-sm mb-3 font-medium">
+                Are you sure? This action cannot be undone. Click again to confirm.
+              </p>
+            )}
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 text-xs sm:text-sm font-medium transition-colors disabled:opacity-50"
+                aria-label={t('deleteMyAccount')}
+              >
+                {deleting ? 'Deleting...' : deleteConfirm ? 'Confirm deletion' : t('deleteMyAccount')}
+              </button>
+              {deleteConfirm && (
+                <button
+                  onClick={() => setDeleteConfirm(false)}
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white/60 text-xs sm:text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </div>
         </section>
       </main>

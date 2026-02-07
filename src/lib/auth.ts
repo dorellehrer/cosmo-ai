@@ -10,12 +10,10 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      allowDangerousEmailAccountLinking: true,
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID || "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-      allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
       name: "credentials",
@@ -37,7 +35,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (!user.passwordHash) {
-          throw new Error("Please sign in with your social account");
+          throw new Error("This account uses social login. Please sign in with Google or GitHub.");
         }
 
         const isValid = await bcrypt.compare(
@@ -72,13 +70,30 @@ export const authOptions: NextAuthOptions = {
           return false;
         }
 
+        // First, check if a user already has this provider linked
+        const providerField = account.provider === "google" ? "googleId" : "githubId";
+        const existingByProvider = await prisma.user.findFirst({
+          where: { [providerField]: account.providerAccountId },
+        });
+
+        if (existingByProvider) {
+          // Already linked — allow sign-in
+          if (!existingByProvider.name && user.name) {
+            await prisma.user.update({
+              where: { id: existingByProvider.id },
+              data: { name: user.name },
+            });
+          }
+          return true;
+        }
+
         // Check if user exists with this email
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
 
         if (existingUser) {
-          // Link the social account to existing user
+          // Link the social account to existing user (safe: same email)
           const updateData: { googleId?: string; githubId?: string; name?: string } = {};
           
           if (account.provider === "google" && !existingUser.googleId) {
@@ -104,7 +119,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               email: user.email,
               name: user.name,
-              passwordHash: "", // No password for OAuth users
+              passwordHash: null, // No password for OAuth users
               googleId: account.provider === "google" ? account.providerAccountId : null,
               githubId: account.provider === "github" ? account.providerAccountId : null,
             },

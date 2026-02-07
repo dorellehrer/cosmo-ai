@@ -57,7 +57,7 @@ const INTEGRATION_DETAILS: Record<string, {
   dataAccess: string[];
 }> = {
   google: {
-    fullDescription: 'Connect your Google account to access Calendar for scheduling, Gmail for email management, and Drive for file access. Cosmo can help you manage your day-to-day activities seamlessly.',
+    fullDescription: 'Connect your Google account to access Calendar for scheduling, Gmail for email management, and Drive for file access. Nova can help you manage your day-to-day activities seamlessly.',
     features: ['View and create calendar events', 'Read and send emails', 'Access files in Drive', 'Set reminders', 'Search across services'],
     permissions: ['Read calendar events', 'Create calendar events', 'Read email messages', 'Send emails on your behalf', 'Read Google Drive files'],
     dataAccess: ['Calendar events and metadata', 'Email subjects and content', 'Drive file names and metadata'],
@@ -69,7 +69,7 @@ const INTEGRATION_DETAILS: Record<string, {
     dataAccess: ['Light states and configurations', 'Room layouts', 'Scene settings'],
   },
   spotify: {
-    fullDescription: 'Stream your favorite music with Spotify. Control playback, search for songs, manage playlists, and discover new music with Cosmo.',
+    fullDescription: 'Stream your favorite music with Spotify. Control playback, search for songs, manage playlists, and discover new music with Nova.',
     features: ['Play/pause/skip tracks', 'Search for music', 'Control volume', 'Manage playlists', 'Get recommendations'],
     permissions: ['Control playback', 'Read your library', 'Modify playlists', 'Read your listening history'],
     dataAccess: ['Current playback state', 'Playlists and saved tracks', 'Listening history'],
@@ -87,7 +87,7 @@ const INTEGRATION_DETAILS: Record<string, {
     dataAccess: ['Page content', 'Database entries', 'Workspace structure'],
   },
   slack: {
-    fullDescription: 'Connect Slack to send messages, update your status, and stay on top of team communication without leaving your conversation with Cosmo.',
+    fullDescription: 'Connect Slack to send messages, update your status, and stay on top of team communication without leaving your conversation with Nova.',
     features: ['Send direct messages', 'Post to channels', 'Update your status', 'Search messages', 'React to messages'],
     permissions: ['Send messages', 'Read channels', 'Update profile', 'Search workspace'],
     dataAccess: ['Channel memberships', 'Direct messages', 'Profile information'],
@@ -117,19 +117,19 @@ export default function IntegrationDetailPage() {
     return null;
   }
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
     setIsDisconnecting(true);
-    setTimeout(() => {
-      disconnectIntegration(id);
-      setIsDisconnecting(false);
-      setShowDisconnectConfirm(false);
+    try {
+      await disconnectIntegration(id);
       router.push('/integrations');
-    }, 500);
+    } catch {
+      setIsDisconnecting(false);
+    }
+    setShowDisconnectConfirm(false);
   };
 
   const handleConnect = () => {
-    // Simulate connection
-    connectIntegration(id, `user@${id === 'google' ? 'gmail.com' : `${id}.com`}`);
+    connectIntegration(id);
   };
 
   return (
@@ -276,7 +276,7 @@ export default function IntegrationDetailPage() {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Connect {baseIntegration.name}</h3>
                 <p className="text-white/60 text-sm">
-                  Enable this integration to unlock its features with Cosmo.
+                  Enable this integration to unlock its features with Nova.
                 </p>
               </div>
               <button

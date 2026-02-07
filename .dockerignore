@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env
+.env.local
+.env.*.local
+agent/node_modules
+agent/dist
+electron/
+dist/
+prisma/migrations
+.github
+scripts
+public/screenshots

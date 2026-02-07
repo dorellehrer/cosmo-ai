@@ -9,7 +9,7 @@ interface UsageData {
   resetDate?: Date;
 }
 
-const STORAGE_KEY = 'cosmo-usage-notified';
+const STORAGE_KEY = 'nova-usage-notified';
 
 export function useUsageNotifications() {
   const { addNotification } = useNotifications();

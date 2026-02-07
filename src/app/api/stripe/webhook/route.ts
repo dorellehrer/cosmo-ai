@@ -4,9 +4,19 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: NextRequest) {
+  // Runtime check — not at module level to avoid breaking `next build`
+  if (!webhookSecret) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('STRIPE_WEBHOOK_SECRET is required in production');
+    }
+    return NextResponse.json(
+      { error: 'Webhook secret not configured' },
+      { status: 500 }
+    );
+  }
   const body = await req.text();
   const headersList = await headers();
   const signature = headersList.get('stripe-signature');
@@ -119,8 +129,25 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        console.log('Payment failed for invoice:', invoice.id);
-        // Could send notification to user here
+        console.error('Payment failed for invoice:', invoice.id);
+
+        // Find user by Stripe customer ID and flag their account
+        const customerId = typeof invoice.customer === 'string'
+          ? invoice.customer
+          : invoice.customer?.id ?? null;
+
+        if (customerId) {
+          await prisma.user.updateMany({
+            where: { stripeCustomerId: customerId },
+            data: {
+              // Clear subscription so user falls back to free tier
+              stripeSubscriptionId: null,
+              stripePriceId: null,
+              stripeCurrentPeriodEnd: null,
+            },
+          });
+          console.log(`Payment failed — reverted user (customer ${customerId}) to free tier`);
+        }
         break;
       }
     }

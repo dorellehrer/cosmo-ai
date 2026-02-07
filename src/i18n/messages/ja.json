@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Cosmo",
+    "cosmo": "Nova",
     "signIn": "ログイン",
     "signUp": "新規登録",
     "getStarted": "始める",
@@ -14,27 +14,28 @@
     "loading": "読み込み中...",
     "error": "エラー",
     "success": "成功",
-    "copyright": "© 2026 Cosmo AI. All rights reserved.",
+    "copyright": "© 2026 Nova AI. All rights reserved.",
     "privacy": "プライバシー",
     "terms": "利用規約",
-    "contact": "お問い合わせ"
+    "contact": "お問い合わせ",
+    "download": "ダウンロード"
   },
   "landing": {
     "skipToContent": "メインコンテンツへスキップ",
     "mainNav": "メインナビゲーション",
-    "heroTitle": "Cosmoに出会う",
+    "heroTitle": "Novaに出会う",
     "heroSubtitle": "本当に行動するAI",
-    "heroDescription": "ただのチャットボットじゃない。Cosmoはあなたの生活とつながります — カレンダー、メール、スマートホームなど。必要なことを伝えれば、実現します。",
+    "heroDescription": "ただのチャットボットじゃない。Novaはあなたの生活とつながります — カレンダー、メール、スマートホームなど。必要なことを伝えれば、実現します。",
     "startChatting": "チャットを始める — 無料",
     "watchDemo": "デモを見る",
     "featuresHeading": "必要なものすべてが、会話ひとつで",
     "ctaHeading": "新しいAIパートナーに会う準備はできましたか？",
-    "ctaDescription": "Cosmoを日常の一部にしている何千人もの人々に加わりましょう。無料で始められます。",
+    "ctaDescription": "Novaを日常の一部にしている何千人もの人々に加わりましょう。無料で始められます。",
     "getStartedFree": "無料で始める",
     "features": {
       "email": {
         "title": "メール＆カレンダー",
-        "description": "メールをチェック、会議をスケジュール、リマインダーを受け取る。Cosmoがあなたの一日を整理します。"
+        "description": "メールをチェック、会議をスケジュール、リマインダーを受け取る。Novaがあなたの一日を整理します。"
       },
       "smartHome": {
         "title": "スマートホーム",
@@ -50,7 +51,7 @@
       },
       "everywhere": {
         "title": "どこでも動作",
-        "description": "Web、モバイル、音声。どのデバイスからでも、いつでもCosmoにアクセス。"
+        "description": "Web、モバイル、音声。どのデバイスからでも、いつでもNovaにアクセス。"
       },
       "noSetup": {
         "title": "セットアップ不要",
@@ -60,9 +61,9 @@
   },
   "auth": {
     "welcomeBack": "おかえりなさい",
-    "signInToContinue": "Cosmoを続けるにはログインしてください",
+    "signInToContinue": "Novaを続けるにはログインしてください",
     "createAccount": "アカウントを作成",
-    "joinThousands": "毎日Cosmoを使っている何千人もの人々に加わりましょう",
+    "joinThousands": "毎日Novaを使っている何千人もの人々に加わりましょう",
     "email": "メールアドレス",
     "emailPlaceholder": "you@example.com",
     "password": "パスワード",
@@ -70,7 +71,7 @@
     "passwordHint": "6文字以上",
     "name": "名前",
     "nameOptional": "（任意）",
-    "namePlaceholder": "Cosmoに何と呼ばれたいですか？",
+    "namePlaceholder": "Novaに何と呼ばれたいですか？",
     "signingIn": "ログイン中...",
     "creatingAccount": "アカウント作成中...",
     "dontHaveAccount": "アカウントをお持ちでないですか？",
@@ -87,7 +88,7 @@
   },
   "onboarding": {
     "step1Emoji": "👋",
-    "step1Title": "こんにちは！Cosmoです",
+    "step1Title": "こんにちは！Novaです",
     "step1Subtitle": "なんとお呼びすればいいですか？",
     "yourName": "お名前",
     "step2Emoji": "🔌",
@@ -104,7 +105,7 @@
       "music": "「リラックスできる音楽をかけて」",
       "reminder": "「17時にお母さんに電話するようリマインドして」"
     },
-    "startChatting": "Cosmoとチャットを始める",
+    "startChatting": "Novaとチャットを始める",
     "integrations": {
       "google": {
         "name": "Google",
@@ -134,7 +135,7 @@
     "connect": "接続",
     "preferences": "設定",
     "voiceResponses": "音声応答",
-    "voiceDescription": "Cosmoが返答を音声で読み上げます",
+    "voiceDescription": "Novaが返答を音声で読み上げます",
     "notifications": "通知",
     "notificationsDescription": "リマインダーや更新のアラートを受け取る",
     "darkMode": "ダークモード",
@@ -182,12 +183,12 @@
     "newConversation": "新しい会話",
     "yourCompanion": "あなたのAIパートナー",
     "openSidebar": "サイドバーを開く",
-    "greeting": "こんにちは、Cosmoです",
+    "greeting": "こんにちは、Novaです",
     "greetingDescription": "あなたのパーソナルAIアシスタントです。タスクのお手伝い、質問への回答、生活をより簡単にすることができます。今日は何をしましょうか？",
-    "askAnything": "Cosmoに何でも聞いてください...",
+    "askAnything": "Novaに何でも聞いてください...",
     "youSaid": "あなたが言った",
-    "cosmoSaid": "Cosmoが言った",
-    "typing": "Cosmoが入力中...",
+    "cosmoSaid": "Novaが言った",
+    "typing": "Novaが入力中...",
     "sending": "送信中...",
     "errorMessage": "申し訳ありません、問題が発生しました。もう一度お試しください。",
     "suggestions": {
@@ -203,11 +204,11 @@
     "title": "ページが見つかりません",
     "description": "お探しのページが見つかりませんでした。正しいページへご案内します。",
     "goHome": "ホームへ",
-    "chatWithCosmo": "Cosmoとチャット"
+    "chatWithNova": "Novaとチャット"
   },
   "meta": {
-    "title": "Cosmo AI - あなたのパーソナルAIパートナー",
-    "description": "Cosmoに出会いましょう。本当に物事を成し遂げるフレンドリーなAIアシスタントです。スマートホーム、カレンダー、メールなど、すべてが一か所に。"
+    "title": "Nova AI - あなたのパーソナルAIパートナー",
+    "description": "Novaに出会いましょう。本当に物事を成し遂げるフレンドリーなAIアシスタントです。スマートホーム、カレンダー、メールなど、すべてが一か所に。"
   },
   "commandPalette": {
     "commandPalette": "Command Palette",
@@ -229,16 +230,16 @@
     "pricing": "Pricing",
     "viewPlans": "View subscription plans",
     "about": "About",
-    "learnAboutCosmo": "Learn about Cosmo",
+    "learnAboutNova": "Learn about Nova",
     "untitled": "Untitled conversation",
     "toNavigate": "to navigate",
     "toSelect": "to select",
-    "poweredBy": "Powered by Cosmo ✨"
+    "poweredBy": "Powered by Nova ✨"
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "pageTitle": "Keyboard Shortcuts",
-    "pageDescription": "Master Cosmo with these keyboard shortcuts. Work faster, type less.",
+    "pageDescription": "Master Nova with these keyboard shortcuts. Work faster, type less.",
     "close": "Close",
     "general": "General",
     "chatActions": "Chat",
@@ -272,7 +273,7 @@
       },
       "navigation": {
         "title": "Navigation",
-        "description": "Move around Cosmo quickly"
+        "description": "Move around Nova quickly"
       },
       "commandPalette": {
         "title": "Command Palette",
@@ -283,7 +284,7 @@
       "cmdK": {
         "keys": "⌘K",
         "description": "Open command palette",
-        "detail": "The fastest way to do anything in Cosmo."
+        "detail": "The fastest way to do anything in Nova."
       },
       "question": {
         "keys": "?",
@@ -298,7 +299,7 @@
       "cmdN": {
         "keys": "⌘N",
         "description": "New chat",
-        "detail": "Start a fresh conversation with Cosmo."
+        "detail": "Start a fresh conversation with Nova."
       },
       "cmdB": {
         "keys": "⌘B",
@@ -308,7 +309,7 @@
       "cmdEnter": {
         "keys": "⌘↵",
         "description": "Send message",
-        "detail": "Send your message to Cosmo."
+        "detail": "Send your message to Nova."
       },
       "cmdComma": {
         "keys": "⌘,",
@@ -355,6 +356,54 @@
         "description": "Select item",
         "detail": "Execute the selected command."
       }
+    }
+  },
+  "download": {
+    "badge": "どこでも利用可能",
+    "title": "あらゆるデバイスでNovaを",
+    "subtitle": "macOSまたはWindows用のデスクトップアプリをダウンロード、またはスマートフォンにアプリとしてインストール — アプリストア不要。",
+    "macos": {
+      "title": "macOS",
+      "badge": "Apple Silicon & Intel",
+      "step1Title": ".dmgファイルをダウンロード",
+      "step1Desc": "下のボタンをクリックして最新のインストーラーをダウンロードしてください。",
+      "step2Title": "開いてアプリケーションにドラッグ",
+      "step2Desc": "ダウンロードしたファイルを開き、Novaをアプリケーションフォルダにドラッグしてください。",
+      "step3Title": "Novaを起動",
+      "step3Desc": "アプリケーションまたはSpotlight（⌘+Space）からNovaを開いてください。",
+      "cta": "macOS版をダウンロード"
+    },
+    "windows": {
+      "title": "Windows",
+      "badge": "Windows 10+",
+      "step1Title": "インストーラーをダウンロード",
+      "step1Desc": "下のボタンをクリックして.exeインストーラーを入手してください。",
+      "step2Title": "インストーラーを実行",
+      "step2Desc": "ダウンロードしたファイルをダブルクリックし、セットアップウィザードに従ってください。",
+      "step3Title": "Novaを起動",
+      "step3Desc": "スタートメニューまたはデスクトップショートカットからNovaを見つけてください。",
+      "cta": "Windows版をダウンロード"
+    },
+    "mobile": {
+      "title": "モバイル（PWA）",
+      "badge": "アプリストア不要",
+      "iosTitle": "iPhone & iPad（Safari）",
+      "iosStep1Title": "共有ボタンをタップ",
+      "iosStep1Desc": "Safariの下部にある共有アイコンをタップしてください。",
+      "iosStep2Title": "\"ホーム画面に追加\"をタップ",
+      "iosStep2Desc": "下にスクロールして+アイコンのオプションをタップしてください。",
+      "iosStep3Title": "\"追加\"をタップ",
+      "iosStep3Desc": "Novaがネイティブアプリのようにホーム画面に表示されます。",
+      "androidTitle": "Android（Chrome）",
+      "androidStep1Title": "メニュー（⋮）をタップ",
+      "androidStep1Desc": "Chromeの右上にある三点メニューをタップしてください。",
+      "androidStep2Title": "\"ホーム画面に追加\"をタップ",
+      "androidStep2Desc": "Novaがインストールされ、ホーム画面に表示されます。"
+    },
+    "web": {
+      "title": "ブラウザで使いたい？",
+      "desc": "Novaはどんなモダンブラウザでも快適に動作します。ダウンロード不要。",
+      "cta": "ブラウザで開く"
     }
   }
 }

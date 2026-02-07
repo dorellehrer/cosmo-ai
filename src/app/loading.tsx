@@ -3,9 +3,9 @@ export default function Loading() {
     <div 
       className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center"
       role="status"
-      aria-label="Loading Cosmo AI"
+      aria-label="Loading Nova AI"
     >
-      {/* Animated Cosmo logo */}
+      {/* Animated Nova logo */}
       <div className="relative">
         {/* Outer glow ring */}
         <div className="absolute inset-0 w-28 h-28 -m-2 rounded-full bg-violet-500/20 blur-xl animate-pulse" />
@@ -28,7 +28,7 @@ export default function Loading() {
         />
       </div>
       
-      <h1 className="mt-8 text-2xl font-semibold text-white">Cosmo</h1>
+      <h1 className="mt-8 text-2xl font-semibold text-white">Nova</h1>
       <p className="mt-2 text-white/70">Loading your experience...</p>
       
       {/* Loading bar */}

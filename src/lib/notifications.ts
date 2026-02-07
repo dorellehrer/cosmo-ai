@@ -22,7 +22,7 @@ export const systemNotifications = {
   welcome: (): NotificationPayload => ({
     type: 'info',
     category: 'system',
-    title: 'Welcome to Cosmo! ✨',
+    title: 'Welcome to Nova! ✨',
     message: 'Your AI assistant is ready. Connect integrations to unlock the full experience.',
     action: { label: 'Setup Integrations', href: '/integrations' },
   }),
@@ -138,7 +138,7 @@ export const TIPS: NotificationPayload[] = [
     type: 'info',
     category: 'system',
     title: '💡 Voice Commands',
-    message: 'Try using voice commands! Click the microphone or say "Hey Cosmo".',
+    message: 'Try using voice commands! Click the microphone or say "Hey Nova".',
   },
   {
     type: 'info',
@@ -151,7 +151,7 @@ export const TIPS: NotificationPayload[] = [
     type: 'info',
     category: 'system',
     title: '💡 Connect More',
-    message: 'Connect more integrations to unlock Cosmo\'s full potential!',
+    message: 'Connect more integrations to unlock Nova\'s full potential!',
     action: { label: 'Browse Integrations', href: '/integrations' },
   },
 ];

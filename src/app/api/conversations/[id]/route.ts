@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/conversations/[id] - Get a specific conversation with messages
 export async function GET(
@@ -14,6 +15,15 @@ export async function GET(
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limit check
+    const rateLimit = checkRateLimit(`conversation:${session.user.id}`, RATE_LIMIT_API);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: rateLimit.headers }
+      );
     }
 
     const conversation = await prisma.conversation.findFirst({
@@ -58,6 +68,15 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Rate limit check
+    const rateLimitDelete = checkRateLimit(`conversation:delete:${session.user.id}`, RATE_LIMIT_API);
+    if (!rateLimitDelete.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: rateLimitDelete.headers }
+      );
+    }
+
     // Verify ownership
     const conversation = await prisma.conversation.findFirst({
       where: {
@@ -98,6 +117,15 @@ export async function PATCH(
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limit check
+    const rateLimitPatch = checkRateLimit(`conversation:update:${session.user.id}`, RATE_LIMIT_API);
+    if (!rateLimitPatch.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: rateLimitPatch.headers }
+      );
     }
 
     const { title } = await req.json();

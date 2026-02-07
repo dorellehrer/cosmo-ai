@@ -4,6 +4,16 @@ import { getTranslations } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { LazyLoad } from '@/components/PageTransition';
 import { Placeholder } from '@/components/LoadingSpinner';
+import {
+  HeroDemo,
+  HowItWorks,
+  ComparisonTable,
+  Testimonials,
+  SocialProof,
+  TrustBadges,
+  FAQ,
+  ToolsShowcase,
+} from '@/components/landing';
 
 // Feature card component with hover effects
 function FeatureCard({ 
@@ -83,7 +93,7 @@ export default async function LandingPage() {
           <Link 
             href="/" 
             className="flex items-center gap-2 sm:gap-3 group"
-            aria-label="Cosmo AI Home"
+            aria-label="Nova AI Home"
           >
             <div 
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center transition-transform group-hover:scale-105" 
@@ -94,6 +104,12 @@ export default async function LandingPage() {
             <span className="text-lg sm:text-xl font-semibold text-white">{common('cosmo')}</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
+            <Link
+              href="/download"
+              className="px-3 sm:px-5 py-2 text-sm sm:text-base text-white/70 hover:text-white font-medium transition-colors link-underline"
+            >
+              {common('download')}
+            </Link>
             <Link
               href="/sign-in"
               className="px-3 sm:px-5 py-2 text-sm sm:text-base text-white/70 hover:text-white font-medium transition-colors link-underline"
@@ -150,6 +166,11 @@ export default async function LandingPage() {
                 {t('watchDemo')}
               </button>
             </div>
+
+            {/* Live Demo */}
+            <Suspense fallback={<div className="w-full max-w-lg mx-auto mt-8 h-[320px] skeleton rounded-xl" />}>
+              <HeroDemo />
+            </Suspense>
           </div>
         </section>
 
@@ -195,6 +216,36 @@ export default async function LandingPage() {
           </section>
         </LazyLoad>
 
+        {/* Social Proof (stats + featured in) */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-48 skeleton rounded-2xl" />}>
+          <SocialProof />
+        </LazyLoad>
+
+        {/* Tools Showcase */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-96 skeleton rounded-2xl" />}>
+          <ToolsShowcase />
+        </LazyLoad>
+
+        {/* How It Works */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-64 skeleton rounded-2xl" />}>
+          <HowItWorks />
+        </LazyLoad>
+
+        {/* Comparison Table */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-96 skeleton rounded-2xl" />}>
+          <ComparisonTable />
+        </LazyLoad>
+
+        {/* Testimonials */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-64 skeleton rounded-2xl" />}>
+          <Testimonials />
+        </LazyLoad>
+
+        {/* Trust Badges */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-48 skeleton rounded-2xl" />}>
+          <TrustBadges />
+        </LazyLoad>
+
         {/* CTA Section - Lazy loaded */}
         <LazyLoad
           threshold={0.1}
@@ -228,6 +279,11 @@ export default async function LandingPage() {
             </div>
           </section>
         </LazyLoad>
+
+        {/* FAQ */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-64 skeleton rounded-2xl" />}>
+          <FAQ />
+        </LazyLoad>
       </main>
 
       {/* Footer */}
@@ -246,7 +302,10 @@ export default async function LandingPage() {
           </div>
           <div className="flex items-center gap-4 sm:gap-6">
             <nav aria-label="Footer navigation">
-              <div className="flex gap-4 sm:gap-6 text-white/50 text-sm">
+              <div className="flex gap-4 sm:gap-6 text-white/50 text-sm flex-wrap">
+                <Link href="/download" className="hover:text-white/80 transition-colors">
+                  {common('download')}
+                </Link>
                 <Link href="/privacy" className="hover:text-white/80 transition-colors">
                   {common('privacy')}
                 </Link>

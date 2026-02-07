@@ -1,10 +1,10 @@
-# Cosmo AI
+# Nova AI
 
 Your personal AI companion that actually gets things done.
 
 ## Vision
 
-Cosmo is the AI assistant for everyone — not just power users. While tools like OpenClaw require terminal knowledge and YAML configs, Cosmo is designed for people who just want an AI that works.
+Nova is the AI assistant for everyone — not just power users. While tools like OpenClaw require terminal knowledge and YAML configs, Nova is designed for people who just want an AI that works.
 
 **Key differentiators:**
 - 🚀 One-click setup — no terminal, no config files
@@ -38,7 +38,7 @@ npx prisma migrate dev
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see Cosmo.
+Open [http://localhost:3000](http://localhost:3000) to see Nova.
 
 ## Environment Variables
 
@@ -94,7 +94,7 @@ openssl rand -base64 32
 ## Project Structure
 
 ```
-cosmo-ai/
+nova-ai/
 ├── src/
 │   ├── app/
 │   │   ├── api/

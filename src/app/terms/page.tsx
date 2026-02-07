@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service - Cosmo AI',
-  description: 'Terms of Service for Cosmo AI. Read our terms and conditions for using our AI assistant platform.',
+  title: 'Terms of Service - Nova AI',
+  description: 'Terms of Service for Nova AI. Read our terms and conditions for using our AI assistant platform.',
 };
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Cosmo</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -55,17 +55,17 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">1. Acceptance of Terms</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                By accessing or using Cosmo AI (&quot;the Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you disagree with any part of these terms, you may not access the Service.
+                By accessing or using Nova AI (&quot;the Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you disagree with any part of these terms, you may not access the Service.
               </p>
               <p className="text-white/70 leading-relaxed">
-                These Terms apply to all visitors, users, and others who access or use the Service. By using Cosmo AI, you represent that you are at least 18 years of age, or if you are under 18, that you have obtained parental or guardian consent to use the Service.
+                These Terms apply to all visitors, users, and others who access or use the Service. By using Nova AI, you represent that you are at least 18 years of age, or if you are under 18, that you have obtained parental or guardian consent to use the Service.
               </p>
             </section>
 
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">2. Description of Service</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Cosmo AI is an artificial intelligence assistant platform that provides:
+                Nova AI is an artificial intelligence assistant platform that provides:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li>Conversational AI assistance for various tasks</li>
@@ -94,7 +94,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">4. Subscription and Payments</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Some features of Cosmo AI require a paid subscription (&quot;Pro Plan&quot;). By subscribing:
+                Some features of Nova AI require a paid subscription (&quot;Pro Plan&quot;). By subscribing:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li>You agree to pay all applicable fees as described at the time of purchase</li>
@@ -110,7 +110,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">5. Acceptable Use</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                You agree not to use Cosmo AI to:
+                You agree not to use Nova AI to:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li>Violate any applicable laws or regulations</li>
@@ -127,7 +127,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">6. Intellectual Property</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                The Service and its original content, features, and functionality are owned by Cosmo AI Inc. and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+                The Service and its original content, features, and functionality are owned by Nova AI Inc. and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
               </p>
               <p className="text-white/70 leading-relaxed">
                 You retain ownership of any content you submit, post, or display through the Service. By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use, process, and display such content solely for the purpose of providing the Service.
@@ -137,7 +137,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">7. Third-Party Integrations</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Cosmo AI may integrate with third-party services (Google, Spotify, Philips Hue, etc.). Your use of these integrations is subject to the respective third-party terms of service. We are not responsible for the practices of third-party services.
+                Nova AI may integrate with third-party services (Google, Spotify, Philips Hue, etc.). Your use of these integrations is subject to the respective third-party terms of service. We are not responsible for the practices of third-party services.
               </p>
               <p className="text-white/70 leading-relaxed">
                 You authorize us to access and interact with your third-party accounts as necessary to provide the Service functionality you have requested.
@@ -147,7 +147,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">8. AI-Generated Content Disclaimer</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Cosmo AI uses artificial intelligence to generate responses and perform actions. While we strive for accuracy:
+                Nova AI uses artificial intelligence to generate responses and perform actions. While we strive for accuracy:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li>AI responses may contain errors or inaccuracies</li>
@@ -160,7 +160,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">9. Limitation of Liability</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                To the maximum extent permitted by law, Cosmo AI Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses.
+                To the maximum extent permitted by law, Nova AI Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses.
               </p>
               <p className="text-white/70 leading-relaxed">
                 Our total liability shall not exceed the amount you have paid to us in the twelve (12) months preceding the claim.
@@ -206,8 +206,8 @@ export default function TermsPage() {
                 If you have any questions about these Terms, please contact us:
               </p>
               <ul className="text-white/70 space-y-2 ml-4">
-                <li>Email: <a href="mailto:legal@cosmo.ai" className="text-violet-400 hover:text-violet-300">legal@cosmo.ai</a></li>
-                <li>Address: Cosmo AI Inc., 548 Market St, Suite 35435, San Francisco, CA 94104</li>
+                <li>Email: <a href="mailto:legal@heynova.se" className="text-violet-400 hover:text-violet-300">legal@heynova.se</a></li>
+                <li>Address: Nova AI Inc., 548 Market St, Suite 35435, San Francisco, CA 94104</li>
               </ul>
             </section>
           </div>
@@ -243,7 +243,7 @@ export default function TermsPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex gap-6 text-white/40 text-sm">

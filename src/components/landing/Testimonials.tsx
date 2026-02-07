@@ -7,7 +7,7 @@ const testimonials = [
     name: 'Sarah Chen',
     role: 'Product Manager at Stripe',
     avatar: '👩🏻‍💼',
-    content: "Cosmo has completely changed how I manage my day. I just tell it to 'schedule a meeting with the design team' and it handles everything — finding availability, sending invites, even adding agenda items.",
+    content: "Nova has completely changed how I manage my day. I just tell it to 'schedule a meeting with the design team' and it handles everything — finding availability, sending invites, even adding agenda items.",
     rating: 5,
   },
   {
@@ -21,14 +21,14 @@ const testimonials = [
     name: 'Emma Rodriguez',
     role: 'Freelance Designer',
     avatar: '👩🏽‍🎨',
-    content: "As someone who's tried every AI assistant out there, Cosmo is different. It remembers context, learns my preferences, and the privacy-first approach gives me peace of mind.",
+    content: "As someone who's tried every AI assistant out there, Nova is different. It remembers context, learns my preferences, and the privacy-first approach gives me peace of mind.",
     rating: 5,
   },
   {
     name: 'David Park',
     role: 'Startup Founder',
     avatar: '👨🏻‍💼',
-    content: "I was skeptical at first, but Cosmo saved me 3+ hours this week alone. Email triage, calendar management, even drafting responses — it's like having a personal executive assistant.",
+    content: "I was skeptical at first, but Nova saved me 3+ hours this week alone. Email triage, calendar management, even drafting responses — it's like having a personal executive assistant.",
     rating: 5,
   },
   {
@@ -42,7 +42,7 @@ const testimonials = [
     name: 'James Wright',
     role: 'Remote Worker',
     avatar: '👨🏽',
-    content: "What sets Cosmo apart is that it actually understands context. I can say 'remind me about that thing' and it knows exactly what I mean. No other AI does this.",
+    content: "What sets Nova apart is that it actually understands context. I can say 'remind me about that thing' and it knows exactly what I mean. No other AI does this.",
     rating: 5,
   },
 ];
@@ -86,7 +86,7 @@ export function Testimonials() {
           Loved by thousands
         </h2>
         <p className="text-white/60 text-lg max-w-2xl mx-auto">
-          See what real users are saying about Cosmo
+          See what real users are saying about Nova
         </p>
       </div>
 

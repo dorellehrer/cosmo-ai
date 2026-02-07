@@ -1,0 +1,75 @@
+# Cosmo AI — Electron Builder Configuration
+# Builds native desktop apps for macOS (.dmg) and Windows (.exe/.msi)
+
+appId: com.cosmo.ai
+productName: Cosmo AI
+copyright: Copyright © 2026 Cosmo AI
+
+directories:
+  output: electron-dist
+  buildResources: electron/resources
+
+files:
+  - electron/dist/**/*
+  - public/icons/**/*
+  - "!node_modules"
+  - "!src"
+  - "!.next"
+  - "!agent"
+  - "!prisma"
+
+extraResources:
+  - from: public/icons
+    to: icons
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+  icon: public/icons/icon-512.png
+  darkModeSupport: true
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: electron/entitlements.mac.plist
+  entitlementsInherit: electron/entitlements.mac.plist
+
+dmg:
+  background: electron/resources/dmg-background.png
+  iconSize: 80
+  contents:
+    - x: 170
+      y: 210
+      type: file
+    - x: 480
+      y: 210
+      type: link
+      path: /Applications
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: public/icons/icon-512.png
+  publisherName: Cosmo AI
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Cosmo AI
+  installerIcon: public/icons/icon-512.png
+  uninstallerIcon: public/icons/icon-512.png
+
+publish:
+  provider: github
+  owner: cosmo-ai
+  repo: cosmo-ai

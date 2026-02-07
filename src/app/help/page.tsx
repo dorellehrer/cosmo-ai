@@ -17,20 +17,20 @@ const faqCategories: FAQCategory[] = [
     icon: '🚀',
     questions: [
       {
-        q: 'How do I create a Cosmo account?',
+        q: 'How do I create a Nova account?',
         a: 'Creating an account is easy! Click "Get started" on the homepage, enter your email address, choose a password, and you\'re ready to go. You can also sign up with your Google account for faster access.',
       },
       {
-        q: 'Is Cosmo free to use?',
-        a: 'Yes! Cosmo offers a free tier with 50 messages per day. For unlimited usage and premium features, you can upgrade to our Pro plan at $20/month.',
+        q: 'Is Nova free to use?',
+        a: 'Yes! Nova offers a free tier with 50 messages per day. For unlimited usage and premium features, you can upgrade to our Pro plan at $20/month.',
       },
       {
-        q: 'What devices can I use Cosmo on?',
-        a: 'Cosmo works on any device with a modern web browser — desktop, laptop, tablet, or phone. We\'re also working on native mobile apps for iOS and Android, coming soon!',
+        q: 'What devices can I use Nova on?',
+        a: 'Nova works on any device with a modern web browser — desktop, laptop, tablet, or phone. We\'re also working on native mobile apps for iOS and Android, coming soon!',
       },
       {
-        q: 'How do I connect my other accounts to Cosmo?',
-        a: 'Go to Settings > Connected Services and click "Connect" next to the service you want to integrate (Google, Spotify, Philips Hue, etc.). Follow the authentication prompts to grant Cosmo access.',
+        q: 'How do I connect my other accounts to Nova?',
+        a: 'Go to Settings > Connected Services and click "Connect" next to the service you want to integrate (Google, Spotify, Philips Hue, etc.). Follow the authentication prompts to grant Nova access.',
       },
     ],
   },
@@ -53,7 +53,7 @@ const faqCategories: FAQCategory[] = [
       },
       {
         q: 'How do I get a refund?',
-        a: 'We offer a 7-day money-back guarantee for new Pro subscribers. Contact support@cosmo.ai within 7 days of your first payment for a full refund.',
+        a: 'We offer a 7-day money-back guarantee for new Pro subscribers. Contact support@heynova.se within 7 days of your first payment for a full refund.',
       },
       {
         q: 'How do I delete my account?',
@@ -67,20 +67,20 @@ const faqCategories: FAQCategory[] = [
     icon: '✨',
     questions: [
       {
-        q: 'What can Cosmo do?',
-        a: 'Cosmo can help with email management, calendar scheduling, smart home control, music playback, reminders, general questions, research, writing assistance, and much more. Just ask naturally!',
+        q: 'What can Nova do?',
+        a: 'Nova can help with email management, calendar scheduling, smart home control, music playback, reminders, general questions, research, writing assistance, and much more. Just ask naturally!',
       },
       {
-        q: 'How do I control my smart home with Cosmo?',
-        a: 'First, connect your smart home accounts (like Philips Hue) in Settings. Then simply tell Cosmo what you want: "Turn on the living room lights," "Set bedroom lights to 50%," or "Movie night mode."',
+        q: 'How do I control my smart home with Nova?',
+        a: 'First, connect your smart home accounts (like Philips Hue) in Settings. Then simply tell Nova what you want: "Turn on the living room lights," "Set bedroom lights to 50%," or "Movie night mode."',
       },
       {
-        q: 'Can Cosmo send emails for me?',
-        a: 'Yes! Connect your Gmail account and Cosmo can draft, send, and manage emails. Say "Email John about tomorrow\'s meeting" or "Check my unread emails" to get started.',
+        q: 'Can Nova send emails for me?',
+        a: 'Yes! Connect your Gmail account and Nova can draft, send, and manage emails. Say "Email John about tomorrow\'s meeting" or "Check my unread emails" to get started.',
       },
       {
-        q: 'Does Cosmo support voice input?',
-        a: 'Yes! Click the microphone button in the chat interface to speak your request. Cosmo also supports voice responses — enable them in Settings > Preferences.',
+        q: 'Does Nova support voice input?',
+        a: 'Yes! Click the microphone button in the chat interface to speak your request. Nova also supports voice responses — enable them in Settings > Preferences.',
       },
       {
         q: 'Can I access my conversation history?',
@@ -94,11 +94,11 @@ const faqCategories: FAQCategory[] = [
     icon: '🔐',
     questions: [
       {
-        q: 'Is my data safe with Cosmo?',
+        q: 'Is my data safe with Nova?',
         a: 'Yes! We use industry-standard encryption (TLS 1.3 in transit, AES-256 at rest) and never sell your data. See our Privacy Policy for full details.',
       },
       {
-        q: 'Does Cosmo use my data to train AI?',
+        q: 'Does Nova use my data to train AI?',
         a: 'No, we do not use your personal conversations to train AI models without explicit consent. Your conversations are yours.',
       },
       {
@@ -106,8 +106,8 @@ const faqCategories: FAQCategory[] = [
         a: 'Yes! Go to Settings > Privacy > Export Data. You\'ll receive a download link with all your data in a machine-readable format within 24 hours.',
       },
       {
-        q: 'What data does Cosmo access from connected services?',
-        a: 'Cosmo only accesses what\'s needed to perform your requests. For example, for calendar integration, we access your events but not unrelated Google Drive files. You can revoke access anytime.',
+        q: 'What data does Nova access from connected services?',
+        a: 'Nova only accesses what\'s needed to perform your requests. For example, for calendar integration, we access your events but not unrelated Google Drive files. You can revoke access anytime.',
       },
     ],
   },
@@ -117,8 +117,8 @@ const faqCategories: FAQCategory[] = [
     icon: '🔧',
     questions: [
       {
-        q: 'Cosmo isn\'t responding. What should I do?',
-        a: 'Try refreshing the page first. If the issue persists, check our status page at status.cosmo.ai. You can also try clearing your browser cache or using a different browser.',
+        q: 'Nova isn\'t responding. What should I do?',
+        a: 'Try refreshing the page first. If the issue persists, check our status page at status.heynova.se. You can also try clearing your browser cache or using a different browser.',
       },
       {
         q: 'My integration isn\'t working properly.',
@@ -130,7 +130,7 @@ const faqCategories: FAQCategory[] = [
       },
       {
         q: 'Voice input isn\'t working.',
-        a: 'Make sure your browser has microphone permissions for cosmo.ai. Check Settings > Site Settings > Microphone in your browser. Also ensure no other app is using the microphone.',
+        a: 'Make sure your browser has microphone permissions for heynova.se. Check Settings > Site Settings > Microphone in your browser. Also ensure no other app is using the microphone.',
       },
       {
         q: 'I forgot my password. How do I reset it?',
@@ -150,19 +150,19 @@ const gettingStartedSteps = [
   {
     step: 2,
     title: 'Connect your services',
-    description: 'Link your calendar, email, music, and smart home accounts to unlock Cosmo\'s full potential.',
+    description: 'Link your calendar, email, music, and smart home accounts to unlock Nova\'s full potential.',
     icon: '🔗',
   },
   {
     step: 3,
     title: 'Start chatting',
-    description: 'Just type or speak naturally. Cosmo understands context and learns your preferences over time.',
+    description: 'Just type or speak naturally. Nova understands context and learns your preferences over time.',
     icon: '💬',
   },
   {
     step: 4,
     title: 'Discover features',
-    description: 'Try different commands, explore integrations, and let Cosmo handle your daily tasks.',
+    description: 'Try different commands, explore integrations, and let Nova handle your daily tasks.',
     icon: '✨',
   },
 ];
@@ -224,7 +224,7 @@ export default function HelpPage() {
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Cosmo</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -253,7 +253,7 @@ export default function HelpPage() {
             Help Center
           </h1>
           <p className="text-white/60 max-w-2xl mx-auto mb-8">
-            Find answers to common questions, learn how to use Cosmo, and get the most out of your AI assistant.
+            Find answers to common questions, learn how to use Nova, and get the most out of your AI assistant.
           </p>
 
           {/* Search */}
@@ -276,7 +276,7 @@ export default function HelpPage() {
         {/* Getting Started Guide */}
         {!searchQuery && !selectedCategory && (
           <section className="mb-16">
-            <h2 className="text-2xl font-semibold text-white mb-6">Getting Started with Cosmo</h2>
+            <h2 className="text-2xl font-semibold text-white mb-6">Getting Started with Nova</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {gettingStartedSteps.map((step) => (
                 <div
@@ -382,7 +382,7 @@ export default function HelpPage() {
                 Contact Support
               </Link>
               <a
-                href="mailto:support@cosmo.ai"
+                href="mailto:support@heynova.se"
                 className="px-6 py-3 border border-white/20 hover:bg-white/10 rounded-full text-white font-semibold transition-all"
               >
                 Email us directly
@@ -400,7 +400,7 @@ export default function HelpPage() {
               className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all group"
             >
               <div className="text-2xl mb-3">🌟</div>
-              <h3 className="text-white font-medium group-hover:text-violet-300 transition-colors">About Cosmo</h3>
+              <h3 className="text-white font-medium group-hover:text-violet-300 transition-colors">About Nova</h3>
               <p className="text-white/60 text-sm mt-1">Learn about our mission and team</p>
             </Link>
             <Link
@@ -430,7 +430,7 @@ export default function HelpPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex gap-6 text-white/40 text-sm">

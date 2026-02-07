@@ -6,3 +6,4 @@ export { TrustBadges } from './TrustBadges';
 export { WaitlistForm } from './WaitlistForm';
 export { SocialProof } from './SocialProof';
 export { HeroDemo } from './HeroDemo';
+export { ToolsShowcase } from './ToolsShowcase';

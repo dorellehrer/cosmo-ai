@@ -7,12 +7,14 @@ import { useTranslations } from 'next-intl';
 import { ShortcutBadge } from '@/components/ShortcutHint';
 import { useKeyboardShortcuts } from '@/contexts/KeyboardShortcutsContext';
 import { NotificationBell } from '@/components/notifications';
+import { MessageRenderer } from '@/components/MessageRenderer';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  toolStatus?: string; // e.g. "Searching the web..." or "Generating image..."
 }
 
 interface Conversation {
@@ -247,13 +249,24 @@ export default function ChatPage() {
                   // Update conversations list
                   fetchConversations();
                 }
+
+                // Handle tool status (e.g. "Searching the web...")
+                if (parsed.toolStatus) {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId
+                        ? { ...m, toolStatus: parsed.toolStatus }
+                        : m
+                    )
+                  );
+                }
                 
                 // Handle content
                 if (parsed.content) {
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
-                        ? { ...m, content: m.content + parsed.content }
+                        ? { ...m, content: m.content + parsed.content, toolStatus: undefined }
                         : m
                     )
                   );
@@ -510,7 +523,7 @@ export default function ChatPage() {
                 <path d="M3 12h18M3 6h18M3 18h18" />
               </svg>
             </button>
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity" aria-label="Cosmo AI homepage">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity" aria-label="Nova AI homepage">
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center" aria-hidden="true">
                 <span className="text-lg sm:text-xl">✨</span>
               </div>
@@ -612,7 +625,7 @@ export default function ChatPage() {
                     >
                       {message.content ? (
                         <>
-                          <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
+                          <MessageRenderer content={message.content} role={message.role} />
                           <p
                             className={`text-[10px] sm:text-xs mt-1 ${
                               message.role === 'user'
@@ -626,6 +639,14 @@ export default function ChatPage() {
                             })}
                           </p>
                         </>
+                      ) : message.toolStatus ? (
+                        <div className="flex items-center gap-2 text-sm text-violet-300/80 animate-pulse">
+                          <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          <span>{message.toolStatus}</span>
+                        </div>
                       ) : (
                         <div className="flex gap-1" aria-label={t('typing')}>
                           <span className="w-2 h-2 bg-white/60 rounded-full animate-bounce" />

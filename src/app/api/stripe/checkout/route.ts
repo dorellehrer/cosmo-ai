@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { stripe, TIERS } from '@/lib/stripe';
+import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 export async function POST(_req: NextRequest) {
   try {
@@ -12,6 +13,15 @@ export async function POST(_req: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    // Rate limit check
+    const rateLimit = checkRateLimit(`stripe:checkout:${session.user.id}`, RATE_LIMIT_API);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: rateLimit.headers }
       );
     }
 

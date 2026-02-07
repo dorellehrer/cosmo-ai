@@ -44,7 +44,8 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'hi-IN', name: 'Hindi' },
 ];
 
-const STORAGE_KEY = 'cosmo-voice-settings';
+const STORAGE_KEY = 'nova-voice-settings';
+const OLD_STORAGE_KEY = 'cosmo-voice-settings';
 
 const VoiceSettingsContext = createContext<VoiceSettingsContextType | undefined>(undefined);
 
@@ -52,10 +53,17 @@ export function VoiceSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<VoiceSettings>(DEFAULT_SETTINGS);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load settings from localStorage on mount
+  // Load settings from localStorage on mount (with migration from old key)
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      let stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        stored = localStorage.getItem(OLD_STORAGE_KEY);
+        if (stored) {
+          localStorage.setItem(STORAGE_KEY, stored);
+          localStorage.removeItem(OLD_STORAGE_KEY);
+        }
+      }
       if (stored) {
         const parsed = JSON.parse(stored);
         setSettings({ ...DEFAULT_SETTINGS, ...parsed });

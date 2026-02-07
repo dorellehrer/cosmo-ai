@@ -1,6 +1,6 @@
 {
-  "name": "Cosmo AI",
-  "short_name": "Cosmo",
+  "name": "Nova AI",
+  "short_name": "Nova",
   "description": "Your personal AI companion that actually gets things done",
   "start_url": "/",
   "id": "/",
@@ -88,28 +88,28 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Cosmo AI Desktop Chat Interface"
+      "label": "Nova AI Desktop Chat Interface"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Cosmo AI Mobile Chat Interface"
+      "label": "Nova AI Mobile Chat Interface"
     }
   ],
   "shortcuts": [
     {
       "name": "New Chat",
       "short_name": "Chat",
-      "description": "Start a new conversation with Cosmo",
+      "description": "Start a new conversation with Nova",
       "url": "/chat",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
       "name": "Settings",
       "short_name": "Settings",
-      "description": "Configure your Cosmo preferences",
+      "description": "Configure your Nova preferences",
       "url": "/settings",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
@@ -118,5 +118,24 @@
   "handle_links": "preferred",
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
-  }
+  },
+  "share_target": {
+    "action": "/chat",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/chat",
+      "accept": {
+        "text/plain": [".txt", ".md"],
+        "application/json": [".json"],
+        "text/csv": [".csv"]
+      }
+    }
+  ]
 }

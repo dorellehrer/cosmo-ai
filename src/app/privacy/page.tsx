@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - Cosmo AI',
-  description: 'Privacy Policy for Cosmo AI. Learn how we collect, use, and protect your personal data. GDPR and CCPA compliant.',
+  title: 'Privacy Policy - Nova AI',
+  description: 'Privacy Policy for Nova AI. Learn how we collect, use, and protect your personal data. GDPR and CCPA compliant.',
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Cosmo</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">1. Introduction</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Cosmo AI Inc. (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI assistant service.
+                Nova AI Inc. (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI assistant service.
               </p>
               <p className="text-white/70 leading-relaxed">
                 We comply with the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and other applicable privacy laws.
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
               <h3 className="text-lg font-medium text-white mb-3 mt-6">2.1 Information You Provide</h3>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li><strong className="text-white/90">Account Information:</strong> Name, email address, password, profile preferences</li>
-                <li><strong className="text-white/90">Conversation Data:</strong> Messages and queries you send to Cosmo</li>
+                <li><strong className="text-white/90">Conversation Data:</strong> Messages and queries you send to Nova</li>
                 <li><strong className="text-white/90">Payment Information:</strong> Billing details processed securely via Stripe</li>
                 <li><strong className="text-white/90">Integration Data:</strong> Information from connected services (with your permission)</li>
               </ul>
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
                 We use your information for the following purposes:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
-                <li>Providing and improving the Cosmo AI service</li>
+                <li>Providing and improving the Nova AI service</li>
                 <li>Processing your requests and responding to your queries</li>
                 <li>Executing actions through connected integrations (on your instruction)</li>
                 <li>Processing payments and managing subscriptions</li>
@@ -233,7 +233,7 @@ export default function PrivacyPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">11. Children&apos;s Privacy</h2>
               <p className="text-white/70 leading-relaxed">
-                Cosmo AI is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us immediately.
+                Nova AI is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us immediately.
               </p>
             </section>
 
@@ -250,12 +250,12 @@ export default function PrivacyPage() {
                 For privacy-related inquiries or to exercise your rights:
               </p>
               <ul className="text-white/70 space-y-2 ml-4">
-                <li>Email: <a href="mailto:privacy@cosmo.ai" className="text-violet-400 hover:text-violet-300">privacy@cosmo.ai</a></li>
-                <li>Data Protection Officer: <a href="mailto:dpo@cosmo.ai" className="text-violet-400 hover:text-violet-300">dpo@cosmo.ai</a></li>
-                <li>Address: Cosmo AI Inc., 548 Market St, Suite 35435, San Francisco, CA 94104</li>
+                <li>Email: <a href="mailto:privacy@heynova.se" className="text-violet-400 hover:text-violet-300">privacy@heynova.se</a></li>
+                <li>Data Protection Officer: <a href="mailto:dpo@heynova.se" className="text-violet-400 hover:text-violet-300">dpo@heynova.se</a></li>
+                <li>Address: Nova AI Inc., 548 Market St, Suite 35435, San Francisco, CA 94104</li>
               </ul>
               <p className="text-white/70 leading-relaxed mt-4">
-                EU Representative: Cosmo AI Europe Ltd., Dublin, Ireland
+                EU Representative: Nova AI Europe Ltd., Dublin, Ireland
               </p>
             </section>
           </div>
@@ -291,7 +291,7 @@ export default function PrivacyPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex gap-6 text-white/40 text-sm">

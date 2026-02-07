@@ -4,44 +4,44 @@ import { useState } from 'react';
 
 const faqs = [
   {
-    question: 'How is Cosmo different from ChatGPT?',
+    question: 'How is Nova different from ChatGPT?',
     answer:
-      "ChatGPT is great at conversation, but it can't actually DO things. Cosmo connects to your real services — email, calendar, smart home devices — and takes action on your behalf. Say 'schedule a meeting' and it actually schedules it. Say 'turn off the lights' and they turn off.",
+      "ChatGPT is great at conversation, but it can't actually DO things. Nova connects to your real services — email, calendar, smart home devices — and takes action on your behalf. Say 'schedule a meeting' and it actually schedules it. Say 'turn off the lights' and they turn off.",
   },
   {
-    question: 'Is my data safe with Cosmo?',
+    question: 'Is my data safe with Nova?',
     answer:
       "Absolutely. We're privacy-first by design. Your data is encrypted end-to-end, we never sell it to third parties, and we don't use your conversations to train our models. You can export or delete your data anytime. We're also SOC 2 Type II certified.",
   },
   {
-    question: 'What services does Cosmo integrate with?',
+    question: 'What services does Nova integrate with?',
     answer:
-      'Cosmo works with Gmail, Google Calendar, Outlook, Philips Hue, Sonos, Spotify, Apple Music, Slack, Notion, Todoist, and many more. We add new integrations every week based on user requests.',
+      'Nova works with Gmail, Google Calendar, Outlook, Philips Hue, Sonos, Spotify, Apple Music, Slack, Notion, Todoist, and many more. We add new integrations every week based on user requests.',
   },
   {
     question: 'Is there a free plan?',
     answer:
-      "Yes! Cosmo's free tier includes unlimited conversations, basic integrations (email, calendar), and up to 50 actions per month. Our Pro plan ($9/month) unlocks unlimited actions, priority support, and advanced integrations like smart home control.",
+      "Yes! Nova's free tier includes unlimited conversations, basic integrations (email, calendar), and up to 50 messages per day. Our Pro plan ($20/month) unlocks unlimited messages, priority support, and advanced integrations like smart home control.",
   },
   {
-    question: 'Can Cosmo learn my preferences?',
+    question: 'Can Nova learn my preferences?',
     answer:
-      "Definitely. Cosmo has long-term memory and learns from every interaction. It remembers that you like your coffee briefing at 8am, that you prefer meetings in the afternoon, and that 'movie night' means dimming the lights to 20%. The more you use it, the smarter it gets.",
+      "Definitely. Nova has long-term memory and learns from every interaction. It remembers that you like your coffee briefing at 8am, that you prefer meetings in the afternoon, and that 'movie night' means dimming the lights to 20%. The more you use it, the smarter it gets.",
   },
   {
-    question: 'Does Cosmo work offline?',
+    question: 'Does Nova work offline?',
     answer:
-      "Cosmo requires an internet connection for most features since it needs to communicate with your connected services. However, we're working on offline mode for basic tasks and will announce it soon.",
+      "Nova requires an internet connection for most features since it needs to communicate with your connected services. However, we're working on offline mode for basic tasks and will announce it soon.",
   },
   {
     question: 'How do I get started?',
     answer:
-      "Just sign up — it takes 30 seconds. No credit card required for the free tier. Connect your first service (we recommend starting with email or calendar), and start chatting. Cosmo will guide you through setup and suggest helpful automations.",
+      "Just sign up — it takes 30 seconds. No credit card required for the free tier. Connect your first service (we recommend starting with email or calendar), and start chatting. Nova will guide you through setup and suggest helpful automations.",
   },
   {
-    question: 'Can I use Cosmo for my team or business?',
+    question: 'Can I use Nova for my team or business?',
     answer:
-      "Yes! Cosmo for Teams is coming Q2 2026. It includes shared workspaces, team-wide integrations, admin controls, and enterprise SSO. Join the waitlist to be notified when it launches.",
+      "Yes! Nova for Teams is coming Q2 2026. It includes shared workspaces, team-wide integrations, admin controls, and enterprise SSO. Join the waitlist to be notified when it launches.",
   },
 ];
 
@@ -100,7 +100,7 @@ export function FAQ() {
           Frequently asked questions
         </h2>
         <p className="text-white/60 text-lg">
-          Everything you need to know about Cosmo
+          Everything you need to know about Nova
         </p>
       </div>
 
@@ -120,7 +120,7 @@ export function FAQ() {
         <p className="text-white/60">
           Still have questions?{' '}
           <a
-            href="mailto:hello@cosmo.ai"
+            href="mailto:hello@heynova.se"
             className="text-violet-400 hover:text-violet-300 underline"
           >
             Get in touch

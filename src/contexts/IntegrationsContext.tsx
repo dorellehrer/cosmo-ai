@@ -12,16 +12,17 @@ export interface Integration {
   services?: string[];
   connected: boolean;
   connectedAt?: string;
-  email?: string; // For OAuth-connected services, store the connected account
+  email?: string;
 }
 
 export interface IntegrationsContextType {
   integrations: Integration[];
   getIntegration: (id: string) => Integration | undefined;
-  connectIntegration: (id: string, email?: string) => void;
-  disconnectIntegration: (id: string) => void;
+  connectIntegration: (id: string) => Promise<void>;
+  disconnectIntegration: (id: string) => Promise<void>;
   isConnected: (id: string) => boolean;
   connectedCount: number;
+  isLoading: boolean;
 }
 
 export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedAt' | 'email'>[] = [
@@ -75,8 +76,6 @@ export const AVAILABLE_INTEGRATIONS: Omit<Integration, 'connected' | 'connectedA
   },
 ];
 
-const STORAGE_KEY = 'cosmo-integrations';
-
 const IntegrationsContext = createContext<IntegrationsContextType | undefined>(undefined);
 
 export function IntegrationsProvider({ children }: { children: ReactNode }) {
@@ -84,111 +83,143 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
   const [integrations, setIntegrations] = useState<Integration[]>(() =>
     AVAILABLE_INTEGRATIONS.map((i) => ({ ...i, connected: false }))
   );
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load from localStorage on mount
-  useEffect(() => {
+  // Fetch connected integrations from server on mount
+  const fetchIntegrations = useCallback(async () => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as Partial<Integration>[];
-        setIntegrations((prev) =>
-          prev.map((integration) => {
-            const storedData = parsed.find((p) => p.id === integration.id);
-            if (storedData) {
-              return {
-                ...integration,
-                connected: storedData.connected || false,
-                connectedAt: storedData.connectedAt,
-                email: storedData.email,
-              };
-            }
-            return integration;
-          })
-        );
+      const res = await fetch('/api/integrations');
+      if (!res.ok) {
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error('Failed to load integrations:', error);
+      const data = await res.json();
+      const connected: { provider: string; email?: string; connectedAt: string }[] = data.integrations || [];
+
+      setIntegrations((prev) =>
+        prev.map((integration) => {
+          const match = connected.find((c) => c.provider === integration.id);
+          if (match) {
+            return {
+              ...integration,
+              connected: true,
+              connectedAt: match.connectedAt,
+              email: match.email || undefined,
+            };
+          }
+          return { ...integration, connected: false, connectedAt: undefined, email: undefined };
+        })
+      );
+    } catch {
+      // Network error — keep defaults
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoaded(true);
   }, []);
 
-  // Save to localStorage when integrations change
   useEffect(() => {
-    if (isLoaded) {
-      try {
-        const dataToStore = integrations.map(({ id, connected, connectedAt, email }) => ({
-          id,
-          connected,
-          connectedAt,
-          email,
-        }));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore));
-      } catch (error) {
-        console.error('Failed to save integrations:', error);
+    fetchIntegrations();
+  }, [fetchIntegrations]);
+
+  // Check for ?connected= or ?error= URL params (after OAuth redirect)
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const connectedProvider = url.searchParams.get('connected');
+    const errorMsg = url.searchParams.get('error');
+
+    if (connectedProvider) {
+      const integration = AVAILABLE_INTEGRATIONS.find((i) => i.id === connectedProvider);
+      if (integration) {
+        addNotification({
+          type: 'success',
+          category: 'integration',
+          title: `${integration.name} Connected! 🎉`,
+          message: `Your ${integration.name} integration is now active. ${integration.description}`,
+          action: { label: 'View Integrations', href: '/integrations' },
+        });
       }
+      fetchIntegrations();
+      url.searchParams.delete('connected');
+      window.history.replaceState({}, '', url.pathname);
     }
-  }, [integrations, isLoaded]);
+
+    if (errorMsg) {
+      addNotification({
+        type: 'error',
+        category: 'integration',
+        title: 'Connection Failed',
+        message: errorMsg,
+      });
+      url.searchParams.delete('error');
+      window.history.replaceState({}, '', url.pathname);
+    }
+  }, [addNotification, fetchIntegrations]);
 
   const getIntegration = useCallback(
     (id: string) => integrations.find((i) => i.id === id),
     [integrations]
   );
 
-  const connectIntegration = useCallback((id: string, email?: string) => {
-    const integration = integrations.find((i) => i.id === id);
-    setIntegrations((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              connected: true,
-              connectedAt: new Date().toISOString(),
-              email,
-            }
-          : i
-      )
-    );
-    
-    if (integration) {
+  const connectIntegration = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/integrations/${id}/connect`, { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        addNotification({
+          type: 'error',
+          category: 'integration',
+          title: 'Connection Failed',
+          message: data.error || 'Failed to start connection',
+        });
+        return;
+      }
+
+      // Redirect to OAuth provider
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      }
+    } catch {
       addNotification({
-        type: 'success',
+        type: 'error',
         category: 'integration',
-        title: `${integration.name} Connected! 🎉`,
-        message: `Your ${integration.name} integration is now active. ${integration.description}`,
-        action: {
-          label: 'View Integrations',
-          href: '/integrations',
-        },
+        title: 'Connection Failed',
+        message: 'Network error — please try again',
       });
     }
-  }, [integrations, addNotification]);
+  }, [addNotification]);
 
-  const disconnectIntegration = useCallback((id: string) => {
+  const disconnectIntegration = useCallback(async (id: string) => {
     const integration = integrations.find((i) => i.id === id);
-    setIntegrations((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              connected: false,
-              connectedAt: undefined,
-              email: undefined,
-            }
-          : i
-      )
-    );
-    
-    if (integration) {
+
+    try {
+      const res = await fetch(`/api/integrations/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to disconnect');
+      }
+
+      setIntegrations((prev) =>
+        prev.map((i) =>
+          i.id === id ? { ...i, connected: false, connectedAt: undefined, email: undefined } : i
+        )
+      );
+
+      if (integration) {
+        addNotification({
+          type: 'info',
+          category: 'integration',
+          title: `${integration.name} Disconnected`,
+          message: `Your ${integration.name} integration has been disconnected.`,
+          action: { label: 'Reconnect', href: `/integrations/${id}` },
+        });
+      }
+    } catch (error) {
       addNotification({
-        type: 'info',
+        type: 'error',
         category: 'integration',
-        title: `${integration.name} Disconnected`,
-        message: `Your ${integration.name} integration has been disconnected.`,
-        action: {
-          label: 'Reconnect',
-          href: `/integrations/${id}`,
-        },
+        title: 'Disconnect Failed',
+        message: error instanceof Error ? error.message : 'Please try again',
       });
     }
   }, [integrations, addNotification]);
@@ -209,6 +240,7 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
         disconnectIntegration,
         isConnected,
         connectedCount,
+        isLoading,
       }}
     >
       {children}

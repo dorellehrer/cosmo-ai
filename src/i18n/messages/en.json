@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Cosmo",
+    "cosmo": "Nova",
     "signIn": "Sign in",
     "signUp": "Sign up",
     "getStarted": "Get started",
@@ -14,27 +14,28 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
-    "copyright": "© 2026 Cosmo AI. All rights reserved.",
+    "copyright": "© 2026 Nova AI. All rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms",
-    "contact": "Contact"
+    "contact": "Contact",
+    "download": "Download"
   },
   "landing": {
     "skipToContent": "Skip to main content",
     "mainNav": "Main navigation",
-    "heroTitle": "Meet Cosmo",
+    "heroTitle": "Meet Nova",
     "heroSubtitle": "Your AI that actually does things",
-    "heroDescription": "Not just another chatbot. Cosmo connects to your life — calendar, email, smart home, and more. Tell it what you need, it makes it happen.",
+    "heroDescription": "Not just another chatbot. Nova connects to your life — calendar, email, smart home, and more. Tell it what you need, it makes it happen.",
     "startChatting": "Start chatting — it's free",
     "watchDemo": "Watch demo",
     "featuresHeading": "Everything you need, one conversation away",
     "ctaHeading": "Ready to meet your new AI companion?",
-    "ctaDescription": "Join thousands of people who've made Cosmo part of their daily routine. It's free to start.",
+    "ctaDescription": "Join thousands of people who've made Nova part of their daily routine. It's free to start.",
     "getStartedFree": "Get started for free",
     "features": {
       "email": {
         "title": "Email & Calendar",
-        "description": "Check emails, schedule meetings, get reminders. Cosmo keeps your day organized."
+        "description": "Check emails, schedule meetings, get reminders. Nova keeps your day organized."
       },
       "smartHome": {
         "title": "Smart Home",
@@ -50,7 +51,7 @@
       },
       "everywhere": {
         "title": "Works Everywhere",
-        "description": "Web, mobile, voice. Access Cosmo from any device, anytime."
+        "description": "Web, mobile, voice. Access Nova from any device, anytime."
       },
       "noSetup": {
         "title": "No Setup Required",
@@ -60,9 +61,9 @@
   },
   "auth": {
     "welcomeBack": "Welcome back",
-    "signInToContinue": "Sign in to continue to Cosmo",
+    "signInToContinue": "Sign in to continue to Nova",
     "createAccount": "Create your account",
-    "joinThousands": "Join thousands using Cosmo every day",
+    "joinThousands": "Join thousands using Nova every day",
     "email": "Email",
     "emailPlaceholder": "you@example.com",
     "password": "Password",
@@ -70,7 +71,7 @@
     "passwordHint": "At least 6 characters",
     "name": "Name",
     "nameOptional": "(optional)",
-    "namePlaceholder": "What should Cosmo call you?",
+    "namePlaceholder": "What should Nova call you?",
     "signingIn": "Signing in...",
     "creatingAccount": "Creating account...",
     "dontHaveAccount": "Don't have an account?",
@@ -87,7 +88,7 @@
   },
   "onboarding": {
     "step1Emoji": "👋",
-    "step1Title": "Hey there! I'm Cosmo",
+    "step1Title": "Hey there! I'm Nova",
     "step1Subtitle": "What should I call you?",
     "yourName": "Your name",
     "step2Emoji": "🔌",
@@ -104,7 +105,7 @@
       "music": "\"Play some chill music\"",
       "reminder": "\"Remind me to call mom at 5pm\""
     },
-    "startChatting": "Start chatting with Cosmo",
+    "startChatting": "Start chatting with Nova",
     "integrations": {
       "google": {
         "name": "Google",
@@ -134,7 +135,7 @@
     "connect": "Connect",
     "preferences": "Preferences",
     "voiceResponses": "Voice responses",
-    "voiceDescription": "Cosmo will speak responses out loud",
+    "voiceDescription": "Nova will speak responses out loud",
     "notifications": "Notifications",
     "notificationsDescription": "Get alerts for reminders and updates",
     "darkMode": "Dark mode",
@@ -182,12 +183,12 @@
     "newConversation": "New conversation",
     "yourCompanion": "Your AI companion",
     "openSidebar": "Open sidebar",
-    "greeting": "Hey, I'm Cosmo",
+    "greeting": "Hey, I'm Nova",
     "greetingDescription": "Your personal AI assistant. I can help you with tasks, answer questions, and make your life easier. What would you like to do today?",
-    "askAnything": "Ask Cosmo anything...",
+    "askAnything": "Ask Nova anything...",
     "youSaid": "You said",
-    "cosmoSaid": "Cosmo said",
-    "typing": "Cosmo is typing...",
+    "cosmoSaid": "Nova said",
+    "typing": "Nova is typing...",
     "sending": "Sending...",
     "errorMessage": "Sorry, something went wrong. Please try again.",
     "suggestions": {
@@ -203,16 +204,16 @@
     "title": "Page not found",
     "description": "Hmm, I couldn't find what you're looking for. Let's get you back on track.",
     "goHome": "Go home",
-    "chatWithCosmo": "Chat with Cosmo"
+    "chatWithNova": "Chat with Nova"
   },
   "meta": {
-    "title": "Cosmo AI - Your Personal AI Companion",
-    "description": "Meet Cosmo, your friendly AI assistant that actually gets things done. Smart home, calendar, emails, and more - all in one place."
+    "title": "Nova AI - Your Personal AI Companion",
+    "description": "Meet Nova, your friendly AI assistant that actually gets things done. Smart home, calendar, emails, and more - all in one place."
   },
   "integrations": {
     "title": "Integrations",
     "subtitle": "Connect Your Apps",
-    "description": "Link your favorite services to unlock the full power of Cosmo. The more you connect, the more I can help.",
+    "description": "Link your favorite services to unlock the full power of Nova. The more you connect, the more I can help.",
     "connected": "connected",
     "connect": "Connect",
     "disconnect": "Disconnect",
@@ -222,15 +223,15 @@
     "needAnother": "Need another integration?",
     "letUsKnow": "Let us know",
     "noIntegrations": "No integrations connected",
-    "noIntegrationsDescription": "Connect your apps to let Cosmo help you more",
+    "noIntegrationsDescription": "Connect your apps to let Nova help you more",
     "browseIntegrations": "Browse integrations",
     "connectionModal": {
       "connecting": "Connecting to {name}...",
       "pleaseWait": "Please wait while we set things up",
       "connected": "Connected!",
-      "connectedDescription": "{name} is now connected to Cosmo",
+      "connectedDescription": "{name} is now connected to Nova",
       "done": "Done",
-      "whatCosmoCanDo": "What Cosmo can do:",
+      "whatNovaCanDo": "What Nova can do:",
       "demoNote": "This is a demo. In production, this would open an OAuth authorization window.",
       "emailLabel": "Email (for demo)"
     },
@@ -250,7 +251,7 @@
       "spotify": {
         "name": "Spotify",
         "description": "Music streaming & playback",
-        "fullDescription": "Stream your favorite music with Spotify. Control playback, search for songs, and manage your playlists with Cosmo.",
+        "fullDescription": "Stream your favorite music with Spotify. Control playback, search for songs, and manage your playlists with Nova.",
         "features": ["Play/pause/skip tracks", "Search for music", "Control volume", "Manage playlists"]
       },
       "sonos": {
@@ -293,16 +294,16 @@
     "pricing": "Pricing",
     "viewPlans": "View subscription plans",
     "about": "About",
-    "learnAboutCosmo": "Learn about Cosmo",
+    "learnAboutNova": "Learn about Nova",
     "untitled": "Untitled conversation",
     "toNavigate": "to navigate",
     "toSelect": "to select",
-    "poweredBy": "Powered by Cosmo ✨"
+    "poweredBy": "Powered by Nova ✨"
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "pageTitle": "Keyboard Shortcuts",
-    "pageDescription": "Master Cosmo with these keyboard shortcuts. Work faster, type less.",
+    "pageDescription": "Master Nova with these keyboard shortcuts. Work faster, type less.",
     "close": "Close",
     "general": "General",
     "chatActions": "Chat",
@@ -336,7 +337,7 @@
       },
       "navigation": {
         "title": "Navigation",
-        "description": "Move around Cosmo quickly"
+        "description": "Move around Nova quickly"
       },
       "commandPalette": {
         "title": "Command Palette",
@@ -347,7 +348,7 @@
       "cmdK": {
         "keys": "⌘K",
         "description": "Open command palette",
-        "detail": "The fastest way to do anything in Cosmo. Search conversations, run commands, navigate anywhere."
+        "detail": "The fastest way to do anything in Nova. Search conversations, run commands, navigate anywhere."
       },
       "question": {
         "keys": "?",
@@ -362,7 +363,7 @@
       "cmdN": {
         "keys": "⌘N",
         "description": "New chat",
-        "detail": "Start a fresh conversation with Cosmo."
+        "detail": "Start a fresh conversation with Nova."
       },
       "cmdB": {
         "keys": "⌘B",
@@ -372,7 +373,7 @@
       "cmdEnter": {
         "keys": "⌘↵",
         "description": "Send message",
-        "detail": "Send your message to Cosmo."
+        "detail": "Send your message to Nova."
       },
       "cmdComma": {
         "keys": "⌘,",
@@ -419,6 +420,54 @@
         "description": "Select item",
         "detail": "Execute the selected command or navigate to the selected item."
       }
+    }
+  },
+  "download": {
+    "badge": "Available everywhere",
+    "title": "Get Nova on every device",
+    "subtitle": "Download the desktop app for macOS or Windows, or install on your phone as an app — no app store required.",
+    "macos": {
+      "title": "macOS",
+      "badge": "Apple Silicon & Intel",
+      "step1Title": "Download the .dmg file",
+      "step1Desc": "Click the button below to download the latest installer.",
+      "step2Title": "Open and drag to Applications",
+      "step2Desc": "Open the downloaded file and drag Nova to your Applications folder.",
+      "step3Title": "Launch Nova",
+      "step3Desc": "Open Nova from Applications or Spotlight (⌘+Space).",
+      "cta": "Download for macOS"
+    },
+    "windows": {
+      "title": "Windows",
+      "badge": "Windows 10+",
+      "step1Title": "Download the installer",
+      "step1Desc": "Click the button below to get the .exe installer.",
+      "step2Title": "Run the installer",
+      "step2Desc": "Double-click the downloaded file and follow the setup wizard.",
+      "step3Title": "Launch Nova",
+      "step3Desc": "Find Nova in your Start menu or desktop shortcut.",
+      "cta": "Download for Windows"
+    },
+    "mobile": {
+      "title": "Mobile (PWA)",
+      "badge": "No app store needed",
+      "iosTitle": "iPhone & iPad (Safari)",
+      "iosStep1Title": "Tap the Share button",
+      "iosStep1Desc": "At the bottom of Safari, tap the share icon.",
+      "iosStep2Title": "Tap \"Add to Home Screen\"",
+      "iosStep2Desc": "Scroll down and tap the option with the + icon.",
+      "iosStep3Title": "Tap \"Add\"",
+      "iosStep3Desc": "Nova will appear on your home screen like a native app.",
+      "androidTitle": "Android (Chrome)",
+      "androidStep1Title": "Tap the menu (⋮)",
+      "androidStep1Desc": "In Chrome, tap the three-dot menu at the top right.",
+      "androidStep2Title": "Tap \"Add to Home screen\"",
+      "androidStep2Desc": "Nova will install and appear on your home screen."
+    },
+    "web": {
+      "title": "Prefer the browser?",
+      "desc": "Nova works great in any modern browser. No download needed.",
+      "cta": "Open in browser"
     }
   }
 }

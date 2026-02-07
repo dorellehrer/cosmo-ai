@@ -37,7 +37,7 @@ export function NotificationDemo() {
       type: 'info' as const,
       category: 'system' as const,
       title: 'New Feature Available ✨',
-      message: 'Try our new voice commands! Say "Hey Cosmo" to get started.',
+      message: 'Try our new voice commands! Say "Hey Nova" to get started.',
       action: { label: 'Learn More', href: '/help' },
     },
   ];

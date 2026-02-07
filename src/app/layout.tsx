@@ -27,13 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('meta');
   
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://cosmo.ai'),
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.heynova.se'),
     title: t('title'),
     description: t('description'),
     keywords: ['AI assistant', 'personal assistant', 'smart home', 'productivity', 'calendar', 'email', 'automation'],
-    authors: [{ name: 'Cosmo AI' }],
-    creator: 'Cosmo AI',
-    publisher: 'Cosmo AI',
+    authors: [{ name: 'Nova AI' }],
+    creator: 'Nova AI',
+    publisher: 'Nova AI',
     manifest: '/manifest.json',
     icons: {
       icon: [
@@ -46,14 +46,14 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: t('title'),
       description: t('description'),
-      url: 'https://cosmo.ai',
-      siteName: 'Cosmo AI',
+      url: 'https://www.heynova.se',
+      siteName: 'Nova AI',
       images: [
         {
           url: '/og-image.svg',
           width: 1200,
           height: 630,
-          alt: 'Cosmo AI - Your AI that actually does things',
+          alt: 'Nova AI - Your AI that actually does things',
         },
       ],
       locale: 'en_US',
@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: t('title'),
       description: t('description'),
       images: ['/og-image.svg'],
-      creator: '@cosmoai',
+      creator: '@heynovaai',
     },
     robots: {
       index: true,
@@ -105,11 +105,11 @@ export default async function RootLayout({
         {/* iOS PWA Meta Tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Cosmo" />
+        <meta name="apple-mobile-web-app-title" content="Nova" />
         
         {/* Android/Chrome Theme */}
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="application-name" content="Cosmo" />
+        <meta name="application-name" content="Nova" />
         
         {/* Microsoft Tiles */}
         <meta name="msapplication-TileColor" content="#8B5CF6" />

@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Cosmo",
+    "cosmo": "Nova",
     "signIn": "Logga in",
     "signUp": "Registrera dig",
     "getStarted": "Kom igång",
@@ -14,27 +14,28 @@
     "loading": "Laddar...",
     "error": "Fel",
     "success": "Klart",
-    "copyright": "© 2026 Cosmo AI. Alla rättigheter förbehållna.",
+    "copyright": "© 2026 Nova AI. Alla rättigheter förbehållna.",
     "privacy": "Integritet",
     "terms": "Villkor",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "download": "Ladda ner"
   },
   "landing": {
     "skipToContent": "Hoppa till huvudinnehåll",
     "mainNav": "Huvudnavigering",
-    "heroTitle": "Möt Cosmo",
+    "heroTitle": "Möt Nova",
     "heroSubtitle": "Din AI som faktiskt gör saker",
-    "heroDescription": "Inte bara ännu en chatbot. Cosmo kopplar ihop med ditt liv — kalender, e-post, smarta hem och mer. Berätta vad du behöver, Cosmo fixar det.",
+    "heroDescription": "Inte bara ännu en chatbot. Nova kopplar ihop med ditt liv — kalender, e-post, smarta hem och mer. Berätta vad du behöver, Nova fixar det.",
     "startChatting": "Börja chatta — det är gratis",
     "watchDemo": "Se demo",
     "featuresHeading": "Allt du behöver, bara en konversation bort",
     "ctaHeading": "Redo att träffa din nya AI-kompis?",
-    "ctaDescription": "Gå med tusentals människor som har gjort Cosmo till en del av sin vardag. Det är gratis att börja.",
+    "ctaDescription": "Gå med tusentals människor som har gjort Nova till en del av sin vardag. Det är gratis att börja.",
     "getStartedFree": "Kom igång gratis",
     "features": {
       "email": {
         "title": "E-post & Kalender",
-        "description": "Kolla e-post, boka möten, få påminnelser. Cosmo håller din dag organiserad."
+        "description": "Kolla e-post, boka möten, få påminnelser. Nova håller din dag organiserad."
       },
       "smartHome": {
         "title": "Smarta Hem",
@@ -50,7 +51,7 @@
       },
       "everywhere": {
         "title": "Fungerar Överallt",
-        "description": "Webb, mobil, röst. Nå Cosmo från vilken enhet som helst, när som helst."
+        "description": "Webb, mobil, röst. Nå Nova från vilken enhet som helst, när som helst."
       },
       "noSetup": {
         "title": "Ingen Installation",
@@ -60,9 +61,9 @@
   },
   "auth": {
     "welcomeBack": "Välkommen tillbaka",
-    "signInToContinue": "Logga in för att fortsätta till Cosmo",
+    "signInToContinue": "Logga in för att fortsätta till Nova",
     "createAccount": "Skapa ditt konto",
-    "joinThousands": "Gå med tusentals som använder Cosmo varje dag",
+    "joinThousands": "Gå med tusentals som använder Nova varje dag",
     "email": "E-post",
     "emailPlaceholder": "du@exempel.se",
     "password": "Lösenord",
@@ -70,7 +71,7 @@
     "passwordHint": "Minst 6 tecken",
     "name": "Namn",
     "nameOptional": "(valfritt)",
-    "namePlaceholder": "Vad ska Cosmo kalla dig?",
+    "namePlaceholder": "Vad ska Nova kalla dig?",
     "signingIn": "Loggar in...",
     "creatingAccount": "Skapar konto...",
     "dontHaveAccount": "Har du inget konto?",
@@ -87,7 +88,7 @@
   },
   "onboarding": {
     "step1Emoji": "👋",
-    "step1Title": "Hej där! Jag är Cosmo",
+    "step1Title": "Hej där! Jag är Nova",
     "step1Subtitle": "Vad ska jag kalla dig?",
     "yourName": "Ditt namn",
     "step2Emoji": "🔌",
@@ -104,7 +105,7 @@
       "music": "\"Spela lite lugn musik\"",
       "reminder": "\"Påminn mig att ringa mamma kl 17\""
     },
-    "startChatting": "Börja chatta med Cosmo",
+    "startChatting": "Börja chatta med Nova",
     "integrations": {
       "google": {
         "name": "Google",
@@ -134,7 +135,7 @@
     "connect": "Anslut",
     "preferences": "Inställningar",
     "voiceResponses": "Röstsvar",
-    "voiceDescription": "Cosmo läser upp svaren högt",
+    "voiceDescription": "Nova läser upp svaren högt",
     "notifications": "Notiser",
     "notificationsDescription": "Få aviseringar för påminnelser och uppdateringar",
     "darkMode": "Mörkt läge",
@@ -182,12 +183,12 @@
     "newConversation": "Ny konversation",
     "yourCompanion": "Din AI-kompis",
     "openSidebar": "Öppna sidofältet",
-    "greeting": "Hej, jag är Cosmo",
+    "greeting": "Hej, jag är Nova",
     "greetingDescription": "Din personliga AI-assistent. Jag kan hjälpa dig med uppgifter, svara på frågor och göra ditt liv enklare. Vad vill du göra idag?",
-    "askAnything": "Fråga Cosmo vad som helst...",
+    "askAnything": "Fråga Nova vad som helst...",
     "youSaid": "Du sa",
-    "cosmoSaid": "Cosmo sa",
-    "typing": "Cosmo skriver...",
+    "cosmoSaid": "Nova sa",
+    "typing": "Nova skriver...",
     "sending": "Skickar...",
     "errorMessage": "Förlåt, något gick fel. Vänligen försök igen.",
     "suggestions": {
@@ -203,11 +204,11 @@
     "title": "Sidan hittades inte",
     "description": "Hmm, jag kunde inte hitta det du letar efter. Låt oss få dig på rätt spår.",
     "goHome": "Gå hem",
-    "chatWithCosmo": "Chatta med Cosmo"
+    "chatWithNova": "Chatta med Nova"
   },
   "meta": {
-    "title": "Cosmo AI - Din Personliga AI-Kompis",
-    "description": "Möt Cosmo, din vänliga AI-assistent som faktiskt får saker gjorda. Smart hem, kalender, e-post och mer — allt på ett ställe."
+    "title": "Nova AI - Din Personliga AI-Kompis",
+    "description": "Möt Nova, din vänliga AI-assistent som faktiskt får saker gjorda. Smart hem, kalender, e-post och mer — allt på ett ställe."
   },
   "commandPalette": {
     "commandPalette": "Kommandopalett",
@@ -229,16 +230,16 @@
     "pricing": "Priser",
     "viewPlans": "Visa prenumerationsplaner",
     "about": "Om",
-    "learnAboutCosmo": "Läs mer om Cosmo",
+    "learnAboutNova": "Läs mer om Nova",
     "untitled": "Namnlös konversation",
     "toNavigate": "för att navigera",
     "toSelect": "för att välja",
-    "poweredBy": "Drivs av Cosmo ✨"
+    "poweredBy": "Drivs av Nova ✨"
   },
   "shortcuts": {
     "title": "Tangentbordsgenvägar",
     "pageTitle": "Tangentbordsgenvägar",
-    "pageDescription": "Bemästra Cosmo med dessa tangentbordsgenvägar. Arbeta snabbare, skriv mindre.",
+    "pageDescription": "Bemästra Nova med dessa tangentbordsgenvägar. Arbeta snabbare, skriv mindre.",
     "close": "Stäng",
     "general": "Allmänt",
     "chatActions": "Chatt",
@@ -272,7 +273,7 @@
       },
       "navigation": {
         "title": "Navigering",
-        "description": "Flytta runt i Cosmo snabbt"
+        "description": "Flytta runt i Nova snabbt"
       },
       "commandPalette": {
         "title": "Kommandopalett",
@@ -283,7 +284,7 @@
       "cmdK": {
         "keys": "⌘K",
         "description": "Öppna kommandopaletten",
-        "detail": "Det snabbaste sättet att göra något i Cosmo. Sök konversationer, kör kommandon, navigera var som helst."
+        "detail": "Det snabbaste sättet att göra något i Nova. Sök konversationer, kör kommandon, navigera var som helst."
       },
       "question": {
         "keys": "?",
@@ -298,7 +299,7 @@
       "cmdN": {
         "keys": "⌘N",
         "description": "Ny chatt",
-        "detail": "Starta en ny konversation med Cosmo."
+        "detail": "Starta en ny konversation med Nova."
       },
       "cmdB": {
         "keys": "⌘B",
@@ -308,7 +309,7 @@
       "cmdEnter": {
         "keys": "⌘↵",
         "description": "Skicka meddelande",
-        "detail": "Skicka ditt meddelande till Cosmo."
+        "detail": "Skicka ditt meddelande till Nova."
       },
       "cmdComma": {
         "keys": "⌘,",
@@ -355,6 +356,54 @@
         "description": "Välj objekt",
         "detail": "Kör det valda kommandot eller navigera till det valda objektet."
       }
+    }
+  },
+  "download": {
+    "badge": "Tillgänglig överallt",
+    "title": "Hämta Nova till alla enheter",
+    "subtitle": "Ladda ner skrivbordsappen för macOS eller Windows, eller installera på din telefon som en app — ingen appbutik behövs.",
+    "macos": {
+      "title": "macOS",
+      "badge": "Apple Silicon & Intel",
+      "step1Title": "Ladda ner .dmg-filen",
+      "step1Desc": "Klicka på knappen nedan för att ladda ner den senaste installationsfilen.",
+      "step2Title": "Öppna och dra till Program",
+      "step2Desc": "Öppna den nedladdade filen och dra Nova till mappen Program.",
+      "step3Title": "Starta Nova",
+      "step3Desc": "Öppna Nova från Program eller Spotlight (⌘+Space).",
+      "cta": "Ladda ner för macOS"
+    },
+    "windows": {
+      "title": "Windows",
+      "badge": "Windows 10+",
+      "step1Title": "Ladda ner installationsprogrammet",
+      "step1Desc": "Klicka på knappen nedan för att hämta .exe-installationsprogrammet.",
+      "step2Title": "Kör installationsprogrammet",
+      "step2Desc": "Dubbelklicka på den nedladdade filen och följ installationsguiden.",
+      "step3Title": "Starta Nova",
+      "step3Desc": "Hitta Nova i Start-menyn eller som genväg på skrivbordet.",
+      "cta": "Ladda ner för Windows"
+    },
+    "mobile": {
+      "title": "Mobil (PWA)",
+      "badge": "Ingen appbutik behövs",
+      "iosTitle": "iPhone & iPad (Safari)",
+      "iosStep1Title": "Tryck på Dela-knappen",
+      "iosStep1Desc": "Längst ner i Safari, tryck på delningsikonen.",
+      "iosStep2Title": "Tryck på \"Lägg till på hemskärmen\"",
+      "iosStep2Desc": "Scrolla ner och tryck på alternativet med +-ikonen.",
+      "iosStep3Title": "Tryck på \"Lägg till\"",
+      "iosStep3Desc": "Nova visas på din hemskärm som en vanlig app.",
+      "androidTitle": "Android (Chrome)",
+      "androidStep1Title": "Tryck på menyn (⋮)",
+      "androidStep1Desc": "I Chrome, tryck på trepunktsmenyn uppe till höger.",
+      "androidStep2Title": "Tryck på \"Lägg till på startskärmen\"",
+      "androidStep2Desc": "Nova installeras och visas på din startskärm."
+    },
+    "web": {
+      "title": "Föredrar du webbläsaren?",
+      "desc": "Nova fungerar utmärkt i alla moderna webbläsare. Ingen nedladdning behövs.",
+      "cta": "Öppna i webbläsaren"
     }
   }
 }

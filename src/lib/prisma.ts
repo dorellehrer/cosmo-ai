@@ -1,18 +1,33 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
 function createPrismaClient() {
-  // Create the Prisma adapter for local SQLite
-  const adapter = new PrismaLibSql({
-    url: "file:./prisma/dev.db",
+  const isProduction = process.env.NODE_ENV === "production";
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: isProduction ? 10 : 5,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 5_000,
+    ...(isProduction && {
+      ssl: {
+        // Use AWS RDS CA bundle when available, otherwise allow RDS certs
+        rejectUnauthorized: !!process.env.RDS_CA_CERT_PATH,
+        ...(process.env.RDS_CA_CERT_PATH && {
+          ca: require('fs').readFileSync(process.env.RDS_CA_CERT_PATH, 'utf8'),
+        }),
+      },
+    }),
   });
-
-  // Return new PrismaClient with the adapter
-  return new PrismaClient({ adapter });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({
+    adapter,
+    log: isProduction ? ["error"] : ["error", "warn"],
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();

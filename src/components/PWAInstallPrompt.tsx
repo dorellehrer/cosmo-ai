@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -124,7 +125,7 @@ export function PWAInstallPrompt() {
                 id="pwa-install-title" 
                 className="text-white font-semibold text-lg"
               >
-                Install Cosmo AI
+                Install Nova AI
               </h3>
               <p 
                 id="pwa-install-description" 
@@ -141,6 +142,12 @@ export function PWAInstallPrompt() {
                 >
                   {isIOS ? 'How to Install' : 'Install'}
                 </button>
+                <Link
+                  href="/download"
+                  className="px-3 py-2 text-violet-400 hover:text-violet-300 text-xs font-medium transition-colors"
+                >
+                  More options
+                </Link>
                 <button
                   onClick={handleDismiss}
                   className="px-4 py-2 text-white/60 hover:text-white text-sm font-medium transition-colors"
@@ -176,7 +183,7 @@ export function PWAInstallPrompt() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold text-white mb-4 text-center">
-              Install Cosmo AI on iOS
+              Install Nova AI on iOS
             </h3>
 
             <div className="space-y-4">
@@ -217,7 +224,7 @@ export function PWAInstallPrompt() {
                 <div>
                   <p className="text-white font-medium">Tap "Add"</p>
                   <p className="text-white/60 text-sm mt-1">
-                    Cosmo will appear on your home screen
+                    Nova will appear on your home screen
                   </p>
                 </div>
               </div>

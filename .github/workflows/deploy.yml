@@ -1,0 +1,123 @@
+name: Deploy Nova AI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-north-1
+  ECR_REPO_APP: cosmo-app
+  ECR_REPO_AGENT: cosmo-agent
+  ECS_CLUSTER: cosmo-agents
+  ECS_SERVICE_APP: cosmo-app-service
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  # ─── Build & Push Next.js App ──────────────────
+  build-app:
+    name: Build & Deploy Next.js App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Next.js image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPO_APP:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPO_APP:latest \
+            -f Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPO_APP:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPO_APP:latest
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE_APP \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+  # ─── Build & Push Agent Container ─────────────
+  build-agent:
+    name: Build & Push Agent Container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Agent image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPO_AGENT:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPO_AGENT:latest \
+            -f agent/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPO_AGENT:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPO_AGENT:latest
+
+  # ─── Run Database Migrations ──────────────────
+  migrate:
+    name: Run Prisma Migrations
+    runs-on: ubuntu-latest
+    needs: [build-app]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Fetch DATABASE_URL from Secrets Manager
+        run: |
+          DB_URL=$(aws secretsmanager get-secret-value \
+            --secret-id cosmo/database-url \
+            --query SecretString --output text)
+          echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
+          echo "DIRECT_URL=$DB_URL" >> $GITHUB_ENV
+
+      - name: Run migrations
+        run: npx prisma migrate deploy

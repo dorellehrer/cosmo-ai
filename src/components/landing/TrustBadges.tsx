@@ -46,7 +46,7 @@ export function TrustBadges() {
           Security you can trust
         </h2>
         <p className="text-white/60 text-lg max-w-2xl mx-auto">
-          Your privacy is our priority. We built Cosmo with security from the ground up.
+          Your privacy is our priority. We built Nova with security from the ground up.
         </p>
       </div>
 

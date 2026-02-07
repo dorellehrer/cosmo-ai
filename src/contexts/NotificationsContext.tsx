@@ -33,7 +33,8 @@ export interface NotificationsContextType {
   dismissToast: (id: string) => void;
 }
 
-const STORAGE_KEY = 'cosmo-notifications';
+const STORAGE_KEY = 'nova-notifications';
+const OLD_STORAGE_KEY = 'cosmo-notifications';
 const MAX_NOTIFICATIONS = 50;
 const TOAST_DURATION = 5000;
 
@@ -44,10 +45,17 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Notification[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount (with migration from old key)
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      let stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        stored = localStorage.getItem(OLD_STORAGE_KEY);
+        if (stored) {
+          localStorage.setItem(STORAGE_KEY, stored);
+          localStorage.removeItem(OLD_STORAGE_KEY);
+        }
+      }
       if (stored) {
         const parsed = JSON.parse(stored);
         setNotifications(
@@ -77,19 +85,19 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   // Welcome notification on first visit
   useEffect(() => {
     if (isLoaded && notifications.length === 0) {
-      const hasSeenWelcome = localStorage.getItem('cosmo-welcomed');
+      const hasSeenWelcome = localStorage.getItem('nova-welcomed') || localStorage.getItem('cosmo-welcomed');
       if (!hasSeenWelcome) {
         addNotification({
           type: 'info',
           category: 'system',
-          title: 'Welcome to Cosmo! ✨',
+          title: 'Welcome to Nova! ✨',
           message: 'Your AI assistant is ready. Connect integrations to unlock the full experience.',
           action: {
             label: 'Setup Integrations',
             href: '/integrations',
           },
         });
-        localStorage.setItem('cosmo-welcomed', 'true');
+        localStorage.setItem('nova-welcomed', 'true');
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

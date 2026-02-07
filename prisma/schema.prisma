@@ -1,5 +1,5 @@
-// Cosmo AI Database Schema
-// Using SQLite for local development
+// Nova AI Database Schema
+// PostgreSQL on AWS RDS
 
 generator client {
   provider = "prisma-client"
@@ -7,31 +7,80 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider  = "postgresql"
 }
 
-// User model for authentication
+// ──────────────────────────────────────────────
+// Core User & Chat Models
+// ──────────────────────────────────────────────
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  passwordHash  String
+  passwordHash  String?
   name          String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
+
   // OAuth provider IDs for account linking
   googleId      String?   @unique
   githubId      String?   @unique
-  
+
   // Stripe subscription fields
-  stripeCustomerId     String?   @unique
-  stripeSubscriptionId String?   @unique
-  stripePriceId        String?
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  
+
   // Relations
-  conversations Conversation[]
-  usageRecords  UsageRecord[]
+  conversations    Conversation[]
+  usageRecords     UsageRecord[]
+  agentInstances   AgentInstance[]
+  agentChannels    AgentChannel[]
+  agentMemories    AgentMemory[]
+  agentSkills      AgentSkill[]
+  integrations     UserIntegration[]
+  pushSubscriptions PushSubscription[]
+}
+
+// Push notification subscriptions (Web Push API)
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @db.Text
+  p256dh    String   // Public key for push encryption
+  auth      String   // Auth secret for push encryption
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+}
+
+// OAuth integrations connected by the user
+model UserIntegration {
+  id                String   @id @default(cuid())
+  userId            String
+  provider          String   // google | spotify | notion | slack | hue | sonos
+  providerAccountId String?  // e.g. Google sub ID, Spotify user ID
+  email             String?  // Connected account email/display
+
+  // OAuth tokens (encrypted via AES-256)
+  accessToken       String   @db.Text
+  refreshToken      String?  @db.Text
+  tokenType         String   @default("Bearer")
+  scope             String?  // Granted scopes
+  expiresAt         DateTime?
+
+  connectedAt       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
 }
 
 // Daily usage tracking for rate limiting
@@ -42,9 +91,9 @@ model UsageRecord {
   count     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, date])
 }
 
@@ -54,11 +103,13 @@ model Conversation {
   title     String?  // Auto-generated or user-set title
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relations
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages  Message[]
+
+  @@index([userId])
 }
 
 // Message model - individual chat messages
@@ -67,8 +118,152 @@ model Message {
   role           String   // "user" | "assistant" | "system"
   content        String
   createdAt      DateTime @default(now())
-  
+
   // Relations
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+// ──────────────────────────────────────────────
+// Agent Infrastructure Models
+// ──────────────────────────────────────────────
+
+// Each user gets one (or more) dedicated AI agent instances on AWS
+model AgentInstance {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String   @default("Nova")
+  personality      String   @default("friendly")
+  status           String   @default("pending") // pending | provisioning | running | stopped | error | destroyed
+
+  // AWS infrastructure
+  awsTaskArn       String?  // ECS Fargate task ARN
+  awsClusterArn    String?  // ECS cluster ARN
+  awsSecurityGroup String?  // Dedicated security group
+  awsSubnet        String?
+  publicIp         String?  // Fargate public IP for WebSocket
+  wsEndpoint       String?  // Full WebSocket endpoint URL
+
+  // AI model configuration
+  modelProvider    String   @default("openai")    // openai | anthropic | google
+  modelName        String   @default("gpt-4o-mini")
+  apiKeySecretArn  String?  // AWS Secrets Manager ARN for user's API key
+
+  // Heartbeat (proactive outreach)
+  heartbeatEnabled  Boolean @default(false)
+  heartbeatInterval String  @default("30m")  // e.g., "30m", "1h", "4h"
+  heartbeatPrompt   String? // Custom heartbeat prompt
+  activeHoursStart  String  @default("08:00")
+  activeHoursEnd    String  @default("22:00")
+  activeTimezone    String  @default("UTC")
+
+  // Metadata
+  lastHeartbeat    DateTime?
+  lastActivity     DateTime?
+  errorMessage     String?
+  containerVersion String   @default("1.0.0")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions         AgentSession[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Agent sessions - persistent memory/context per conversation thread
+model AgentSession {
+  id              String   @id @default(cuid())
+  agentInstanceId String
+  sessionKey      String   // e.g., "whatsapp:+1234567890" or "telegram:123456"
+  scope           String   @default("per-sender") // per-sender | global
+
+  // Context state
+  contextSummary  String?  // Compacted context from previous messages
+  messageCount    Int      @default(0)
+  tokenCount      Int      @default(0)
+
+  lastActive      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  agentInstance   AgentInstance @relation(fields: [agentInstanceId], references: [id], onDelete: Cascade)
+
+  @@unique([agentInstanceId, sessionKey])
+  @@index([agentInstanceId])
+}
+
+// Long-term memory for each user's agent
+model AgentMemory {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // YYYY-MM-DD
+  content   String   // Daily memory journal entry
+  category  String   @default("general") // general | preference | task | fact
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([category])
+}
+
+// Communication channels connected to the agent
+model AgentChannel {
+  id               String   @id @default(cuid())
+  userId           String
+  channelType      String   // whatsapp | telegram | discord | slack | gmail | webchat
+  channelName      String   // Human-readable name
+  status           String   @default("pending") // pending | connected | disconnected | error
+
+  // Channel-specific config (encrypted credentials stored in AWS Secrets Manager)
+  configSecretArn  String?  // AWS Secrets Manager ARN
+  externalId       String?  // External account/channel ID
+  webhookUrl       String?  // Webhook endpoint for this channel
+
+  // Capabilities
+  canSend          Boolean  @default(true)
+  canReceive       Boolean  @default(true)
+  supportsMedia    Boolean  @default(false)
+  supportsGroups   Boolean  @default(false)
+
+  lastMessage      DateTime?
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelType, externalId])
+  @@index([userId])
+  @@index([channelType])
+}
+
+// Skills/plugins installed on the agent
+model AgentSkill {
+  id          String   @id @default(cuid())
+  userId      String
+  skillId     String   // Unique skill identifier (e.g., "weather", "calendar-sync")
+  name        String
+  description String?
+  version     String   @default("1.0.0")
+  enabled     Boolean  @default(true)
+
+  // Skill config
+  config      String?  // JSON config for skill-specific settings
+  source      String   @default("marketplace") // marketplace | custom | builtin
+
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
 }

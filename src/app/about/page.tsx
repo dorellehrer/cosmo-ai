@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'About Cosmo AI - Our Mission & Vision',
-  description: 'Learn about Cosmo AI, our mission to make AI truly helpful, and the team building the future of personal AI assistants.',
+  title: 'About Nova AI - Our Mission & Vision',
+  description: 'Learn about Nova AI, our mission to make AI truly helpful, and the team building the future of personal AI assistants.',
 };
 
 const team = [
@@ -42,7 +42,7 @@ const values = [
   {
     icon: '🔐',
     title: 'Privacy by design',
-    description: "Your data is yours. We built Cosmo from the ground up with privacy as a core principle, not an afterthought.",
+    description: "Your data is yours. We built Nova from the ground up with privacy as a core principle, not an afterthought.",
   },
   {
     icon: '✨',
@@ -57,7 +57,7 @@ const values = [
 ];
 
 const timeline = [
-  { year: '2024', event: 'Cosmo founded in San Francisco' },
+  { year: '2024', event: 'Nova founded in San Francisco' },
   { year: '2024', event: 'Raised $12M seed round' },
   { year: '2025', event: 'Launched beta with 1,000 users' },
   { year: '2025', event: 'Reached 50,000 active users' },
@@ -74,7 +74,7 @@ export default function AboutPage() {
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Cosmo</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
@@ -157,7 +157,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-white text-center mb-12">Our Story</h2>
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 sm:p-12">
               <p className="text-white/70 leading-relaxed mb-6">
-                Cosmo started with a simple frustration: why can&apos;t AI actually DO anything?
+                Nova started with a simple frustration: why can&apos;t AI actually DO anything?
               </p>
               <p className="text-white/70 leading-relaxed mb-6">
                 In 2024, we were watching the AI hype cycle reach fever pitch. ChatGPT could write essays, 
@@ -237,7 +237,7 @@ export default function AboutPage() {
                 View open roles
               </a>
               <a
-                href="mailto:hello@cosmo.ai"
+                href="mailto:hello@heynova.se"
                 className="px-6 py-3 border border-white/20 hover:bg-white/10 hover:border-white/30 rounded-full text-white font-semibold transition-all"
               >
                 Get in touch
@@ -254,7 +254,7 @@ export default function AboutPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-white/40 text-sm">

@@ -50,7 +50,7 @@ export default function SignInPage() {
           <Link 
             href="/" 
             className="inline-flex items-center gap-2 sm:gap-3"
-            aria-label="Go to Cosmo AI homepage"
+            aria-label="Go to Nova AI homepage"
           >
             <div 
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center"

@@ -40,7 +40,7 @@ const INTEGRATION_DETAILS: Record<string, {
         <path fill="#1DB954" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
       </svg>
     ),
-    fullDescription: 'Stream your favorite music with Spotify. Control playback, search for songs, and manage your playlists with Cosmo.',
+    fullDescription: 'Stream your favorite music with Spotify. Control playback, search for songs, and manage your playlists with Nova.',
     features: ['Play/pause/skip tracks', 'Search for music', 'Control volume', 'Manage playlists'],
   },
   sonos: {
@@ -77,7 +77,7 @@ const INTEGRATION_DETAILS: Record<string, {
   },
 };
 
-// Mock OAuth flow modal component
+// Connection modal — now initiates real OAuth flow
 function ConnectionModal({ 
   integration, 
   onClose, 
@@ -85,23 +85,15 @@ function ConnectionModal({
 }: { 
   integration: typeof AVAILABLE_INTEGRATIONS[0];
   onClose: () => void;
-  onConnect: (email?: string) => void;
+  onConnect: () => void;
 }) {
-  const [step, setStep] = useState<'info' | 'connecting' | 'success'>('info');
-  const [email, setEmail] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
   const details = INTEGRATION_DETAILS[integration.id];
 
   const handleConnect = () => {
-    setStep('connecting');
-    // Simulate OAuth flow
-    setTimeout(() => {
-      setStep('success');
-    }, 1500);
-  };
-
-  const handleFinish = () => {
-    onConnect(email || `user@${integration.id === 'google' ? 'gmail.com' : `${integration.id}.com`}`);
-    onClose();
+    setIsConnecting(true);
+    onConnect();
+    // The page will redirect to OAuth provider — no need to close modal
   };
 
   return (
@@ -134,12 +126,23 @@ function ConnectionModal({
 
         {/* Content */}
         <div className="p-6">
-          {step === 'info' && (
+          {isConnecting ? (
+            <div className="py-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center animate-pulse">
+                <svg className="w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+              </div>
+              <p className="text-white font-medium">Redirecting to {integration.name}...</p>
+              <p className="text-white/40 text-sm mt-1">You&apos;ll be asked to authorize Nova</p>
+            </div>
+          ) : (
             <>
               <p className="text-white/70 text-sm mb-4">{details.fullDescription}</p>
               
               <div className="mb-6">
-                <h3 className="text-white font-medium mb-2 text-sm">What Cosmo can do:</h3>
+                <h3 className="text-white font-medium mb-2 text-sm">What Nova can do:</h3>
                 <ul className="space-y-2">
                   {details.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-white/60 text-sm">
@@ -152,19 +155,6 @@ function ConnectionModal({
                 </ul>
               </div>
 
-              {integration.id === 'google' && (
-                <div className="mb-4">
-                  <label className="block text-white/60 text-sm mb-2">Email (for demo)</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@gmail.com"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                </div>
-              )}
-
               <button
                 onClick={handleConnect}
                 className={`w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${integration.color} hover:opacity-90 transition-opacity`}
@@ -173,42 +163,9 @@ function ConnectionModal({
               </button>
               
               <p className="text-white/40 text-xs text-center mt-4">
-                This is a demo. In production, this would open an OAuth authorization window.
+                You&apos;ll be redirected to {integration.name} to authorize access. Nova requests read-only permissions.
               </p>
             </>
-          )}
-
-          {step === 'connecting' && (
-            <div className="py-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center animate-pulse">
-                <svg className="w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
-              </div>
-              <p className="text-white font-medium">Connecting to {integration.name}...</p>
-              <p className="text-white/40 text-sm mt-1">Please wait while we set things up</p>
-            </div>
-          )}
-
-          {step === 'success' && (
-            <div className="py-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-1">Connected!</h3>
-              <p className="text-white/60 text-sm mb-6">
-                {integration.name} is now connected to Cosmo
-              </p>
-              <button
-                onClick={handleFinish}
-                className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:opacity-90 transition-opacity"
-              >
-                Done
-              </button>
-            </div>
           )}
         </div>
       </div>
@@ -278,7 +235,7 @@ export default function IntegrationsPage() {
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">Connect Your Apps</h2>
           <p className="text-white/60 max-w-lg mx-auto">
-            Link your favorite services to unlock the full power of Cosmo. The more you connect, the more I can help.
+            Link your favorite services to unlock the full power of Nova. The more you connect, the more I can help.
           </p>
           {connectedCount > 0 && (
             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30">
@@ -392,7 +349,7 @@ export default function IntegrationsPage() {
         <ConnectionModal
           integration={connectingIntegration}
           onClose={() => setConnectingId(null)}
-          onConnect={(email) => connectIntegration(connectingIntegration.id, email)}
+          onConnect={() => connectIntegration(connectingIntegration.id)}
         />
       )}
     </div>

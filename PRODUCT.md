@@ -1,4 +1,4 @@
-# Cosmo AI - Product Vision
+# Nova AI - Product Vision
 
 ## The Problem
 
@@ -11,7 +11,7 @@ The gap: **No AI assistant that actually does things AND is easy to use.**
 
 ## The Solution
 
-Cosmo is the AI companion that:
+Nova is the AI companion that:
 - **Just works** — Download, sign in, done
 - **Actually does things** — Controls your smart home, manages your calendar, sends emails
 - **Feels human** — Not a corporate chatbot, an actual companion
@@ -63,7 +63,7 @@ Cosmo is the AI companion that:
 
 ## Differentiators
 
-| Feature | Cosmo | ChatGPT | OpenClaw |
+| Feature | Nova | ChatGPT | OpenClaw |
 |---------|-------|---------|----------|
 | No setup required | ✅ | ✅ | ❌ |
 | Controls smart home | ✅ | ❌ | ✅ |

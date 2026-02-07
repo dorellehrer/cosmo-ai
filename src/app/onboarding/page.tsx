@@ -10,17 +10,23 @@ export default function OnboardingPage() {
   
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
-  const [integrations, setIntegrations] = useState([
-    { id: 'google', icon: '📧', connected: false },
-    { id: 'spotify', icon: '🎵', connected: false },
-    { id: 'hue', icon: '💡', connected: false },
-    { id: 'sonos', icon: '🔊', connected: false },
-  ]);
+  const [saving, setSaving] = useState(false);
 
-  const toggleIntegration = (id: string) => {
-    setIntegrations((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, connected: !i.connected } : i))
-    );
+  const handleContinueToStep2 = async () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    try {
+      await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+    } catch (err) {
+      console.error('Failed to save name:', err);
+    } finally {
+      setSaving(false);
+      setStep(2);
+    }
   };
 
   return (
@@ -78,11 +84,11 @@ export default function OnboardingPage() {
               autoComplete="name"
             />
             <button
-              onClick={() => setStep(2)}
-              disabled={!name.trim()}
+              onClick={handleContinueToStep2}
+              disabled={!name.trim() || saving}
               className="w-full px-6 py-3 sm:py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg transition-all"
             >
-              {common('continue')}
+              {saving ? 'Saving...' : common('continue')}
             </button>
           </div>
         )}
@@ -102,32 +108,17 @@ export default function OnboardingPage() {
             <p className="text-sm sm:text-base text-white/60 mb-6 sm:mb-8">
               {t('step2Subtitle')}
             </p>
-            <div 
-              className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8"
-              role="group"
-              aria-label="Select integrations to connect"
-            >
-              {integrations.map((integration) => (
-                <button
-                  key={integration.id}
-                  onClick={() => toggleIntegration(integration.id)}
-                  className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border transition-all text-left ${
-                    integration.connected
-                      ? 'bg-violet-500/20 border-violet-500'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
-                  }`}
-                  aria-pressed={integration.connected}
-                  aria-label={`${t(`integrations.${integration.id}.name`)}: ${t(`integrations.${integration.id}.description`)}`}
-                >
-                  <span className="text-xl sm:text-2xl" aria-hidden="true">{integration.icon}</span>
-                  <h3 className="text-sm sm:text-base text-white font-medium mt-1.5 sm:mt-2">
-                    {t(`integrations.${integration.id}.name`)}
-                  </h3>
-                  <p className="text-white/40 text-xs sm:text-sm">
-                    {t(`integrations.${integration.id}.description`)}
-                  </p>
-                </button>
-              ))}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-6 sm:mb-8">
+              <p className="text-white/70 text-sm sm:text-base mb-4">
+                Connect your favorite services to let Nova help with your calendar, email, music, and more.
+              </p>
+              <Link
+                href="/integrations"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-all"
+              >
+                <span>🔗</span>
+                Go to Integrations
+              </Link>
             </div>
             <div className="flex gap-3 sm:gap-4">
               <button

@@ -106,12 +106,12 @@ export default function OfflinePage() {
           Some pages you&apos;ve visited before may still be available offline.
         </p>
 
-        {/* Cosmo Branding */}
+        {/* Nova Branding */}
         <div className="mt-12 flex items-center justify-center gap-2 opacity-50">
           <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
             <span className="text-xs">✨</span>
           </div>
-          <span className="text-sm text-white/70">Cosmo AI</span>
+          <span className="text-sm text-white/70">Nova AI</span>
         </div>
       </div>
     </div>

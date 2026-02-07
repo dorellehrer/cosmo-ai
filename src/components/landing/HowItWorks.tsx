@@ -10,19 +10,19 @@ const steps = [
   {
     number: '02',
     title: 'Connect your services',
-    description: 'Link your email, calendar, smart home devices — whatever you want Cosmo to help with.',
+    description: 'Link your email, calendar, smart home devices — whatever you want Nova to help with.',
     icon: '🔗',
   },
   {
     number: '03',
     title: 'Start chatting naturally',
-    description: 'Just tell Cosmo what you need. "Check my emails" or "Schedule lunch with Sarah tomorrow."',
+    description: 'Just tell Nova what you need. "Check my emails" or "Schedule lunch with Sarah tomorrow."',
     icon: '💬',
   },
   {
     number: '04',
-    title: 'Watch Cosmo work',
-    description: 'Cosmo takes action and keeps you informed. It learns your preferences over time.',
+    title: 'Watch Nova work',
+    description: 'Nova takes action and keeps you informed. It learns your preferences over time.',
     icon: '🚀',
   },
 ];
@@ -41,7 +41,7 @@ export function HowItWorks() {
           How it works
         </h2>
         <p className="text-white/60 text-lg max-w-2xl mx-auto">
-          Get started with Cosmo in under 2 minutes
+          Get started with Nova in under 2 minutes
         </p>
       </div>
 

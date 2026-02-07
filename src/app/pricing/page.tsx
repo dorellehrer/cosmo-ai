@@ -10,12 +10,15 @@ const TIERS = [
     name: 'Free',
     price: '$0',
     period: 'forever',
-    description: 'Perfect for trying out Cosmo',
+    description: 'Perfect for trying out Nova',
     features: [
       '50 messages per day',
-      'Access to Cosmo AI',
+      'Web search, calculator, date/time',
+      'Weather, translation, URL summaries',
+      'Web page reading & extraction',
+      'Markdown & code rendering',
       'Conversation history',
-      'Basic integrations',
+      'PWA install (works offline)',
     ],
     cta: 'Get Started',
     popular: false,
@@ -28,9 +31,16 @@ const TIERS = [
     description: 'For power users who need more',
     features: [
       'Unlimited messages',
+      'Everything in Free, plus:',
+      '🎨 DALL-E image generation',
+      '📅 Google Calendar (read + create)',
+      '📧 Gmail search & reading',
+      '📁 Google Drive file search',
+      '🎵 Spotify playback & search',
+      '📝 Notion search & page creation',
+      '💬 Slack messages & channels',
       'Priority response times',
-      'Advanced integrations',
-      'Early access to new features',
+      'Early access to new tools',
       'Priority support',
     ],
     cta: 'Upgrade to Pro',
@@ -99,7 +109,7 @@ export default function PricingPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-white text-sm">✨</span>
             </div>
-            <span className="text-white font-semibold">Cosmo AI</span>
+            <span className="text-white font-semibold">Nova AI</span>
           </Link>
           <nav className="flex items-center gap-4">
             {status === 'authenticated' ? (
@@ -256,6 +266,49 @@ export default function PricingPage() {
           ))}
         </div>
 
+        {/* Tools Included Section */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <h2 className="text-2xl font-semibold text-white text-center mb-3">
+            Tools included with every plan
+          </h2>
+          <p className="text-white/50 text-center mb-8 text-sm">
+            All built-in tools are available for free. Pro unlocks integrations and AI-powered image generation.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { icon: '🔍', name: 'Web Search', free: true },
+              { icon: '🌐', name: 'Page Reader', free: true },
+              { icon: '📄', name: 'URL Summaries', free: true },
+              { icon: '🧮', name: 'Calculator', free: true },
+              { icon: '🕐', name: 'Date & Time', free: true },
+              { icon: '🌍', name: 'Translation', free: true },
+              { icon: '⛅', name: 'Weather', free: true },
+              { icon: '🎨', name: 'Image Gen', free: false },
+              { icon: '📅', name: 'Google Calendar', free: false },
+              { icon: '📧', name: 'Gmail', free: false },
+              { icon: '📁', name: 'Google Drive', free: false },
+              { icon: '🎵', name: 'Spotify', free: false },
+              { icon: '📝', name: 'Notion', free: false },
+              { icon: '💬', name: 'Slack', free: false },
+              { icon: '📂', name: 'File Access', free: true },
+              { icon: '📋', name: 'Clipboard', free: true },
+            ].map((tool) => (
+              <div
+                key={tool.name}
+                className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5"
+              >
+                <span className="text-lg">{tool.icon}</span>
+                <span className="text-white/80 text-sm flex-1">{tool.name}</span>
+                {tool.free ? (
+                  <span className="text-[10px] font-medium text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded">FREE</span>
+                ) : (
+                  <span className="text-[10px] font-medium text-violet-400 bg-violet-400/10 px-1.5 py-0.5 rounded">PRO</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* FAQ Section */}
         <div className="mt-20 max-w-3xl mx-auto">
           <h2 className="text-2xl font-semibold text-white text-center mb-8">
@@ -297,7 +350,7 @@ export default function PricingPage() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
               <span className="text-sm">✨</span>
             </div>
-            <span className="text-white/60">© 2026 Cosmo AI. All rights reserved.</span>
+            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
           </div>
           <nav>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-white/40 text-sm">

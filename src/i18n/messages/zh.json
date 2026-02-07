@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Cosmo",
+    "cosmo": "Nova",
     "signIn": "登录",
     "signUp": "注册",
     "getStarted": "开始使用",
@@ -14,27 +14,28 @@
     "loading": "加载中...",
     "error": "错误",
     "success": "成功",
-    "copyright": "© 2026 Cosmo AI。保留所有权利。",
+    "copyright": "© 2026 Nova AI。保留所有权利。",
     "privacy": "隐私",
     "terms": "条款",
-    "contact": "联系我们"
+    "contact": "联系我们",
+    "download": "下载"
   },
   "landing": {
     "skipToContent": "跳到主要内容",
     "mainNav": "主导航",
-    "heroTitle": "认识 Cosmo",
+    "heroTitle": "认识 Nova",
     "heroSubtitle": "真正能做事的 AI",
-    "heroDescription": "不只是另一个聊天机器人。Cosmo 连接你的生活——日历、邮件、智能家居等等。告诉它你需要什么，它就会实现。",
+    "heroDescription": "不只是另一个聊天机器人。Nova 连接你的生活——日历、邮件、智能家居等等。告诉它你需要什么，它就会实现。",
     "startChatting": "开始聊天——免费",
     "watchDemo": "观看演示",
     "featuresHeading": "你需要的一切，只需一次对话",
     "ctaHeading": "准备好认识你的新 AI 伙伴了吗？",
-    "ctaDescription": "加入成千上万将 Cosmo 纳入日常生活的人们。免费开始。",
+    "ctaDescription": "加入成千上万将 Nova 纳入日常生活的人们。免费开始。",
     "getStartedFree": "免费开始",
     "features": {
       "email": {
         "title": "邮件和日历",
-        "description": "查看邮件、安排会议、获取提醒。Cosmo 让你的一天井井有条。"
+        "description": "查看邮件、安排会议、获取提醒。Nova 让你的一天井井有条。"
       },
       "smartHome": {
         "title": "智能家居",
@@ -50,7 +51,7 @@
       },
       "everywhere": {
         "title": "随处可用",
-        "description": "网页、移动端、语音。随时随地从任何设备访问 Cosmo。"
+        "description": "网页、移动端、语音。随时随地从任何设备访问 Nova。"
       },
       "noSetup": {
         "title": "无需设置",
@@ -60,9 +61,9 @@
   },
   "auth": {
     "welcomeBack": "欢迎回来",
-    "signInToContinue": "登录以继续使用 Cosmo",
+    "signInToContinue": "登录以继续使用 Nova",
     "createAccount": "创建账户",
-    "joinThousands": "加入每天使用 Cosmo 的成千上万用户",
+    "joinThousands": "加入每天使用 Nova 的成千上万用户",
     "email": "邮箱",
     "emailPlaceholder": "you@example.com",
     "password": "密码",
@@ -70,7 +71,7 @@
     "passwordHint": "至少6个字符",
     "name": "姓名",
     "nameOptional": "（可选）",
-    "namePlaceholder": "Cosmo 应该怎么称呼你？",
+    "namePlaceholder": "Nova 应该怎么称呼你？",
     "signingIn": "登录中...",
     "creatingAccount": "创建账户中...",
     "dontHaveAccount": "还没有账户？",
@@ -87,7 +88,7 @@
   },
   "onboarding": {
     "step1Emoji": "👋",
-    "step1Title": "你好！我是 Cosmo",
+    "step1Title": "你好！我是 Nova",
     "step1Subtitle": "我应该怎么称呼你？",
     "yourName": "你的名字",
     "step2Emoji": "🔌",
@@ -104,7 +105,7 @@
       "music": "\"播放一些轻松的音乐\"",
       "reminder": "\"提醒我下午5点给妈妈打电话\""
     },
-    "startChatting": "开始与 Cosmo 聊天",
+    "startChatting": "开始与 Nova 聊天",
     "integrations": {
       "google": {
         "name": "Google",
@@ -134,7 +135,7 @@
     "connect": "连接",
     "preferences": "偏好设置",
     "voiceResponses": "语音回复",
-    "voiceDescription": "Cosmo 会大声朗读回复",
+    "voiceDescription": "Nova 会大声朗读回复",
     "notifications": "通知",
     "notificationsDescription": "获取提醒和更新的通知",
     "darkMode": "深色模式",
@@ -182,12 +183,12 @@
     "newConversation": "新对话",
     "yourCompanion": "你的 AI 伙伴",
     "openSidebar": "打开侧边栏",
-    "greeting": "你好，我是 Cosmo",
+    "greeting": "你好，我是 Nova",
     "greetingDescription": "你的个人 AI 助手。我可以帮你处理任务、回答问题，让你的生活更轻松。今天你想做什么？",
-    "askAnything": "问 Cosmo 任何问题...",
+    "askAnything": "问 Nova 任何问题...",
     "youSaid": "你说",
-    "cosmoSaid": "Cosmo 说",
-    "typing": "Cosmo 正在输入...",
+    "cosmoSaid": "Nova 说",
+    "typing": "Nova 正在输入...",
     "sending": "发送中...",
     "errorMessage": "抱歉，出了点问题。请重试。",
     "suggestions": {
@@ -203,11 +204,11 @@
     "title": "页面未找到",
     "description": "嗯，我找不到你要找的内容。让我们回到正轨。",
     "goHome": "返回首页",
-    "chatWithCosmo": "与 Cosmo 聊天"
+    "chatWithNova": "与 Nova 聊天"
   },
   "meta": {
-    "title": "Cosmo AI - 你的个人 AI 伙伴",
-    "description": "认识 Cosmo，你的友好 AI 助手，真正能帮你完成事情。智能家居、日历、邮件等等——尽在一处。"
+    "title": "Nova AI - 你的个人 AI 伙伴",
+    "description": "认识 Nova，你的友好 AI 助手，真正能帮你完成事情。智能家居、日历、邮件等等——尽在一处。"
   },
   "commandPalette": {
     "commandPalette": "Command Palette",
@@ -229,16 +230,16 @@
     "pricing": "Pricing",
     "viewPlans": "View subscription plans",
     "about": "About",
-    "learnAboutCosmo": "Learn about Cosmo",
+    "learnAboutNova": "Learn about Nova",
     "untitled": "Untitled conversation",
     "toNavigate": "to navigate",
     "toSelect": "to select",
-    "poweredBy": "Powered by Cosmo ✨"
+    "poweredBy": "Powered by Nova ✨"
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "pageTitle": "Keyboard Shortcuts",
-    "pageDescription": "Master Cosmo with these keyboard shortcuts. Work faster, type less.",
+    "pageDescription": "Master Nova with these keyboard shortcuts. Work faster, type less.",
     "close": "Close",
     "general": "General",
     "chatActions": "Chat",
@@ -272,7 +273,7 @@
       },
       "navigation": {
         "title": "Navigation",
-        "description": "Move around Cosmo quickly"
+        "description": "Move around Nova quickly"
       },
       "commandPalette": {
         "title": "Command Palette",
@@ -283,7 +284,7 @@
       "cmdK": {
         "keys": "⌘K",
         "description": "Open command palette",
-        "detail": "The fastest way to do anything in Cosmo."
+        "detail": "The fastest way to do anything in Nova."
       },
       "question": {
         "keys": "?",
@@ -298,7 +299,7 @@
       "cmdN": {
         "keys": "⌘N",
         "description": "New chat",
-        "detail": "Start a fresh conversation with Cosmo."
+        "detail": "Start a fresh conversation with Nova."
       },
       "cmdB": {
         "keys": "⌘B",
@@ -308,7 +309,7 @@
       "cmdEnter": {
         "keys": "⌘↵",
         "description": "Send message",
-        "detail": "Send your message to Cosmo."
+        "detail": "Send your message to Nova."
       },
       "cmdComma": {
         "keys": "⌘,",
@@ -355,6 +356,54 @@
         "description": "Select item",
         "detail": "Execute the selected command."
       }
+    }
+  },
+  "download": {
+    "badge": "随处可用",
+    "title": "在每台设备上使用 Nova",
+    "subtitle": "下载 macOS 或 Windows 桌面应用，或在手机上安装为应用——无需应用商店。",
+    "macos": {
+      "title": "macOS",
+      "badge": "Apple Silicon 和 Intel",
+      "step1Title": "下载 .dmg 文件",
+      "step1Desc": "点击下方按钮下载最新安装程序。",
+      "step2Title": "打开并拖到应用程序",
+      "step2Desc": "打开下载的文件，将 Nova 拖到应用程序文件夹。",
+      "step3Title": "启动 Nova",
+      "step3Desc": "从应用程序或 Spotlight（⌘+Space）打开 Nova。",
+      "cta": "下载 macOS 版"
+    },
+    "windows": {
+      "title": "Windows",
+      "badge": "Windows 10+",
+      "step1Title": "下载安装程序",
+      "step1Desc": "点击下方按钮获取 .exe 安装程序。",
+      "step2Title": "运行安装程序",
+      "step2Desc": "双击下载的文件，按照安装向导操作。",
+      "step3Title": "启动 Nova",
+      "step3Desc": "在开始菜单或桌面快捷方式中找到 Nova。",
+      "cta": "下载 Windows 版"
+    },
+    "mobile": {
+      "title": "手机端（PWA）",
+      "badge": "无需应用商店",
+      "iosTitle": "iPhone 和 iPad（Safari）",
+      "iosStep1Title": "点击分享按钮",
+      "iosStep1Desc": "在 Safari 底部，点击分享图标。",
+      "iosStep2Title": "点击\"添加到主屏幕\"",
+      "iosStep2Desc": "向下滑动，点击带有 + 图标的选项。",
+      "iosStep3Title": "点击\"添加\"",
+      "iosStep3Desc": "Nova 将像原生应用一样出现在您的主屏幕上。",
+      "androidTitle": "Android（Chrome）",
+      "androidStep1Title": "点击菜单（⋮）",
+      "androidStep1Desc": "在 Chrome 中，点击右上角的三点菜单。",
+      "androidStep2Title": "点击\"添加到主屏幕\"",
+      "androidStep2Desc": "Nova 将安装并出现在您的主屏幕上。"
+    },
+    "web": {
+      "title": "更喜欢浏览器？",
+      "desc": "Nova 在任何现代浏览器中都能完美运行。无需下载。",
+      "cta": "在浏览器中打开"
     }
   }
 }
