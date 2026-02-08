@@ -37,18 +37,6 @@ const cookieTypes = [
     examples: [
       { name: '_ga', purpose: 'Google Analytics - distinguishes users', duration: '2 years' },
       { name: '_gid', purpose: 'Google Analytics - distinguishes users', duration: '24 hours' },
-      { name: 'amplitude_id', purpose: 'Product analytics and usage tracking', duration: '1 year' },
-    ],
-  },
-  {
-    name: 'Marketing Cookies',
-    icon: '📢',
-    required: false,
-    description: 'Used to deliver relevant advertisements and track campaign performance.',
-    examples: [
-      { name: '_fbp', purpose: 'Facebook advertising pixel', duration: '3 months' },
-      { name: '_gcl_au', purpose: 'Google Ads conversion tracking', duration: '3 months' },
-      { name: 'twitter_pixel', purpose: 'Twitter advertising tracking', duration: '2 years' },
     ],
   },
 ];
@@ -92,7 +80,7 @@ export default function CookiesPage() {
             Cookie Policy
           </h1>
           <p className="text-white/60">
-            Last updated: February 1, 2026
+            Last updated: February 8, 2026
           </p>
         </div>
 
@@ -120,7 +108,6 @@ export default function CookiesPage() {
               <li>Remember your preferences and settings</li>
               <li>Understand how you use our service</li>
               <li>Improve and personalize your experience</li>
-              <li>Measure the effectiveness of our marketing</li>
               <li>Provide security and detect abuse</li>
             </ul>
           </div>
@@ -212,8 +199,6 @@ export default function CookiesPage() {
                 </p>
                 <ul className="text-white/60 text-sm space-y-1 ml-4">
                   <li>• <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google Analytics Opt-out</a></li>
-                  <li>• <a href="https://www.facebook.com/help/568137493302217" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Facebook Ad Preferences</a></li>
-                  <li>• <a href="https://optout.aboutads.info/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Digital Advertising Alliance Opt-out</a></li>
                 </ul>
               </div>
             </div>
@@ -234,8 +219,6 @@ export default function CookiesPage() {
             <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
               <li><strong className="text-white/90">Google Analytics</strong> — For website analytics</li>
               <li><strong className="text-white/90">Stripe</strong> — For secure payment processing</li>
-              <li><strong className="text-white/90">Intercom</strong> — For customer support chat</li>
-              <li><strong className="text-white/90">Amplitude</strong> — For product analytics</li>
             </ul>
             <p className="text-white/70 leading-relaxed mt-4">
               Please refer to these third parties&apos; privacy policies for more information about their cookies and data practices.

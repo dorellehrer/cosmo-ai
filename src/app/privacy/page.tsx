@@ -45,7 +45,7 @@ export default function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="text-white/60">
-            Last updated: February 1, 2026
+            Last updated: February 8, 2026
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">1. Introduction</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Nova AI Inc. (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI assistant service.
+                Nova AI (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI assistant service.
               </p>
               <p className="text-white/70 leading-relaxed">
                 We are committed to protecting your data and respecting applicable privacy laws.
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
                 <li>Providing and improving the Nova AI service</li>
                 <li>Processing your requests and responding to your queries</li>
                 <li>Executing actions through connected integrations (on your instruction)</li>
-                <li>Processing payments and managing subscriptions</li>
+                <li>Processing payments and managing credits</li>
                 <li>Sending service-related communications</li>
                 <li>Analyzing usage patterns to improve our Service</li>
                 <li>Detecting and preventing fraud or abuse</li>
@@ -212,7 +212,6 @@ export default function PrivacyPage() {
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li>TLS 1.3 encryption for all data in transit</li>
                 <li>AES-256 encryption for data at rest</li>
-                <li>Regular security audits and penetration testing</li>
                 <li>Access controls and authentication mechanisms</li>
                 <li>Strict Content Security Policy and security headers</li>
               </ul>
@@ -221,10 +220,9 @@ export default function PrivacyPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">10. International Transfers</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Your data may be transferred to and processed in the United States. For EU/EEA residents, we ensure adequate protection through:
+                Your data is stored and processed in the European Union (AWS eu-north-1, Stockholm). We ensure adequate protection through:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
-                <li>Standard Contractual Clauses (SCCs) approved by the EU Commission</li>
                 <li>Data Processing Agreements with all service providers</li>
                 <li>Assessment of recipient country data protection laws</li>
               </ul>
@@ -252,11 +250,7 @@ export default function PrivacyPage() {
               <ul className="text-white/70 space-y-2 ml-4">
                 <li>Email: <a href="mailto:privacy@heynova.se" className="text-violet-400 hover:text-violet-300">privacy@heynova.se</a></li>
                 <li>Data Protection Officer: <a href="mailto:dpo@heynova.se" className="text-violet-400 hover:text-violet-300">dpo@heynova.se</a></li>
-                <li>Address: Nova AI Inc., 548 Market St, Suite 35435, San Francisco, CA 94104</li>
               </ul>
-              <p className="text-white/70 leading-relaxed mt-4">
-                EU Representative: Nova AI Europe Ltd., Dublin, Ireland
-              </p>
             </section>
           </div>
         </div>

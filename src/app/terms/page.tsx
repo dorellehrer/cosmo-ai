@@ -45,7 +45,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p className="text-white/60">
-            Last updated: February 1, 2026
+            Last updated: February 8, 2026
           </p>
         </div>
 
@@ -94,17 +94,15 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">4. Subscription and Payments</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                Some features of Nova AI require a paid subscription (&quot;Pro Plan&quot;). By subscribing:
+                Nova uses a credit-based billing system. The Standard (free) model is always available. Premium models consume credits per message. By purchasing credits:
               </p>
               <ul className="list-disc list-inside text-white/70 space-y-2 ml-4">
                 <li>You agree to pay all applicable fees as described at the time of purchase</li>
-                <li>Subscriptions are billed on a recurring basis (monthly or annually)</li>
-                <li>You authorize us to charge your payment method automatically</li>
+                <li>Credits can be purchased through our pricing page</li>
+                <li>Credits do not expire</li>
+                <li>Premium models consume credits on a per-message basis</li>
                 <li>Refunds are provided in accordance with our refund policy</li>
               </ul>
-              <p className="text-white/70 leading-relaxed mt-4">
-                You may cancel your subscription at any time through your account settings. Cancellation will take effect at the end of your current billing period.
-              </p>
             </section>
 
             <section className="mb-10">
@@ -127,7 +125,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">6. Intellectual Property</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                The Service and its original content, features, and functionality are owned by Nova AI Inc. and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+                The Service and its original content, features, and functionality are owned by Nova AI and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
               </p>
               <p className="text-white/70 leading-relaxed">
                 You retain ownership of any content you submit, post, or display through the Service. By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use, process, and display such content solely for the purpose of providing the Service.
@@ -160,7 +158,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">9. Limitation of Liability</h2>
               <p className="text-white/70 leading-relaxed mb-4">
-                To the maximum extent permitted by law, Nova AI Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses.
+                To the maximum extent permitted by law, Nova AI shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses.
               </p>
               <p className="text-white/70 leading-relaxed">
                 Our total liability shall not exceed the amount you have paid to us in the twelve (12) months preceding the claim.
@@ -196,7 +194,7 @@ export default function TermsPage() {
             <section className="mb-10">
               <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4">13. Governing Law</h2>
               <p className="text-white/70 leading-relaxed">
-                These Terms shall be governed by and construed in accordance with the laws of the State of California, United States, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts of San Francisco County, California.
+                These Terms shall be governed by and construed in accordance with the laws of Sweden, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts of Stockholm, Sweden.
               </p>
             </section>
 
@@ -207,7 +205,6 @@ export default function TermsPage() {
               </p>
               <ul className="text-white/70 space-y-2 ml-4">
                 <li>Email: <a href="mailto:legal@heynova.se" className="text-violet-400 hover:text-violet-300">legal@heynova.se</a></li>
-                <li>Address: Nova AI Inc., 548 Market St, Suite 35435, San Francisco, CA 94104</li>
               </ul>
             </section>
           </div>
