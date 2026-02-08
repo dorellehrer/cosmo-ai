@@ -210,14 +210,9 @@ export default async function DownloadPage() {
             illustration={<MacBookIcon />}
             badge={t('macos.badge')}
             cta={
-              <a
-                href="https://github.com/heynova-ai/releases/latest"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-center px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-xl text-white font-semibold transition-all shadow-lg shadow-violet-500/20"
-              >
-                {t('macos.cta')}
-              </a>
+              <div className="block w-full text-center px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-white/50 font-semibold">
+                Coming Soon
+              </div>
             }
           >
             <Step
@@ -243,14 +238,9 @@ export default async function DownloadPage() {
             illustration={<WindowsIcon />}
             badge={t('windows.badge')}
             cta={
-              <a
-                href="https://github.com/heynova-ai/releases/latest"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-center px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-xl text-white font-semibold transition-all shadow-lg shadow-violet-500/20"
-              >
-                {t('windows.cta')}
-              </a>
+              <div className="block w-full text-center px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-white/50 font-semibold">
+                Coming Soon
+              </div>
             }
           >
             <Step
