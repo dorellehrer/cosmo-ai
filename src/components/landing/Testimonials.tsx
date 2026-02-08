@@ -28,8 +28,9 @@ const highlights = [
   },
   {
     icon: '🤖',
-    title: '5 AI Models to Choose From',
-    content: 'Pick the AI model that works best for you — GPT-4o Mini, GPT-4o, Claude Sonnet, Claude Haiku, or Gemini Flash. Switch anytime.',
+    title: '5 Intelligence Levels',
+    content: 'Choose your AI power level — from free Standard all the way to Genius. Use credits for smarter models, or stay on Standard for free.',
+
   },
 ];
 

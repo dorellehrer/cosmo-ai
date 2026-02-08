@@ -50,6 +50,8 @@ export interface ChatParams {
   tools?: ToolDefinition[];
   temperature?: number;
   maxTokens?: number;
+  /** Reasoning effort for models that support it (e.g. GPT-5.2) */
+  reasoningEffort?: 'low' | 'medium' | 'high';
 }
 
 // ── Provider interface ──────────────────────────

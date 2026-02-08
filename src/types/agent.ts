@@ -133,17 +133,17 @@ export interface ModelOption {
 export const AVAILABLE_MODELS: ModelOption[] = [
   {
     provider: 'openai',
-    id: 'gpt-4o-mini',
-    name: 'GPT-4o Mini',
+    id: 'gpt-5-mini',
+    name: 'GPT-5 Mini',
     description: 'Fast and affordable, great for most tasks',
     contextWindow: '128K',
     pricePerMillion: '$0.15',
   },
   {
     provider: 'openai',
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    description: 'Most capable OpenAI model',
+    id: 'gpt-5.2',
+    name: 'GPT-5.2',
+    description: 'Most capable OpenAI model with reasoning',
     contextWindow: '128K',
     pricePerMillion: '$2.50',
   },

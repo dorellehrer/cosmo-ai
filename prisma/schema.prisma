@@ -32,12 +32,16 @@ model User {
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
 
+  // Credit system
+  credits          Int       @default(0) // Current credit balance
+
   // Trial system (3-day Pro trial for new users)
   trialEnd         DateTime? // When the trial expires
   freeTrialUsed    Boolean   @default(false) // Prevent trial abuse on re-signup
 
-  // AI model preference
-  preferredModel   String    @default("gpt-4o-mini")
+  // AI model preference + reasoning
+  preferredModel   String    @default("gpt-5-mini")
+  reasoningEffort  String    @default("low") // none | low | medium | high
 
   // Custom system prompt
   systemPrompt     String?   @db.Text
@@ -53,6 +57,7 @@ model User {
   pushSubscriptions PushSubscription[]
   routines         Routine[]
   callRecords      CallRecord[]
+  creditPurchases  CreditPurchase[]
 }
 
 // Push notification subscriptions (Web Push API)
@@ -95,6 +100,20 @@ model UserIntegration {
   @@index([userId])
 }
 
+// Credit purchase ledger — records every Stripe credit top-up
+model CreditPurchase {
+  id                String   @id @default(cuid())
+  userId            String
+  credits           Int      // Number of credits purchased
+  amountCents       Int      // Price paid in cents
+  stripeSessionId   String?  @unique // Stripe Checkout Session ID
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 // Daily usage tracking for rate limiting
 model UsageRecord {
   id        String   @id @default(cuid())
@@ -113,7 +132,7 @@ model UsageRecord {
 model Conversation {
   id        String   @id @default(cuid())
   title     String?  // Auto-generated or user-set title
-  model     String?  // Per-conversation model override (e.g., "gpt-4o", "claude-sonnet-4-5-20250929")
+  model     String?  // Per-conversation model override (e.g., "gpt-5.2", "claude-sonnet-4-5")
   pinned    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -162,7 +181,7 @@ model AgentInstance {
 
   // AI model configuration
   modelProvider    String   @default("openai")    // openai | anthropic | google
-  modelName        String   @default("gpt-4o-mini")
+  modelName        String   @default("gpt-5-mini")
   apiKeySecretArn  String?  // AWS Secrets Manager ARN for user's API key
 
   // Heartbeat (proactive outreach)

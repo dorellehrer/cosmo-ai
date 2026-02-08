@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 import { getUserTier } from '@/lib/stripe';
-import { MODELS, DEFAULT_MODEL } from '@/lib/ai/models';
+import { MODELS, DEFAULT_MODEL, REASONING_LEVELS } from '@/lib/ai/models';
 
 // GET /api/user/profile — fetch current user profile
 export async function GET() {
@@ -35,6 +35,8 @@ export async function GET() {
         stripeCurrentPeriodEnd: true,
         trialEnd: true,
         freeTrialUsed: true,
+        credits: true,
+        reasoningEffort: true,
       },
     });
 
@@ -52,6 +54,8 @@ export async function GET() {
       plan,
       preferredModel: user.preferredModel || DEFAULT_MODEL,
       systemPrompt: user.systemPrompt || '',
+      credits: user.credits,
+      reasoningEffort: user.reasoningEffort || 'low',
     });
   } catch (error) {
     console.error('GET /api/user/profile error:', error);
@@ -95,6 +99,14 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: 'Invalid model' }, { status: 400 });
       }
       data.preferredModel = body.preferredModel;
+    }
+
+    // Reasoning effort update
+    if (body.reasoningEffort !== undefined) {
+      if (typeof body.reasoningEffort !== 'string' || !REASONING_LEVELS.includes(body.reasoningEffort as typeof REASONING_LEVELS[number])) {
+        return NextResponse.json({ error: 'Invalid reasoning effort. Must be low, medium, or high.' }, { status: 400 });
+      }
+      data.reasoningEffort = body.reasoningEffort;
     }
 
     // System prompt update

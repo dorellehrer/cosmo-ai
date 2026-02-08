@@ -88,7 +88,7 @@ Nova is the AI companion that:
 
 - **Frontend:** Next.js 16 + React + TypeScript + Tailwind
 - **Backend:** Next.js API Routes
-- **AI:** OpenAI GPT-4o-mini (upgradeable)
+- **AI:** Multi-model (GPT-5 Mini, GPT-5.2, Claude Sonnet 4.5, Claude Opus 4.6, GPT-5.2 Pro) with credit-based billing
 - **Auth:** NextAuth.js
 - **Database:** Postgres + Prisma
 - **Hosting:** Vercel
@@ -98,7 +98,7 @@ Nova is the AI companion that:
 
 | Risk | Mitigation |
 |------|------------|
-| OpenAI costs | Start with GPT-4o-mini, upgrade path |
+| AI costs | Credit system with free GPT-5 Mini fallback, pay-per-use for premium models |
 | Integration maintenance | Start with stable APIs (Google, Hue) |
 | Competition | Focus on UX, not features |
 | User trust | Transparent data practices, local-first where possible |

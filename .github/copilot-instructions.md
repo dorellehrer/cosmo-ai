@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-Next.js 16 App Router application (React 19, TypeScript) — a freemium AI chat assistant ("Nova") with Stripe billing, NextAuth v4, Prisma 7 on PostgreSQL/AWS RDS, and OpenAI GPT-4o-mini. Tailwind CSS v4 (CSS-first, no JS config file). Includes a personal AI agent platform where each user gets an isolated AWS ECS Fargate container. Production deployment uses `output: 'standalone'` with Docker on ECS.
+Next.js 16 App Router application (React 19, TypeScript) — a freemium AI chat assistant ("Nova") with Stripe billing, NextAuth v4, Prisma 7 on PostgreSQL/AWS RDS, and multi-model AI (GPT-5 Mini, GPT-5.2, Claude Sonnet 4.5, Claude Opus 4.6, GPT-5.2 Pro) with a credit-based billing system. Tailwind CSS v4 (CSS-first, no JS config file). Includes a personal AI agent platform where each user gets an isolated AWS ECS Fargate container. Production deployment uses `output: 'standalone'` with Docker on ECS.
 
 Path alias: `@/*` → `./src/*`. All imports use this alias.
 

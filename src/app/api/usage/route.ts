@@ -82,6 +82,7 @@ export async function GET() {
       subscriptionEnd: user.stripeCurrentPeriodEnd,
       trialEnd: user.trialEnd,
       trialRemaining,
+      credits: user.credits,
     });
   } catch (error) {
     console.error('Usage API error:', error);

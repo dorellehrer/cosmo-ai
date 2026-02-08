@@ -17,7 +17,7 @@ export default function AgentSetupPage() {
   // Wizard state
   const [step, setStep] = useState<WizardStep>('model');
   const [modelProvider, setModelProvider] = useState<ModelProvider>('openai');
-  const [modelName, setModelName] = useState('gpt-4o-mini');
+  const [modelName, setModelName] = useState('gpt-5-mini');
   const [apiKey, setApiKey] = useState('');
   const [agentName, setAgentName] = useState('Nova');
   const [personality, setPersonality] = useState('friendly');

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages, hasProAccess, TRIAL_DURATION_MS } from "@/lib/stripe";
+import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages, hasProAccess, TRIAL_DURATION_MS, canAffordModel } from "@/lib/stripe";
 import { checkRateLimit, RATE_LIMIT_CHAT } from '@/lib/rate-limit';
 import {
   getConnectedIntegrations,
@@ -12,7 +12,8 @@ import {
 import { executeToolCall } from '@/lib/ai/tool-executor';
 import { createProvider } from '@/lib/ai/providers';
 import type { ChatMessage, FileAttachment } from '@/lib/ai/providers';
-import { getModelConfig, DEFAULT_MODEL } from '@/lib/ai/models';
+import { getModelConfig, DEFAULT_MODEL, FREE_MODEL } from '@/lib/ai/models';
+import type { ReasoningLevel } from '@/lib/ai/models';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -160,6 +161,7 @@ export async function POST(req: Request) {
     let messages: { role: string; content: string }[];
     let conversationId: string | undefined;
     let requestModel: string | undefined;
+    let requestReasoning: ReasoningLevel | undefined;
     let uploadedFiles: File[] = [];
 
     const contentType = req.headers.get('content-type') || '';
@@ -168,6 +170,7 @@ export async function POST(req: Request) {
       messages = JSON.parse(formData.get('messages') as string);
       conversationId = (formData.get('conversationId') as string) || undefined;
       requestModel = (formData.get('model') as string) || undefined;
+      requestReasoning = (formData.get('reasoningEffort') as ReasoningLevel) || undefined;
       // Collect all uploaded files
       for (const [key, value] of formData.entries()) {
         if (key === 'files' && value instanceof File) {
@@ -179,6 +182,7 @@ export async function POST(req: Request) {
       messages = body.messages;
       conversationId = body.conversationId;
       requestModel = body.model;
+      requestReasoning = body.reasoningEffort;
     }
 
     // Process uploaded files
@@ -249,16 +253,24 @@ export async function POST(req: Request) {
     }
 
     // Resolve model: request override → conversation model → user preference → default
-    const modelId = requestModel || conversation.model || user.preferredModel || DEFAULT_MODEL;
-    const modelConfig = getModelConfig(modelId);
+    // getModelConfig falls back to DEFAULT_MODEL for unknown IDs (e.g. old DB values)
+    let modelId = requestModel || conversation.model || user.preferredModel || DEFAULT_MODEL;
+    let modelConfig = getModelConfig(modelId);
+    modelId = modelConfig.id; // Ensure modelId matches a valid model (handles legacy DB values)
 
-    // Block Pro models for expired users (trial + pro users have access)
-    if (modelConfig.tier === 'pro' && !hasProAccess(tier)) {
-      return new Response(
-        JSON.stringify({ error: 'This model requires a Pro subscription', code: 'PRO_REQUIRED' }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
-      );
+    // Credit gating: if model costs credits and user can't afford it, fall back to free model
+    let usedFallback = false;
+    if (modelConfig.creditCost > 0 && !canAffordModel(user.credits, modelConfig.creditCost)) {
+      modelId = FREE_MODEL;
+      modelConfig = getModelConfig(FREE_MODEL);
+      usedFallback = true;
     }
+
+    // Resolve reasoning effort (only for models that support it)
+    const reasoningEffort: ReasoningLevel | undefined =
+      modelConfig.supportsReasoning
+        ? (requestReasoning || (user.reasoningEffort as ReasoningLevel) || 'low')
+        : undefined;
 
     // Save model to conversation if first message or model changed
     if (!conversation.model || conversation.model !== modelId) {
@@ -300,7 +312,8 @@ export async function POST(req: Request) {
         messages: aiMessages,
         tools,
         temperature: 0.7,
-        maxTokens: 1000,
+        maxTokens: modelConfig.maxTokens,
+        reasoningEffort,
       });
 
       if (toolResponse.finishReason === 'tool_calls' && toolResponse.message.toolCalls) {
@@ -337,7 +350,8 @@ export async function POST(req: Request) {
       model,
       messages: aiMessages,
       temperature: 0.7,
-      maxTokens: 1000,
+      maxTokens: modelConfig.maxTokens,
+      reasoningEffort,
     });
 
     // Collect the full response for saving to DB
@@ -351,6 +365,11 @@ export async function POST(req: Request) {
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({
             conversationId: conversation.id,
+            credits: user.credits - modelConfig.creditCost,
+            creditCost: modelConfig.creditCost,
+            modelUsed: modelId,
+            usedFallback,
+            reasoningEffort: reasoningEffort || null,
             usage: {
               used: newUsage,
               limit: TIERS[tier].messagesPerDay,
@@ -384,6 +403,14 @@ export async function POST(req: Request) {
         // Increment usage AFTER successful response
         await incrementUsage(user.id, today, usageRecord ?? null);
 
+        // Deduct credits for non-free models
+        if (modelConfig.creditCost > 0) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { credits: { decrement: modelConfig.creditCost } },
+          });
+        }
+
         // Generate title if this is the first exchange
         const messageCount = await prisma.message.count({
           where: { conversationId: conversation.id },
@@ -393,7 +420,7 @@ export async function POST(req: Request) {
           // Always use OpenAI for title generation (cheap, fast, internal-only)
           const titleProvider = createProvider('openai');
           titleProvider.quickChat({
-            model: 'gpt-4o-mini',
+            model: 'gpt-5-mini',
             systemPrompt: 'Generate a very short title (2-5 words) for this conversation based on the user message. Return ONLY the title, no quotes or punctuation.',
             userMessage: enhancedContent,
             temperature: 0.7,

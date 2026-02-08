@@ -9,7 +9,8 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useVoiceSettings, SUPPORTED_LANGUAGES } from '@/contexts/VoiceSettingsContext';
 import { useIntegrations } from '@/contexts/IntegrationsContext';
 import { NotificationBell } from '@/components/notifications';
-import { MODEL_LIST } from '@/lib/ai/models';
+import { MODEL_LIST, REASONING_LEVELS } from '@/lib/ai/models';
+import type { ReasoningLevel } from '@/lib/ai/models';
 
 // Integration icons mapping
 const INTEGRATION_ICONS: Record<string, React.ReactNode> = {
@@ -62,7 +63,10 @@ export default function SettingsPage() {
   });
   const [name, setName] = useState('');
   const [plan, setPlan] = useState('expired');
-  const [preferredModel, setPreferredModel] = useState('gpt-4o-mini');
+  const [preferredModel, setPreferredModel] = useState(MODEL_LIST[0]?.id || 'gpt-5-mini');
+  const [userCredits, setUserCredits] = useState(0);
+  const [reasoningEffort, setReasoningEffort] = useState<ReasoningLevel>('low');
+  const [savingReasoning, setSavingReasoning] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [savingName, setSavingName] = useState(false);
   const [savingModel, setSavingModel] = useState(false);
@@ -91,6 +95,8 @@ export default function SettingsPage() {
         if (data.plan) setPlan(data.plan);
         if (data.preferredModel) setPreferredModel(data.preferredModel);
         if (data.systemPrompt) setSystemPrompt(data.systemPrompt);
+        if (data.credits !== undefined) setUserCredits(data.credits);
+        if (data.reasoningEffort) setReasoningEffort(data.reasoningEffort as ReasoningLevel);
       })
       .catch((err) => console.error('Failed to load profile:', err))
       .finally(() => setProfileLoading(false));
@@ -296,34 +302,106 @@ export default function SettingsPage() {
             {savingModel && <span className="text-xs text-white/40 font-normal">Saving...</span>}
           </h2>
           <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
-            <p className="text-white/60 text-sm mb-4">Choose the intelligence level Nova uses for conversations.</p>
+            {/* Credit balance banner */}
+            <div className="flex items-center justify-between mb-4 p-3 rounded-xl bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 border border-violet-500/20">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 12a8 8 0 01-8 8m8-8a8 8 0 00-8-8m8 8h-8m0 8a8 8 0 01-8-8m8 8v-8m-8 0a8 8 0 018-8m-8 8h8m0-8v8" strokeWidth="1.5"/></svg>
+                <span className="text-white/60 text-sm">Your credits</span>
+                <span className={`text-lg font-bold tabular-nums ${userCredits > 10 ? 'text-white' : userCredits > 0 ? 'text-amber-400' : 'text-red-400'}`}>
+                  {userCredits}
+                </span>
+              </div>
+              <Link
+                href="/pricing"
+                className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1"
+              >
+                Buy credits
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </Link>
+            </div>
+
+            <p className="text-white/60 text-sm mb-4">Choose the intelligence level Nova uses for conversations. Higher levels cost more credits per message.</p>
             <div className="grid sm:grid-cols-2 gap-3">
               {MODEL_LIST.map((model) => {
-                const isProLocked = model.tier === 'pro' && plan !== 'pro' && plan !== 'trial';
+                const canAfford = model.creditCost === 0 || userCredits >= model.creditCost;
                 return (
                   <button
                     key={model.id}
-                    onClick={() => !isProLocked && handleModelChange(model.id)}
-                    disabled={isProLocked}
+                    onClick={() => handleModelChange(model.id)}
                     className={`text-left p-3 rounded-xl border transition-all ${
                       preferredModel === model.id
                         ? 'bg-violet-500/20 border-violet-500/50'
-                        : isProLocked
-                          ? 'bg-white/[0.02] border-white/5 opacity-50 cursor-not-allowed'
-                          : 'bg-white/[0.02] border-white/10 hover:bg-white/5 hover:border-white/20'
+                        : 'bg-white/[0.02] border-white/10 hover:bg-white/5 hover:border-white/20'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-white">{model.icon} {model.label}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                        model.tier === 'pro'
-                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                          : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                        model.creditCost === 0
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          : canAfford
+                            ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                            : 'bg-red-500/20 text-red-400 border border-red-500/30'
                       }`}>
-                        {model.tier === 'pro' ? 'Pro' : 'Included'}
+                        {model.costLabel}
                       </span>
                     </div>
                     <p className="text-xs text-white/40">{model.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Reasoning Effort Section */}
+        <section className="mb-8 sm:mb-12" aria-labelledby="reasoning-heading">
+          <h2 id="reasoning-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Thinking Depth
+            {savingReasoning && <span className="text-xs text-white/40 font-normal">Saving...</span>}
+          </h2>
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <p className="text-white/60 text-sm mb-4">
+              Controls how deeply the AI reasons before responding. Higher depth produces more thoughtful answers but takes longer. Applies to Advanced and Genius models.
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {REASONING_LEVELS.map((level) => {
+                const configs = {
+                  low: { label: 'Quick', desc: 'Fast responses, light reasoning', color: 'green', icon: '⚡' },
+                  medium: { label: 'Balanced', desc: 'Good mix of speed and depth', color: 'amber', icon: '🧠' },
+                  high: { label: 'Deep', desc: 'Maximum reasoning, slower', color: 'red', icon: '💡' },
+                };
+                const cfg = configs[level];
+                return (
+                  <button
+                    key={level}
+                    onClick={async () => {
+                      setReasoningEffort(level);
+                      setSavingReasoning(true);
+                      try {
+                        await fetch('/api/user/profile', {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ reasoningEffort: level }),
+                        });
+                      } catch (err) {
+                        console.error('Failed to save reasoning:', err);
+                      } finally {
+                        setSavingReasoning(false);
+                      }
+                    }}
+                    className={`text-center p-4 rounded-xl border transition-all ${
+                      reasoningEffort === level
+                        ? `bg-${cfg.color}-500/20 border-${cfg.color}-500/50 ring-1 ring-${cfg.color}-500/30`
+                        : 'bg-white/[0.02] border-white/10 hover:bg-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">{cfg.icon}</div>
+                    <div className={`text-sm font-medium ${reasoningEffort === level ? 'text-white' : 'text-white/70'}`}>
+                      {cfg.label}
+                    </div>
+                    <div className="text-[11px] text-white/40 mt-1">{cfg.desc}</div>
                   </button>
                 );
               })}

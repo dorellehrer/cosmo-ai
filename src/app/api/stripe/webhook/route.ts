@@ -45,6 +45,33 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
+
+        // ── Credit purchase (one-time payment) ──
+        if (session.metadata?.type === 'credit_purchase' && userId) {
+          const creditsToAdd = parseInt(session.metadata.credits || '0', 10);
+          const amountCents = session.amount_total || 0;
+
+          if (creditsToAdd > 0) {
+            await prisma.$transaction([
+              prisma.user.update({
+                where: { id: userId },
+                data: { credits: { increment: creditsToAdd } },
+              }),
+              prisma.creditPurchase.create({
+                data: {
+                  userId,
+                  credits: creditsToAdd,
+                  amountCents,
+                  stripeSessionId: session.id,
+                },
+              }),
+            ]);
+            console.log(`Credit purchase: +${creditsToAdd} credits for user ${userId}`);
+          }
+          break;
+        }
+
+        // ── Subscription purchase ──
         const subscriptionId = session.subscription as string;
 
         if (userId && subscriptionId) {

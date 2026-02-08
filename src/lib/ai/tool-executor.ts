@@ -11,7 +11,7 @@ import { checkRateLimit, RATE_LIMIT_IMAGE, RATE_LIMIT_CALLS } from '@/lib/rate-l
 
 /** Get the cheapest model for a given provider (used for internal tool tasks) */
 const INTERNAL_MODELS: Record<string, string> = {
-  openai: 'gpt-4o-mini',
+  openai: 'gpt-5-mini',
   anthropic: 'claude-haiku-4-5-20251001',
 };
 
@@ -668,7 +668,7 @@ export async function executeToolCall(
         const sourceLanguage = args.sourceLanguage as string | undefined;
         try {
           const translation = await aiProvider.quickChat({
-            model: INTERNAL_MODELS[aiProvider.name] || 'gpt-4o-mini',
+            model: INTERNAL_MODELS[aiProvider.name] || 'gpt-5-mini',
             systemPrompt: `You are a translator. Translate the following text ${sourceLanguage ? `from ${sourceLanguage} ` : ''}to ${targetLanguage}. Return ONLY the translated text, nothing else.`,
             userMessage: text,
             temperature: 0.3,
@@ -702,7 +702,7 @@ export async function executeToolCall(
             .trim()
             .substring(0, 6000);
           const summary = await aiProvider.quickChat({
-            model: INTERNAL_MODELS[aiProvider.name] || 'gpt-4o-mini',
+            model: INTERNAL_MODELS[aiProvider.name] || 'gpt-5-mini',
             systemPrompt: 'Summarize the following web page content in 3-5 concise paragraphs. Highlight the key points.',
             userMessage: text,
             temperature: 0.5,

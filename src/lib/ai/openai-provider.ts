@@ -32,6 +32,7 @@ export class OpenAIProvider implements AIProvider {
       ...(params.tools && params.tools.length > 0
         ? { tools: toOpenAITools(params.tools) }
         : {}),
+      ...(params.reasoningEffort ? { reasoning_effort: params.reasoningEffort } : {}),
     });
 
     const choice = response.choices[0];
@@ -50,6 +51,7 @@ export class OpenAIProvider implements AIProvider {
       temperature: params.temperature ?? 0.7,
       max_tokens: params.maxTokens ?? 1000,
       stream: true,
+      ...(params.reasoningEffort ? { reasoning_effort: params.reasoningEffort } : {}),
     });
 
     return streamAdapter(response);

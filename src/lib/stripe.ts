@@ -31,17 +31,18 @@ export const stripe: Stripe = new Proxy({} as Stripe, {
   },
 });
 
-// Tier configuration
+// ── Subscription tier config (kept for backward compat) ─────────
+
 export const TIERS = {
   trial: {
     name: 'Trial',
-    messagesPerDay: Infinity, // Full Pro access during trial
+    messagesPerDay: Infinity,
     price: 0,
     priceId: null,
   },
   expired: {
     name: 'Expired',
-    messagesPerDay: 0, // No access after trial expires
+    messagesPerDay: 0,
     price: 0,
     priceId: null,
   },
@@ -61,32 +62,73 @@ export const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
 /** AI call cost: $0.10 per minute (10 cents) */
 export const CALL_COST_PER_MINUTE_CENTS = 10;
 
-// Get user's current tier based on subscription and trial status
+// ── Credit packages ─────────────────────────────────────────────
+
+export interface CreditPackage {
+  id: string;
+  name: string;
+  credits: number;
+  priceCents: number;
+  /** Stripe Price ID — set via env vars */
+  stripePriceId: string;
+  /** Badge label for UI ("Popular", "Best Value", etc.) */
+  badge?: string;
+  /** Per-credit price for comparison display */
+  perCredit: number;
+}
+
+export const CREDIT_PACKAGES: CreditPackage[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    credits: 100,
+    priceCents: 500,
+    stripePriceId: process.env.STRIPE_CREDITS_100_PRICE_ID || 'price_credits_100',
+    perCredit: 0.05,
+  },
+  {
+    id: 'popular',
+    name: 'Popular',
+    credits: 500,
+    priceCents: 2000,
+    stripePriceId: process.env.STRIPE_CREDITS_500_PRICE_ID || 'price_credits_500',
+    badge: 'Most Popular',
+    perCredit: 0.04,
+  },
+  {
+    id: 'power',
+    name: 'Power Pack',
+    credits: 1500,
+    priceCents: 5000,
+    stripePriceId: process.env.STRIPE_CREDITS_1500_PRICE_ID || 'price_credits_1500',
+    badge: 'Best Value',
+    perCredit: 0.033,
+  },
+];
+
+// ── Tier helpers ─────────────────────────────────────────────────
+
 export function getUserTier(
   stripeSubscriptionId: string | null,
   stripeCurrentPeriodEnd: Date | null,
   trialEnd?: Date | null,
   freeTrialUsed?: boolean
 ): TierName {
-  // Active Stripe subscription = Pro
   if (stripeSubscriptionId && stripeCurrentPeriodEnd) {
     if (new Date() <= stripeCurrentPeriodEnd) {
       return 'pro';
     }
   }
 
-  // Active trial = Trial (full Pro access)
   if (trialEnd && new Date() <= trialEnd) {
     return 'trial';
   }
 
-  // Legacy user: created before the trial system — never had a trial assigned.
-  // Treat them as trial-eligible (their trial will be auto-provisioned on next request).
+  // Legacy user: treat as trial-eligible
   if (!trialEnd && freeTrialUsed === false) {
     return 'trial';
   }
 
-  // No subscription, no trial or trial expired
   return 'expired';
 }
 
@@ -95,17 +137,15 @@ export function hasProAccess(tier: TierName): boolean {
   return tier === 'pro' || tier === 'trial';
 }
 
-// Check if user has reached their daily limit
 export function hasReachedLimit(
   tier: TierName,
   currentUsage: number
 ): boolean {
-  if (tier === 'expired') return true; // Expired users can't send messages
+  if (tier === 'expired') return true;
   const limit = TIERS[tier].messagesPerDay;
   return currentUsage >= limit;
 }
 
-// Get remaining messages for the day
 export function getRemainingMessages(
   tier: TierName,
   currentUsage: number
@@ -135,6 +175,19 @@ export function getTrialTimeRemaining(trialEnd: Date | null): string | null {
   }
   const minutes = Math.floor(diff / (1000 * 60));
   return `${minutes}m remaining`;
+}
+
+// ── Credit helpers ──────────────────────────────────────────────
+
+/** Check if user can afford a model. 0-cost models are always affordable. */
+export function canAffordModel(credits: number, creditCost: number): boolean {
+  if (creditCost === 0) return true;
+  return credits >= creditCost;
+}
+
+/** Get the credit package by its Stripe Price ID */
+export function getCreditPackageByPriceId(priceId: string): CreditPackage | undefined {
+  return CREDIT_PACKAGES.find((p) => p.stripePriceId === priceId);
 }
 
 // Format price for display
