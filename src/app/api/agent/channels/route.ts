@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
-import { storeApiKeySecret } from '@/lib/aws';
+import { storeChannelConfigSecret } from '@/lib/aws';
 
 // GET /api/agent/channels — List connected channels
 export async function GET() {
@@ -92,12 +92,13 @@ export async function POST(req: Request) {
     });
 
     // Store channel credentials in AWS Secrets Manager if config provided
-    if (config && typeof config === 'object') {
+    if (config && typeof config === 'object' && !Array.isArray(config)) {
       try {
-        const secretArn = await storeApiKeySecret(
+        const secretArn = await storeChannelConfigSecret(
           session.user.id,
-          `channel-${channelType}-${channel.id}`,
-          JSON.stringify(config)
+          channelType,
+          channel.id,
+          config as Record<string, unknown>
         );
 
         await prisma.agentChannel.update({

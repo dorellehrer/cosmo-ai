@@ -1,86 +1,113 @@
 /**
- * In-memory rate limiter for API routes.
- * Suitable for single-instance deployment.
- * For multi-instance, swap to Redis-based limiter.
+ * Pluggable rate limiter facade for API routes.
+ *
+ * Default: in-memory limiter (single instance).
+ * Optional: Redis-backed limiter via adapter hook (not enabled by default).
  */
 
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-
-const store = new Map<string, RateLimitEntry>();
-
-// Clean up expired entries every 60 seconds
-// unref() ensures the timer doesn't prevent process exit or interfere with HMR
-if (typeof setInterval !== 'undefined') {
-  const cleanupTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of store) {
-      if (now > entry.resetAt) {
-        store.delete(key);
-      }
-    }
-  }, 60_000);
-  cleanupTimer.unref();
-}
-
-interface RateLimitConfig {
+export interface RateLimitConfig {
   /** Maximum number of requests per window */
   maxRequests: number;
   /** Time window in seconds */
   windowSeconds: number;
 }
 
-interface RateLimitResult {
+export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   resetAt: number;
   headers: Record<string, string>;
 }
 
-/**
- * Check rate limit for a given identifier (e.g., userId or IP).
- *
- * Usage in API routes:
- * ```ts
- * const result = checkRateLimit(`chat:${userId}`, { maxRequests: 60, windowSeconds: 60 });
- * if (!result.allowed) {
- *   return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429, headers: result.headers });
- * }
- * ```
- */
+export interface RateLimiter {
+  check(identifier: string, config: RateLimitConfig): RateLimitResult;
+}
+
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
+class InMemoryRateLimiter implements RateLimiter {
+  private readonly store = new Map<string, RateLimitEntry>();
+
+  constructor() {
+    // Clean up expired entries every 60 seconds.
+    if (typeof setInterval !== 'undefined') {
+      const cleanupTimer = setInterval(() => {
+        const now = Date.now();
+        for (const [key, entry] of this.store) {
+          if (now > entry.resetAt) {
+            this.store.delete(key);
+          }
+        }
+      }, 60_000);
+      cleanupTimer.unref();
+    }
+  }
+
+  check(identifier: string, config: RateLimitConfig): RateLimitResult {
+    const now = Date.now();
+    const windowMs = config.windowSeconds * 1000;
+
+    let entry = this.store.get(identifier);
+
+    if (!entry || now > entry.resetAt) {
+      entry = { count: 0, resetAt: now + windowMs };
+      this.store.set(identifier, entry);
+    }
+
+    entry.count++;
+
+    const remaining = Math.max(0, config.maxRequests - entry.count);
+    const allowed = entry.count <= config.maxRequests;
+
+    const headers: Record<string, string> = {
+      'X-RateLimit-Limit': String(config.maxRequests),
+      'X-RateLimit-Remaining': String(remaining),
+      'X-RateLimit-Reset': String(Math.ceil(entry.resetAt / 1000)),
+    };
+
+    if (!allowed) {
+      headers['Retry-After'] = String(Math.ceil((entry.resetAt - now) / 1000));
+    }
+
+    return { allowed, remaining, resetAt: entry.resetAt, headers };
+  }
+}
+
+class RedisRateLimiterPlaceholder implements RateLimiter {
+  private readonly fallback = new InMemoryRateLimiter();
+
+  check(identifier: string, config: RateLimitConfig): RateLimitResult {
+    // Redis adapter hook:
+    // Replace this class with a real implementation once a Redis client is added.
+    // Keeping fallback behavior avoids breaking production during migration.
+    return this.fallback.check(identifier, config);
+  }
+}
+
+function createRateLimiter(): RateLimiter {
+  const driver = process.env.RATE_LIMIT_DRIVER || 'memory';
+
+  if (driver === 'redis') {
+    if (!process.env.REDIS_URL) {
+      console.warn('[rate-limit] RATE_LIMIT_DRIVER=redis set without REDIS_URL; falling back to memory');
+      return new InMemoryRateLimiter();
+    }
+    return new RedisRateLimiterPlaceholder();
+  }
+
+  return new InMemoryRateLimiter();
+}
+
+export const rateLimiter: RateLimiter = createRateLimiter();
+
 export function checkRateLimit(
   identifier: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): RateLimitResult {
-  const now = Date.now();
-  const windowMs = config.windowSeconds * 1000;
-
-  let entry = store.get(identifier);
-
-  // Create new entry or reset expired one
-  if (!entry || now > entry.resetAt) {
-    entry = { count: 0, resetAt: now + windowMs };
-    store.set(identifier, entry);
-  }
-
-  entry.count++;
-
-  const remaining = Math.max(0, config.maxRequests - entry.count);
-  const allowed = entry.count <= config.maxRequests;
-
-  const headers: Record<string, string> = {
-    'X-RateLimit-Limit': String(config.maxRequests),
-    'X-RateLimit-Remaining': String(remaining),
-    'X-RateLimit-Reset': String(Math.ceil(entry.resetAt / 1000)),
-  };
-
-  if (!allowed) {
-    headers['Retry-After'] = String(Math.ceil((entry.resetAt - now) / 1000));
-  }
-
-  return { allowed, remaining, resetAt: entry.resetAt, headers };
+  return rateLimiter.check(identifier, config);
 }
 
 // ──────────────────────────────────────────────
@@ -99,7 +126,7 @@ export const RATE_LIMIT_AUTH = { maxRequests: 5, windowSeconds: 60 };
 /** 3 requests per minute — agent provisioning (very expensive) */
 export const RATE_LIMIT_AGENT_PROVISION = { maxRequests: 3, windowSeconds: 60 };
 
-/** 50 images per day — DALL-E for pro/trial users */
+/** 50 images per day — DALL-E for Pro users */
 export const RATE_LIMIT_IMAGE = { maxRequests: 50, windowSeconds: 86400 };
 
 /** 10 AI calls per day — phone calls (very expensive: $0.10/min) */

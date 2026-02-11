@@ -17,6 +17,26 @@ export type SkillSource = 'marketplace' | 'custom' | 'builtin';
 export type MemoryCategory = 'general' | 'preference' | 'task' | 'fact';
 
 // ──────────────────────────────────────────────
+// Agent Secret Contracts (AWS Secrets Manager)
+// ──────────────────────────────────────────────
+
+export interface ApiKeySecretV1 {
+  kind: 'api_key';
+  version: 'v1';
+  provider: ModelProvider | string;
+  apiKey: string;
+}
+
+export interface ChannelConfigSecretV1 {
+  kind: 'channel_config';
+  version: 'v1';
+  channelType: ChannelType | string;
+  config: Record<string, string>;
+}
+
+export type AgentSecretEnvelopeV1 = ApiKeySecretV1 | ChannelConfigSecretV1;
+
+// ──────────────────────────────────────────────
 // API Request/Response Types
 // ──────────────────────────────────────────────
 
@@ -198,54 +218,9 @@ export const BUILTIN_SKILLS: SkillDefinition[] = [
     defaultEnabled: true,
   },
   {
-    id: 'calendar-manager',
-    name: 'Calendar Manager',
-    description: 'View, create, and manage calendar events',
-    category: 'productivity',
-    icon: '📅',
-    source: 'builtin',
-    defaultEnabled: true,
-  },
-  {
-    id: 'email-assistant',
-    name: 'Email Assistant',
-    description: 'Read, draft, and send emails',
-    category: 'productivity',
-    icon: '📧',
-    source: 'builtin',
-    defaultEnabled: true,
-  },
-  {
-    id: 'smart-home',
-    name: 'Smart Home Control',
-    description: 'Control lights, thermostats, and devices',
-    category: 'home',
-    icon: '🏠',
-    source: 'builtin',
-    defaultEnabled: false,
-  },
-  {
-    id: 'file-manager',
-    name: 'File Manager',
-    description: 'Read, write, and organize files',
-    category: 'system',
-    icon: '📁',
-    source: 'builtin',
-    defaultEnabled: false,
-  },
-  {
-    id: 'browser-control',
-    name: 'Browser Control',
-    description: 'Browse the web, fill forms, extract data',
-    category: 'automation',
-    icon: '🌐',
-    source: 'builtin',
-    defaultEnabled: false,
-  },
-  {
-    id: 'reminder',
-    name: 'Reminders & Tasks',
-    description: 'Set reminders and manage to-do lists',
+    id: 'reminders',
+    name: 'Reminders',
+    description: 'Set and retrieve reminders in agent memory',
     category: 'productivity',
     icon: '⏰',
     source: 'builtin',
@@ -260,4 +235,47 @@ export const BUILTIN_SKILLS: SkillDefinition[] = [
     source: 'builtin',
     defaultEnabled: true,
   },
+  {
+    id: 'datetime',
+    name: 'Date & Time',
+    description: 'Get current date and time for a timezone',
+    category: 'utility',
+    icon: '🕒',
+    source: 'builtin',
+    defaultEnabled: true,
+  },
+  {
+    id: 'calculator',
+    name: 'Calculator',
+    description: 'Evaluate math expressions',
+    category: 'utility',
+    icon: '🧮',
+    source: 'builtin',
+    defaultEnabled: true,
+  },
 ];
+
+/**
+ * Legacy UI skill IDs mapped to executable canonical skill IDs.
+ * Keeps older DB records working after ID unification.
+ */
+export const LEGACY_SKILL_ID_MAP: Record<string, string> = {
+  'calendar-manager': 'datetime',
+  'email-assistant': 'web-search',
+  'smart-home': 'web-search',
+  'file-manager': 'calculator',
+  'browser-control': 'web-search',
+  reminder: 'reminders',
+};
+
+export function toCanonicalSkillId(skillId: string): string {
+  return LEGACY_SKILL_ID_MAP[skillId] ?? skillId;
+}
+
+export function getSkillIdVariants(skillId: string): string[] {
+  const canonical = toCanonicalSkillId(skillId);
+  const legacyAliases = Object.entries(LEGACY_SKILL_ID_MAP)
+    .filter(([, mapped]) => mapped === canonical)
+    .map(([legacy]) => legacy);
+  return Array.from(new Set([skillId, canonical, ...legacyAliases]));
+}

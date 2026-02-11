@@ -17,7 +17,12 @@ import {
   CloudWatchLogsClient,
   GetLogEventsCommand,
 } from '@aws-sdk/client-cloudwatch-logs';
-import type { AwsAgentConfig } from '@/types/agent';
+import type {
+  ApiKeySecretV1,
+  AwsAgentConfig,
+  ChannelConfigSecretV1,
+  ChannelType,
+} from '@/types/agent';
 
 // ──────────────────────────────────────────────
 // AWS Clients (singleton pattern)
@@ -63,17 +68,75 @@ export async function storeApiKeySecret(
   apiKey: string
 ): Promise<string> {
   const secretName = `cosmo/agent/${userId}/${provider}-api-key`;
+  const payload: ApiKeySecretV1 = {
+    kind: 'api_key',
+    version: 'v1',
+    provider,
+    apiKey,
+  };
+
+  return upsertSecret(
+    secretName,
+    payload,
+    `Nova AI agent API key for user ${userId} (${provider})`,
+    [
+      { Key: 'cosmo:userId', Value: userId },
+      { Key: 'cosmo:provider', Value: provider },
+      { Key: 'cosmo:secretKind', Value: 'api_key' },
+    ],
+  );
+}
+
+/**
+ * Store a connected channel's adapter configuration in AWS Secrets Manager.
+ * Returns the secret ARN for AgentChannel.configSecretArn.
+ */
+export async function storeChannelConfigSecret(
+  userId: string,
+  channelType: ChannelType | string,
+  channelId: string,
+  config: Record<string, unknown>
+): Promise<string> {
+  const secretName = `cosmo/agent/${userId}/channel-${channelType}-${channelId}-config`;
+  const payload: ChannelConfigSecretV1 = {
+    kind: 'channel_config',
+    version: 'v1',
+    channelType,
+    config: Object.fromEntries(
+      Object.entries(config)
+        .filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value))
+        .map(([key, value]) => [key, String(value)])
+    ),
+  };
+
+  return upsertSecret(
+    secretName,
+    payload,
+    `Nova AI channel config for user ${userId} (${channelType}/${channelId})`,
+    [
+      { Key: 'cosmo:userId', Value: userId },
+      { Key: 'cosmo:channelType', Value: String(channelType) },
+      { Key: 'cosmo:channelId', Value: channelId },
+      { Key: 'cosmo:secretKind', Value: 'channel_config' },
+    ],
+  );
+}
+
+async function upsertSecret(
+  secretName: string,
+  payload: unknown,
+  description: string,
+  tags: Array<{ Key: string; Value: string }>
+): Promise<string> {
+  const secretString = JSON.stringify(payload);
 
   try {
     const result = await secretsClient.send(
       new CreateSecretCommand({
         Name: secretName,
-        SecretString: JSON.stringify({ apiKey, provider }),
-        Description: `Nova AI agent API key for user ${userId} (${provider})`,
-        Tags: [
-          { Key: 'cosmo:userId', Value: userId },
-          { Key: 'cosmo:provider', Value: provider },
-        ],
+        SecretString: secretString,
+        Description: description,
+        Tags: tags,
       })
     );
     return result.ARN!;
@@ -83,7 +146,7 @@ export async function storeApiKeySecret(
       await secretsClient.send(
         new PutSecretValueCommand({
           SecretId: secretName,
-          SecretString: JSON.stringify({ apiKey, provider }),
+          SecretString: secretString,
         })
       );
       // Return the existing ARN format
