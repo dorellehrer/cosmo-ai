@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
-import { TRIAL_DURATION_MS } from '@/lib/stripe';
+import { FREE_MONTHLY_CREDITS } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password and create user with 3-day Pro trial
+    // Hash password and create user with free starter credits
     const passwordHash = await bcrypt.hash(password, 12);
     
     const user = await prisma.user.create({
@@ -73,8 +73,7 @@ export async function POST(request: NextRequest) {
         email: sanitizedEmail,
         passwordHash,
         name: name?.trim() || null,
-        trialEnd: new Date(Date.now() + TRIAL_DURATION_MS),
-        freeTrialUsed: true,
+        credits: FREE_MONTHLY_CREDITS,
       },
     });
 

@@ -5,8 +5,8 @@
  * (e.g. "Standard", "Advanced", "Max") that maps to a concrete provider model
  * behind the scenes.
  *
- * Credit costs scale with model capability. Standard (0 credits) is the free
- * fallback when credits are depleted.
+ * Every message costs credits. Standard (1 credit) is the cheapest level.
+ * Higher levels cost more credits per message.
  */
 
 export interface ModelConfig {
@@ -24,7 +24,7 @@ export interface ModelConfig {
   order: number;
   /** Emoji indicator for the intelligence level */
   icon: string;
-  /** Credits consumed per message. 0 = free fallback. */
+  /** Credits consumed per message */
   creditCost: number;
   /** Whether the model supports reasoning_effort / extended thinking */
   supportsReasoning: boolean;
@@ -35,7 +35,7 @@ export interface ModelConfig {
 }
 
 export const MODELS: Record<string, ModelConfig> = {
-  // ── Free fallback ───────────────────────────
+  // ── Standard (cheapest) ─────────────────────
   'gpt-5-mini': {
     id: 'gpt-5-mini',
     label: 'Standard',
@@ -45,10 +45,10 @@ export const MODELS: Record<string, ModelConfig> = {
     maxTokens: 4096,
     order: 1,
     icon: '⚡',
-    creditCost: 0,
+    creditCost: 1,
     supportsReasoning: false,
     gradient: 'from-slate-500 to-zinc-600',
-    costLabel: 'Free',
+    costLabel: '1 credit',
   },
   // ── Credit-gated models ─────────────────────
   'gpt-5.2': {
@@ -111,7 +111,7 @@ export const MODELS: Record<string, ModelConfig> = {
 
 export const DEFAULT_MODEL = 'gpt-5-mini';
 
-/** The free fallback model used when user has no credits */
+/** The cheapest fallback model used when user can't afford selected model */
 export const FREE_MODEL = 'gpt-5-mini';
 
 /** Models in display order */

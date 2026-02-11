@@ -114,8 +114,8 @@ async function generateDesktop() {
 
   // Chat bubbles
   const userBubble = createGradientRect(320, 48, VIOLET, FUCHSIA);
-  const cosmoBubble1 = createSolidRect(440, 72, SURFACE, 230);
-  const cosmoBubble2 = createSolidRect(520, 160, SURFACE, 230);
+  const novaBubble1 = createSolidRect(440, 72, SURFACE, 230);
+  const novaBubble2 = createSolidRect(520, 160, SURFACE, 230);
 
   // Avatar circles
   const avatar = createCircle(36, VIOLET);
@@ -161,7 +161,7 @@ async function generateDesktop() {
       { input: createSolidRect(140, 12, { r: 255, g: 255, b: 255 }, 30), raw: { width: 140, height: 12, channels: 4 }, blend: 'over', top: 292, left: 32 },
       // Chat area: Nova greeting
       { input: avatar, raw: { width: 36, height: 36, channels: 4 }, blend: 'over', top: 102, left: 296 },
-      { input: cosmoBubble1, raw: { width: 440, height: 72, channels: 4 }, blend: 'over', top: 94, left: 344 },
+      { input: novaBubble1, raw: { width: 440, height: 72, channels: 4 }, blend: 'over', top: 94, left: 344 },
       // Text lines inside bubble (simulated as white bars)
       { input: createSolidRect(200, 12, { r: 255, g: 255, b: 255 }, 180), raw: { width: 200, height: 12, channels: 4 }, blend: 'over', top: 112, left: 360 },
       { input: createSolidRect(380, 10, { r: 255, g: 255, b: 255 }, 100), raw: { width: 380, height: 10, channels: 4 }, blend: 'over', top: 134, left: 360 },
@@ -170,7 +170,7 @@ async function generateDesktop() {
       { input: createSolidRect(260, 12, { r: 255, g: 255, b: 255 }, 220), raw: { width: 260, height: 12, channels: 4 }, blend: 'over', top: 218, left: 730 },
       // Nova response
       { input: avatar, raw: { width: 36, height: 36, channels: 4 }, blend: 'over', top: 282, left: 296 },
-      { input: cosmoBubble2, raw: { width: 520, height: 160, channels: 4 }, blend: 'over', top: 270, left: 344 },
+      { input: novaBubble2, raw: { width: 520, height: 160, channels: 4 }, blend: 'over', top: 270, left: 344 },
       // Response text lines
       { input: createSolidRect(300, 12, { r: 255, g: 255, b: 255 }, 180), raw: { width: 300, height: 12, channels: 4 }, blend: 'over', top: 290, left: 360 },
       { input: createSolidRect(340, 10, { r: 255, g: 255, b: 255 }, 100), raw: { width: 340, height: 10, channels: 4 }, blend: 'over', top: 314, left: 360 },
@@ -223,11 +223,11 @@ async function generateMobile() {
   const smallAvatar = createCircle(32, VIOLET);
 
   // Chat bubbles
-  const cosmoBubble1 = createSolidRect(280, 64, SURFACE, 220);
+  const novaBubble1 = createSolidRect(280, 64, SURFACE, 220);
   const userBubble = createGradientRect(266, 44, VIOLET, FUCHSIA);
-  const cosmoBubble2 = createSolidRect(304, 140, SURFACE, 220);
+  const novaBubble2 = createSolidRect(304, 140, SURFACE, 220);
   const userBubble2 = createGradientRect(256, 44, VIOLET, FUCHSIA);
-  const cosmoBubble3 = createSolidRect(280, 60, SURFACE, 220);
+  const novaBubble3 = createSolidRect(280, 60, SURFACE, 220);
 
   // Suggestion chips
   const chipSmall = createSolidRect(130, 32, { r: 255, g: 255, b: 255 }, 12);
@@ -257,7 +257,7 @@ async function generateMobile() {
       { input: createSolidRect(52, 14, { r: 255, g: 255, b: 255 }, 200), raw: { width: 52, height: 14, channels: 4 }, blend: 'over', top: 53, left: W / 2 - 10 },
       // Nova greeting
       { input: smallAvatar, raw: { width: 32, height: 32, channels: 4 }, blend: 'over', top: 114, left: 20 },
-      { input: cosmoBubble1, raw: { width: 280, height: 64, channels: 4 }, blend: 'over', top: 106, left: 62 },
+      { input: novaBubble1, raw: { width: 280, height: 64, channels: 4 }, blend: 'over', top: 106, left: 62 },
       { input: createSolidRect(160, 10, { r: 255, g: 255, b: 255 }, 180), raw: { width: 160, height: 10, channels: 4 }, blend: 'over', top: 124, left: 78 },
       { input: createSolidRect(200, 8, { r: 255, g: 255, b: 255 }, 100), raw: { width: 200, height: 8, channels: 4 }, blend: 'over', top: 144, left: 78 },
       // User message
@@ -265,7 +265,7 @@ async function generateMobile() {
       { input: createSolidRect(210, 10, { r: 255, g: 255, b: 255 }, 220), raw: { width: 210, height: 10, channels: 4 }, blend: 'over', top: 214, left: 130 },
       // Nova calendar reply
       { input: smallAvatar, raw: { width: 32, height: 32, channels: 4 }, blend: 'over', top: 270, left: 20 },
-      { input: cosmoBubble2, raw: { width: 304, height: 140, channels: 4 }, blend: 'over', top: 262, left: 62 },
+      { input: novaBubble2, raw: { width: 304, height: 140, channels: 4 }, blend: 'over', top: 262, left: 62 },
       { input: createSolidRect(220, 10, { r: 255, g: 255, b: 255 }, 180), raw: { width: 220, height: 10, channels: 4 }, blend: 'over', top: 282, left: 78 },
       { input: createSolidRect(240, 8, { r: 255, g: 255, b: 255 }, 100), raw: { width: 240, height: 8, channels: 4 }, blend: 'over', top: 304, left: 78 },
       { input: createSolidRect(200, 8, { r: 255, g: 255, b: 255 }, 100), raw: { width: 200, height: 8, channels: 4 }, blend: 'over', top: 324, left: 78 },
@@ -276,7 +276,7 @@ async function generateMobile() {
       { input: createSolidRect(200, 10, { r: 255, g: 255, b: 255 }, 220), raw: { width: 200, height: 10, channels: 4 }, blend: 'over', top: 442, left: 140 },
       // Nova reminder reply
       { input: smallAvatar, raw: { width: 32, height: 32, channels: 4 }, blend: 'over', top: 498, left: 20 },
-      { input: cosmoBubble3, raw: { width: 280, height: 60, channels: 4 }, blend: 'over', top: 490, left: 62 },
+      { input: novaBubble3, raw: { width: 280, height: 60, channels: 4 }, blend: 'over', top: 490, left: 62 },
       { input: createSolidRect(240, 10, { r: 255, g: 255, b: 255 }, 180), raw: { width: 240, height: 10, channels: 4 }, blend: 'over', top: 508, left: 78 },
       { input: createSolidRect(180, 8, { r: 255, g: 255, b: 255 }, 100), raw: { width: 180, height: 8, channels: 4 }, blend: 'over', top: 530, left: 78 },
       // Suggestion chips

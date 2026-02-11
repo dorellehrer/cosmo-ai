@@ -1,39 +1,22 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { PublicNav } from '@/components/PublicNav';
+import { PublicFooter } from '@/components/PublicFooter';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Nova AI',
   description: 'Privacy Policy for Nova AI. Learn how we collect, use, and protect your personal data.',
+  openGraph: {
+    title: 'Privacy Policy - Nova AI',
+    description: 'Privacy Policy for Nova AI. Learn how we collect, use, and protect your personal data.',
+  },
 };
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
-      <nav className="border-b border-white/10 backdrop-blur-sm bg-white/5 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-              <span className="text-lg sm:text-xl">✨</span>
-            </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">Nova</span>
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link
-              href="/sign-in"
-              className="px-3 sm:px-5 py-2 text-sm sm:text-base text-white/70 hover:text-white font-medium transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/sign-up"
-              className="px-4 sm:px-5 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white text-sm sm:text-base font-medium transition-all"
-            >
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <PublicNav />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         {/* Header */}
@@ -279,25 +262,7 @@ export default function PrivacyPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 mt-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-              <span className="text-sm">✨</span>
-            </div>
-            <span className="text-white/60">© 2026 Nova AI. All rights reserved.</span>
-          </div>
-          <nav>
-            <div className="flex gap-6 text-white/40 text-sm">
-              <Link href="/privacy" className="hover:text-white/60">Privacy</Link>
-              <Link href="/terms" className="hover:text-white/60">Terms</Link>
-              <Link href="/cookies" className="hover:text-white/60">Cookies</Link>
-              <Link href="/contact" className="hover:text-white/60">Contact</Link>
-              <Link href="/help" className="hover:text-white/60">Help</Link>
-            </div>
-          </nav>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

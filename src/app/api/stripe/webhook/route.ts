@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe';
+import { stripe, PRO_MONTHLY_CREDITS } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -86,8 +86,11 @@ export async function POST(req: NextRequest) {
               stripeSubscriptionId: subscriptionId,
               stripePriceId: subscriptionData.items?.data?.[0]?.price?.id,
               stripeCurrentPeriodEnd: new Date(subscriptionData.current_period_end * 1000),
+              // Grant Pro monthly credits on first subscription
+              credits: { increment: PRO_MONTHLY_CREDITS },
             },
           });
+          console.log(`New Pro subscription: +${PRO_MONTHLY_CREDITS} credits for user ${userId}`);
         }
         break;
       }
@@ -173,7 +176,31 @@ export async function POST(req: NextRequest) {
               stripeCurrentPeriodEnd: null,
             },
           });
-          console.log(`Payment failed — reverted user (customer ${customerId}) to expired`);
+          console.log(`Payment failed — reverted user (customer ${customerId}) to free tier`);
+        }
+        break;
+      }
+
+      case 'invoice.paid': {
+        const invoice = event.data.object as Stripe.Invoice;
+
+        // Only process subscription renewal invoices (not the first one — that's handled by checkout.session.completed)
+        if (invoice.billing_reason !== 'subscription_cycle') break;
+
+        const customerId = typeof invoice.customer === 'string'
+          ? invoice.customer
+          : invoice.customer?.id ?? null;
+
+        if (customerId) {
+          const result = await prisma.user.updateMany({
+            where: { stripeCustomerId: customerId },
+            data: {
+              credits: { increment: PRO_MONTHLY_CREDITS },
+            },
+          });
+          if (result.count > 0) {
+            console.log(`Monthly credit refill: +${PRO_MONTHLY_CREDITS} credits for customer ${customerId}`);
+          }
         }
         break;
       }

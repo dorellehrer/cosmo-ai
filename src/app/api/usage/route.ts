@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getUserTier, TIERS, getRemainingMessages, getTrialTimeRemaining, TRIAL_DURATION_MS } from '@/lib/stripe';
+import { isPro } from '@/lib/stripe';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // Get today's date in YYYY-MM-DD format
@@ -30,7 +30,7 @@ export async function GET() {
       );
     }
 
-    // Get user with subscription info
+    // Get user
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
     });
@@ -54,35 +54,13 @@ export async function GET() {
     });
 
     const currentUsage = usageRecord?.count || 0;
-
-    // Auto-provision trial for legacy users (created before trial system)
-    if (!user.trialEnd && !user.freeTrialUsed) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          trialEnd: new Date(Date.now() + TRIAL_DURATION_MS),
-          freeTrialUsed: true,
-        },
-      });
-      user.trialEnd = new Date(Date.now() + TRIAL_DURATION_MS);
-      user.freeTrialUsed = true;
-    }
-
-    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd, user.freeTrialUsed);
-    const tierConfig = TIERS[tier];
-    const remaining = getRemainingMessages(tier, currentUsage);
-    const trialRemaining = getTrialTimeRemaining(user.trialEnd);
+    const userIsPro = isPro(user);
 
     return NextResponse.json({
-      tier,
-      tierName: tierConfig.name,
-      limit: tierConfig.messagesPerDay,
+      isPro: userIsPro,
       used: currentUsage,
-      remaining,
-      subscriptionEnd: user.stripeCurrentPeriodEnd,
-      trialEnd: user.trialEnd,
-      trialRemaining,
       credits: user.credits,
+      subscriptionEnd: user.stripeCurrentPeriodEnd,
     });
   } catch (error) {
     console.error('Usage API error:', error);

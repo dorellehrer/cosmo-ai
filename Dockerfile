@@ -74,8 +74,10 @@ RUN mkdir -p /tmp/prisma-cli && cd /tmp/prisma-cli && \
 USER nextjs
 
 EXPOSE 3000
+EXPOSE 3001
 
 ENV PORT=3000
+ENV GATEWAY_WS_PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
 # Health check

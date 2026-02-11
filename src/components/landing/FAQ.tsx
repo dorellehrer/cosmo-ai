@@ -6,42 +6,42 @@ const faqs = [
   {
     question: 'How is Nova different from ChatGPT?',
     answer:
-      "ChatGPT is great at conversation, but it can't take real actions. Nova connects to your services — Google Calendar, Gmail, Spotify, Notion, Slack — and takes action on your behalf. Say 'schedule a meeting' and it creates the event. Say 'what's playing on Spotify' and it checks for you.",
+      "ChatGPT answers questions. Nova actually does things. It connects to your email, calendar, Spotify, WhatsApp, Slack, Discord, and Notion — and takes action on your behalf. Say \"schedule lunch with Sarah\" and it creates the event. Say \"call mom\" and it makes a real phone call.",
   },
   {
-    question: 'Is my data safe with Nova?',
+    question: 'Is Nova really free?',
     answer:
-      "Absolutely. We're privacy-first by design. Your integration tokens are encrypted with AES-256-GCM, we use OAuth2 for all third-party access, we never sell your data, and we don't use your conversations to train models. You can delete your account and all data anytime.",
+      "Yes! You get 20 free credits when you sign up — no credit card required. Every message uses credits, starting at just 1 credit for Standard. When you need smarter answers (like for complex research or creative writing), higher power levels cost more credits per message.",
   },
   {
-    question: 'What services does Nova integrate with?',
+    question: 'What are power levels and credits?',
     answer:
-      'Nova currently works with Google (Calendar, Gmail, Drive), Spotify, Notion, and Slack. Smart home integrations (Philips Hue, Sonos) are coming soon. We\'re actively adding new integrations based on user requests.',
+      "Think of it like choosing a flight class. Standard (1 credit) handles everyday questions. Advanced, Creative, Max, and Genius use increasingly powerful AI for harder tasks — each costs more credits per message. Buy credits when you need them, or get Pro ($20/month) which includes 1,000 credits plus all integrations.",
   },
   {
-    question: 'Is there a free plan?',
+    question: 'What can Nova connect to?',
     answer:
-      "Yes! Nova offers a 3-day free trial with full Pro access — unlimited messages, all integrations, and AI phone calls. After the trial, continue with Pro at $20/month).",
+      "Google (Calendar, Gmail, Drive), Spotify, WhatsApp, Slack, Discord, and Notion — with more coming soon. Connect your accounts in Settings and Nova can read your emails, manage your calendar, send messages, and control your music.",
   },
   {
-    question: 'Can Nova learn my preferences?',
+    question: 'Can Nova really make phone calls?',
     answer:
-      "Nova maintains conversation context within your sessions and connects to your real services, so it can give you personalized answers based on your actual calendar, emails, and music. We're actively building longer-term memory features.",
+      "Yes! Nova can call any phone number with a natural-sounding voice, have a real conversation, and report back with a summary of what was said. It costs $0.10 per minute — great for quick calls like \"tell mom I'll be late.\"",
   },
   {
-    question: 'Does Nova work offline?',
+    question: 'Is my data safe?',
     answer:
-      "Nova requires an internet connection for most features since it needs to communicate with your connected services. However, we're working on offline mode for basic tasks and will announce it soon.",
+      "Absolutely. Your data is encrypted, we never sell it, and we never use your conversations to train AI. You can delete your account and all data at any time. We use the same security standards as banks.",
+  },
+  {
+    question: 'What devices does Nova work on?',
+    answer:
+      "Everything. Use Nova in your browser at heynova.se, download the desktop app for Mac or PC (which can access your local files and take screenshots), or install it on your phone as an app. Your conversations sync across all devices.",
   },
   {
     question: 'How do I get started?',
     answer:
-      "Just sign up — it takes 30 seconds and you get a 3-day free trial with full Pro access. No credit card required. Connect your first service (we recommend starting with email or calendar), and start chatting. Nova will guide you through setup and suggest helpful automations.",
-  },
-  {
-    question: 'Can I use Nova for my team or business?',
-    answer:
-      "Yes! Nova for Teams is coming Q2 2026. It includes shared workspaces, team-wide integrations, admin controls, and enterprise SSO. Join the waitlist to be notified when it launches.",
+      "Sign up in 30 seconds — no credit card needed. You get 20 free credits to start chatting right away. When you're ready, connect your first service (we recommend Gmail or Spotify) to unlock Nova's real power.",
   },
 ];
 

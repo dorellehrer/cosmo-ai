@@ -5,5 +5,5 @@ export { HowItWorks } from './HowItWorks';
 export { TrustBadges } from './TrustBadges';
 export { WaitlistForm } from './WaitlistForm';
 export { SocialProof } from './SocialProof';
-export { HeroDemo } from './HeroDemo';
+export { HeroShowcase } from './HeroShowcase';
 export { ToolsShowcase } from './ToolsShowcase';

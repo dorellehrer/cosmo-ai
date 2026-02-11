@@ -17,7 +17,7 @@
   <rect width="1200" height="630" fill="url(#bg-grad)"/>
   <circle cx="600" cy="220" r="100" fill="url(#circle-grad)"/>
   <text x="600" y="255" font-size="80" text-anchor="middle">✨</text>
-  <text x="600" y="380" font-family="system-ui, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">Cosmo AI</text>
+  <text x="600" y="380" font-family="system-ui, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">Nova AI</text>
   <text x="600" y="450" font-family="system-ui, sans-serif" font-size="32" fill="url(#text-grad)" text-anchor="middle">Your AI that actually does things</text>
   <text x="600" y="520" font-family="system-ui, sans-serif" font-size="24" fill="rgba(255,255,255,0.6)" text-anchor="middle">Calendar • Email • Smart Home • Entertainment</text>
 </svg>

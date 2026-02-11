@@ -45,8 +45,8 @@ jobs:
         with:
           name: nova-macos-${{ matrix.arch }}
           path: |
-            dist/*.dmg
-            dist/*.zip
+            electron-dist/*.dmg
+            electron-dist/*.zip
           retention-days: 30
 
   build-windows:
@@ -75,7 +75,7 @@ jobs:
         with:
           name: nova-windows-x64
           path: |
-            dist/*.exe
+            electron-dist/*.exe
           retention-days: 30
 
   release:

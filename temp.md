@@ -1,51 +1,139 @@
- Tänker du programmatisk SEO? Typ hundratals sidor som auto-genereras för varje nisch? 🤔
+A Slack app's capabilities and permissions are governed by the scopes it requests.
 
-🚀 Mega SEO-strategi
+Bot Token Scopes
+Scopes that govern what your app can access.
 
-Grundidé: Skapa sidor för ALLA kombinationer av:
+OAuth Scope
+Description
+ 
+app_mentions:read
+View messages that directly mention @Nova AI in conversations that the app is in
 
-  • Actions (vad Nova gör)
-  • Integrationer (vad Nova kopplar till)
-  • Use cases (vem/varför)
-  • Jämförelser (vs konkurrenter)
+assistant:write
+Allow "Nova AI" to act as an App Agent
 
-📊 Sidstruktur (potentiellt 500+ sidor)
+bookmarks:read
+List bookmarks
 
-1. Action-sidor (/actions/[action])
+bookmarks:write
+Create, edit, and remove bookmarks
 
-2. Integration-sidor (/integrations/[app])
+calls:read
+View information about ongoing and past calls
 
-3. Kombinations-sidor (/how-to/[action]-with-[app])
+calls:write
+Start and manage calls in a workspace
 
-4. Use-case-sidor (/use-cases/[persona])
+canvases:read
+"Nova AI" will be able to access contents of canvases created inside Slack.
 
-5. Jämförelsesidor (/compare/[competitor])
+canvases:write
+"Nova AI" will be able to create, edit and remove canvases.
 
-6. Alternativ-sidor (/alternatives/[competitor])
+channels:history
+View messages and other content in public channels that "Nova AI" has been added to
 
-7. Geo-sidor (/[lang]/ eller /locations/[country])
+channels:join
+Join public channels in a workspace
 
-🔧 Teknisk implementation
+channels:manage
+Manage public channels that "Nova AI" has been added to and create new ones
 
-Data-fil:
+channels:read
+View basic information about public channels in a workspace
 
-Auto-generera sitemap:
+channels:write.invites
+Invite members to public channels
 
-📈 Förväntad effekt
+channels:write.topic
+Set the description of public channels
 
-Sidor,Potentiella keywords,Est. trafik/mån
-50 actions,500+,5k-20k
-100 integrations,1000+,10k-50k
-500 how-to combos,5000+,50k-200k
-20 use-cases,200+,2k-10k
-15 comparisons,150+,5k-30k
-TOTALT,~7000,70k-300k
+chat:write
+Send messages as @Nova AI
 
-⚡ Quick wins först
+chat:write.customize
+Send messages as @Nova AI with a customized username and avatar
 
-  1. Jämförelsesidor → hög intent, konverterar bra
-  2. "Alternative"-sidor → folk söker aktivt
-  3. Top 20 integrationer → mest sökta appar
-  4. Top 10 actions → mest efterfrågade funktioner
+chat:write.public
+Send messages to channels @Nova AI isn't a member of
 
-Vill du att jag bygger detta system? Kan börja med datastrukturen + templates, sen spawna subagenter för content-generering 🚀
+conversations.connect:manage
+Allows "Nova AI" to manage Slack Connect channels
+
+conversations.connect:read
+Receive Slack Connect invite events sent to the channels "Nova AI" is in
+
+conversations.connect:write
+Create Slack Connect invitations for channels that "Nova AI" has been added to, and accept invitations sent to "Nova AI"
+
+emoji:read
+View custom emoji in a workspace
+
+files:read
+View files shared in channels and conversations that "Nova AI" has been added to
+
+files:write
+Upload, edit, and delete files as "Nova AI"
+
+groups:history
+View messages and other content in private channels that "Nova AI" has been added to
+
+groups:read
+View basic information about private channels that "Nova AI" has been added to
+
+groups:write
+Manage private channels that "Nova AI" has been added to and create new ones
+
+groups:write.invites
+Invite members to private channels
+
+groups:write.topic
+Set the description of private channels
+
+im:history
+View messages and other content in direct messages that "Nova AI" has been added to
+
+im:write
+Start direct messages with people
+
+incoming-webhook
+Post messages to specific channels in Slack
+
+links:read
+View URLs in messages
+
+lists:read
+"Nova AI" will be able to access contents of lists created inside Slack.
+
+lists:write
+"Nova AI" will be able to create, edit and remove lists.
+
+pins:read
+View pinned content in channels and conversations that "Nova AI" has been added to
+
+reactions:write
+Add and edit emoji reactions
+
+reminders:write
+Add, remove, or mark reminders as complete
+
+remote_files:read
+View remote files added by the app in a workspace
+
+usergroups:read
+View user groups in a workspace
+
+usergroups:write
+Create and manage user groups
+
+users.profile:read
+View profile details about people in a workspace
+
+users:read
+View people in a workspace
+
+users:read.email
+View email addresses of people in a workspace
+
+workflows.templates:write
+Write Slack workflow template on user's behalf

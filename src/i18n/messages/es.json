@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Nova",
+    "nova": "Nova",
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
     "getStarted": "Comenzar",
@@ -192,7 +192,7 @@
     "greetingDescription": "Tu asistente personal de IA. Puedo ayudarte con tareas, responder preguntas y hacer tu vida más fácil. ¿Qué te gustaría hacer hoy?",
     "askAnything": "Pregúntale cualquier cosa a Nova...",
     "youSaid": "Tú dijiste",
-    "cosmoSaid": "Nova dijo",
+    "novaSaid": "Nova dijo",
     "typing": "Nova está escribiendo...",
     "sending": "Enviando...",
     "errorMessage": "Lo siento, algo salió mal. Por favor, inténtalo de nuevo.",

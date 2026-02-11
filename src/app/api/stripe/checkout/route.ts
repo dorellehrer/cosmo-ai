@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { stripe, TIERS } from '@/lib/stripe';
+import { stripe, PRO_PRICE_ID } from '@/lib/stripe';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 export async function POST(_req: NextRequest) {
@@ -73,7 +73,7 @@ export async function POST(_req: NextRequest) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: TIERS.pro.priceId!,
+          price: PRO_PRICE_ID,
           quantity: 1,
         },
       ],

@@ -11,6 +11,7 @@ import { useIntegrations } from '@/contexts/IntegrationsContext';
 import { NotificationBell } from '@/components/notifications';
 import { MODEL_LIST, REASONING_LEVELS } from '@/lib/ai/models';
 import type { ReasoningLevel } from '@/lib/ai/models';
+import { useCapabilities } from '@/hooks/useCapabilities';
 
 // Integration icons mapping
 const INTEGRATION_ICONS: Record<string, React.ReactNode> = {
@@ -56,13 +57,14 @@ export default function SettingsPage() {
   const router = useRouter();
   const { settings: voiceSettings, updateSettings: updateVoiceSettings } = useVoiceSettings();
   const { integrations, disconnectIntegration, connectedCount } = useIntegrations();
+  const { isDesktop } = useCapabilities();
   // Check if speech recognition is supported using lazy initial state
   const [speechSupported] = useState(() => {
     if (typeof window === 'undefined') return true;
     return !!(window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
   });
   const [name, setName] = useState('');
-  const [plan, setPlan] = useState('expired');
+  const [userIsPro, setUserIsPro] = useState(false);
   const [preferredModel, setPreferredModel] = useState(MODEL_LIST[0]?.id || 'gpt-5-mini');
   const [userCredits, setUserCredits] = useState(0);
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningLevel>('low');
@@ -92,7 +94,7 @@ export default function SettingsPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.name) setName(data.name);
-        if (data.plan) setPlan(data.plan);
+        if (data.isPro !== undefined) setUserIsPro(data.isPro);
         if (data.preferredModel) setPreferredModel(data.preferredModel);
         if (data.systemPrompt) setSystemPrompt(data.systemPrompt);
         if (data.credits !== undefined) setUserCredits(data.credits);
@@ -273,7 +275,7 @@ export default function SettingsPage() {
                   className="w-full bg-transparent text-lg sm:text-xl font-semibold text-white placeholder-white/40 focus:outline-none border-b border-transparent focus:border-violet-500 transition-colors truncate disabled:opacity-50"
                 />
                 <p className="text-white/40 text-xs sm:text-sm mt-1">
-                  {savingName ? 'Saving...' : plan === 'pro' ? t('proPlan') ?? 'Pro Plan' : plan === 'trial' ? 'Trial (Pro Access)' : 'Upgrade Required'}
+                  {savingName ? 'Saving...' : userIsPro ? t('proPlan') ?? 'Pro Plan' : `${userCredits} credits remaining`}
                 </p>
               </div>
             </div>
@@ -734,6 +736,33 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+
+        {/* Desktop Automation (only shown in Electron app) */}
+        {isDesktop && (
+          <section className="mb-8 sm:mb-12">
+            <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <path d="M8 21h8M12 17v4" />
+              </svg>
+              Desktop Automation
+            </h2>
+            <Link
+              href="/settings/desktop"
+              className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:bg-white/10 transition-all group"
+            >
+              <div>
+                <h3 className="text-sm sm:text-base text-white font-medium mb-1">Manage Desktop Features</h3>
+                <p className="text-white/40 text-xs sm:text-sm">
+                  System controls, accessibility, local routines, and system info
+                </p>
+              </div>
+              <svg className="w-5 h-5 text-white/30 group-hover:text-white/60 transition-colors rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </Link>
+          </section>
+        )}
 
         {/* Danger Zone */}
         <section aria-labelledby="danger-heading">

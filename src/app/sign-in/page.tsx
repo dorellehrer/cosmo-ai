@@ -58,7 +58,7 @@ export default function SignInPage() {
             >
               <span className="text-xl sm:text-2xl">✨</span>
             </div>
-            <span className="text-xl sm:text-2xl font-semibold text-white">{common('cosmo')}</span>
+            <span className="text-xl sm:text-2xl font-semibold text-white">{common('nova')}</span>
           </Link>
         </div>
 

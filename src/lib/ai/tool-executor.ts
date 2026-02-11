@@ -1346,6 +1346,108 @@ export async function executeToolCall(
         }
       }
 
+      // ── Sub-Agents ──
+      case 'spawn_sub_agent': {
+        const { spawnSubAgent } = await import('@/lib/sub-agent');
+        const task = args.task as string;
+        const model = (args.model as string) || undefined;
+
+        if (!task) return JSON.stringify({ error: 'Task description is required' });
+
+        try {
+          const subAgentId = await spawnSubAgent({
+            userId,
+            task,
+            model,
+          });
+          return JSON.stringify({
+            success: true,
+            subAgentId,
+            message: `Sub-agent spawned with ID ${subAgentId}. It will work on the task in the background. Use check_sub_agent to check its progress.`,
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to spawn sub-agent: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'check_sub_agent': {
+        const { getSubAgentStatus } = await import('@/lib/sub-agent');
+        const subAgentId = args.subAgentId as string;
+
+        if (!subAgentId) return JSON.stringify({ error: 'subAgentId is required' });
+
+        try {
+          const status = await getSubAgentStatus(userId, subAgentId);
+          if (!status) return JSON.stringify({ error: 'Sub-agent not found' });
+          return JSON.stringify({
+            id: status.id,
+            status: status.status,
+            task: status.task,
+            result: status.result,
+            error: status.error,
+            stepsCompleted: status.steps.length,
+            tokensUsed: status.tokensUsed,
+            createdAt: status.createdAt,
+            completedAt: status.completedAt,
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to check sub-agent: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'cancel_sub_agent': {
+        const { cancelSubAgent } = await import('@/lib/sub-agent');
+        const cancelId = args.subAgentId as string;
+
+        if (!cancelId) return JSON.stringify({ error: 'subAgentId is required' });
+
+        try {
+          const cancelled = await cancelSubAgent(userId, cancelId);
+          if (!cancelled) return JSON.stringify({ error: 'Sub-agent not found or already completed' });
+          return JSON.stringify({ success: true, message: 'Sub-agent cancelled' });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to cancel sub-agent: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      // ── Memory (direct tool access) ──
+      case 'remember_fact': {
+        const { remember: storeMem } = await import('@/lib/memory');
+        const content = args.content as string;
+        const category = (args.category as string) || 'general';
+
+        if (!content) return JSON.stringify({ error: 'Content is required' });
+
+        try {
+          const memId = await storeMem(userId, content, category, 0.7);
+          return JSON.stringify({ success: true, memoryId: memId, message: 'Memory stored successfully' });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to store memory: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
+      case 'recall_memories': {
+        const { recall: recallMem } = await import('@/lib/memory');
+        const query = args.query as string;
+        const limit = (args.limit as number) || 5;
+
+        if (!query) return JSON.stringify({ error: 'Query is required' });
+
+        try {
+          const memories = await recallMem(userId, query, limit);
+          return JSON.stringify({
+            count: memories.length,
+            memories: memories.map(m => ({
+              content: m.content,
+              category: m.category,
+              relevance: Math.round(m.similarity * 100) + '%',
+            })),
+          });
+        } catch (err) {
+          return JSON.stringify({ error: `Failed to recall memories: ${err instanceof Error ? err.message : 'Unknown error'}` });
+        }
+      }
+
       default:
         return JSON.stringify({ error: `Unknown function: ${functionName}` });
     }

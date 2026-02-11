@@ -18,6 +18,9 @@ import { getModelConfig, DEFAULT_MODEL, FREE_MODEL } from '@/lib/ai/models';
 import type { ReasoningLevel } from '@/lib/ai/models';
 import { DESKTOP_TOOLS } from '@/lib/desktop-tools';
 import { getDeviceSummary, routeToolCall } from '@/lib/gateway/message-router';
+import { recall } from '@/lib/memory';
+import { extractMemories, formatMemoriesForPrompt } from '@/lib/memory-extractor';
+import { remember } from '@/lib/memory';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -242,6 +245,16 @@ export async function POST(req: Request) {
     // Append user's custom system prompt if set
     if (user.systemPrompt) {
       systemPrompt += `\n\nUser instructions: ${user.systemPrompt}`;
+    }
+
+    // Recall relevant memories and inject into system prompt
+    try {
+      const recalledMemories = await recall(user.id, enhancedContent, 8, 0.35);
+      if (recalledMemories.length > 0) {
+        systemPrompt += formatMemoriesForPrompt(recalledMemories);
+      }
+    } catch (err) {
+      console.error('[Memory] Recall failed (continuing without):', err);
     }
 
     // Resolve model: request override → conversation model → user preference → default
@@ -501,6 +514,19 @@ export async function POST(req: Request) {
             content: fullResponse,
           },
         });
+
+        // Extract and store new memories (fire-and-forget, don't block response)
+        extractMemories(enhancedContent, fullResponse)
+          .then(async (newMemories) => {
+            for (const mem of newMemories) {
+              try {
+                await remember(user.id, mem.content, mem.category, mem.importance);
+              } catch (e) {
+                console.error('[Memory] Failed to store extracted memory:', e);
+              }
+            }
+          })
+          .catch((e) => console.error('[Memory] Extraction failed:', e));
 
         // Increment usage AFTER successful response
         await incrementUsage(user.id, today, usageRecord ?? null);

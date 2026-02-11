@@ -13,6 +13,7 @@ import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { MODEL_LIST, DEFAULT_MODEL, getModelConfig, REASONING_LEVELS } from '@/lib/ai/models';
 import type { ReasoningLevel } from '@/lib/ai/models';
+import { useCapabilities } from '@/hooks/useCapabilities';
 
 interface Message {
   id: string;
@@ -40,6 +41,7 @@ export default function ChatPage() {
   const { openCommandPalette } = useKeyboardShortcuts();
   const { settings: voiceSettings } = useVoiceSettings();
   const { speak, stop: stopSpeaking, isSpeaking } = useTextToSpeech(voiceSettings.language);
+  const { isDesktop, canScreenshot } = useCapabilities();
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
 
   const suggestions = [
@@ -59,7 +61,7 @@ export default function ChatPage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
-  const [userPlan, setUserPlan] = useState<'expired' | 'trial' | 'pro'>('expired');
+  const [userIsPro, setUserIsPro] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningLevel>('low');
   const [showModelPicker, setShowModelPicker] = useState(false);
@@ -139,7 +141,7 @@ export default function ChatPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.preferredModel) setSelectedModel(data.preferredModel);
-        if (data.plan) setUserPlan(data.plan);
+        if (data.isPro !== undefined) setUserIsPro(data.isPro);
         if (data.credits !== undefined) setUserCredits(data.credits);
         if (data.reasoningEffort) setReasoningEffort(data.reasoningEffort as ReasoningLevel);
       })
@@ -344,11 +346,22 @@ export default function ChatPage() {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+  // Desktop: Screenshot capture → attach as image
+  const handleScreenshot = useCallback(async () => {
+    const nd = window.novaDesktop;
+    if (!nd) return;
+    try {
+      const dataUrl = await nd.captureWindow();
+      if (!dataUrl) return;
+      // Convert base64 data URL to File
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], `screenshot-${Date.now()}.png`, { type: 'image/png' });
+      setAttachedFiles((prev) => [...prev, file]);
+    } catch (err) {
+      console.error('Screenshot failed:', err);
+    }
+  }, []);
 
   const autoResizeTextarea = useCallback(() => {
     const el = inputRef.current;
@@ -357,6 +370,69 @@ export default function ChatPage() {
       el.style.height = Math.min(el.scrollHeight, 200) + 'px';
     }
   }, []);
+
+  // Desktop: Paste image from clipboard → attach
+  const handleClipboardPaste = useCallback(async () => {
+    const nd = window.novaDesktop;
+    if (nd) {
+      // Desktop: use native clipboard read
+      try {
+        const imageData = await nd.clipboardReadImage();
+        if (imageData) {
+          const res = await fetch(imageData);
+          const blob = await res.blob();
+          const file = new File([blob], `clipboard-${Date.now()}.png`, { type: 'image/png' });
+          setAttachedFiles((prev) => [...prev, file]);
+          return;
+        }
+        // Fallback: try reading text from clipboard
+        const clip = await nd.clipboardRead();
+        if (clip.text) {
+          setInput((prev) => prev + clip.text);
+          setTimeout(autoResizeTextarea, 0);
+        }
+      } catch (err) {
+        console.error('Clipboard read failed:', err);
+      }
+    } else {
+      // Web: use browser clipboard API
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find((t) => t.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            const file = new File([blob], `clipboard-${Date.now()}.png`, { type: imageType });
+            setAttachedFiles((prev) => [...prev, file]);
+            return;
+          }
+        }
+        // No image — paste text
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setInput((prev) => prev + text);
+          setTimeout(autoResizeTextarea, 0);
+        }
+      } catch {
+        // Fallback
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            setInput((prev) => prev + text);
+            setTimeout(autoResizeTextarea, 0);
+          }
+        } catch {
+          // Clipboard unavailable
+        }
+      }
+    }
+  }, [autoResizeTextarea]);
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   const stopGeneration = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -402,6 +478,8 @@ export default function ChatPage() {
     try {
       let response: Response;
 
+      const isDesktopApp = isDesktop;
+
       if (files.length > 0) {
         // Use FormData for file uploads
         const formData = new FormData();
@@ -414,6 +492,7 @@ export default function ChatPage() {
         if (currentConversationId) formData.append('conversationId', currentConversationId);
         formData.append('model', selectedModel);
         formData.append('reasoningEffort', reasoningEffort);
+        if (isDesktopApp) formData.append('desktopTools', 'true');
         for (const file of files) {
           formData.append('files', file);
         }
@@ -435,6 +514,7 @@ export default function ChatPage() {
             conversationId: currentConversationId,
             model: selectedModel,
             reasoningEffort,
+            desktopTools: isDesktopApp,
           }),
           signal: controller.signal,
         });
@@ -489,6 +569,105 @@ export default function ChatPage() {
                         : m
                     )
                   );
+                }
+
+                // Handle desktop tool calls — execute client-side and send results back
+                if (parsed.desktopToolCalls && parsed.pendingMessages) {
+                  // Dynamic import to avoid bundling desktop-tools for web users
+                  const { executeDesktopTool } = await import('@/lib/desktop-tools');
+
+                  // Show tool status for each desktop tool
+                  for (const tc of parsed.desktopToolCalls) {
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === assistantId
+                          ? { ...m, toolStatus: tc.statusLabel }
+                          : m
+                      )
+                    );
+                  }
+
+                  // Execute each desktop tool call
+                  const toolResults: Array<{ callId: string; result: string }> = [];
+                  for (const tc of parsed.desktopToolCalls) {
+                    try {
+                      const result = await executeDesktopTool(tc.name, tc.arguments);
+                      toolResults.push({
+                        callId: tc.callId,
+                        result: typeof result === 'string' ? result : JSON.stringify(result),
+                      });
+                    } catch (err) {
+                      toolResults.push({
+                        callId: tc.callId,
+                        result: JSON.stringify({ error: err instanceof Error ? err.message : 'Tool execution failed' }),
+                      });
+                    }
+                  }
+
+                  // Send continuation request with tool results
+                  const continuationResponse = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      messages: [...messages, userMessage].map((m) => ({
+                        role: m.role,
+                        content: m.content,
+                      })),
+                      conversationId: currentConversationId || parsed.conversationId,
+                      model: selectedModel,
+                      reasoningEffort,
+                      desktopTools: true,
+                      toolResults,
+                    }),
+                    signal: controller.signal,
+                  });
+
+                  if (!continuationResponse.ok) throw new Error('Desktop tool continuation failed');
+
+                  // Parse the continuation SSE stream
+                  const contReader = continuationResponse.body?.getReader();
+                  if (contReader) {
+                    while (true) {
+                      const { done: cDone, value: cValue } = await contReader.read();
+                      if (cDone) break;
+
+                      const cChunk = decoder.decode(cValue);
+                      const cLines = cChunk.split('\n');
+                      for (const cLine of cLines) {
+                        if (cLine.startsWith('data: ')) {
+                          const cData = cLine.slice(6);
+                          if (cData === '[DONE]') continue;
+                          try {
+                            const cParsed = JSON.parse(cData);
+                            if (cParsed.title) {
+                              setCurrentTitle(cParsed.title);
+                              fetchConversations();
+                            }
+                            if (cParsed.toolStatus) {
+                              setMessages((prev) =>
+                                prev.map((m) =>
+                                  m.id === assistantId
+                                    ? { ...m, toolStatus: cParsed.toolStatus }
+                                    : m
+                                )
+                              );
+                            }
+                            if (cParsed.content) {
+                              setMessages((prev) =>
+                                prev.map((m) =>
+                                  m.id === assistantId
+                                    ? { ...m, content: m.content + cParsed.content, toolStatus: undefined }
+                                    : m
+                                )
+                              );
+                            }
+                          } catch {
+                            // Ignore parse errors
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
 
                 // Handle content
@@ -739,7 +918,7 @@ export default function ChatPage() {
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
-          <div className="p-3 sm:p-4 border-b border-white/10">
+          <div className="p-3 sm:p-4 border-b border-white/10" data-drag-region>
             <button
               onClick={startNewChat}
               className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg sm:rounded-xl text-white text-sm sm:text-base font-medium transition-all shadow-lg shadow-violet-500/25 group"
@@ -1030,7 +1209,7 @@ export default function ChatPage() {
               </div>
               <div className="hidden xs:block">
                 <h1 className="text-lg sm:text-xl font-semibold text-white truncate max-w-[200px]">
-                  {currentTitle || common('cosmo')}
+                  {currentTitle || common('nova')}
                 </h1>
                 <p className="text-[10px] sm:text-xs text-white/60">
                   {currentTitle ? t('yourCompanion') : t('newConversation')}
@@ -1136,7 +1315,7 @@ export default function ChatPage() {
                           : 'bg-white/10 text-white/90 backdrop-blur-sm'
                       }`}
                       role="article"
-                      aria-label={`${message.role === 'user' ? t('youSaid') : t('cosmoSaid')}`}
+                      aria-label={`${message.role === 'user' ? t('youSaid') : t('novaSaid')}`}
                     >
                       {editingMessageId === message.id ? (
                         <div className="space-y-2">
@@ -1454,6 +1633,36 @@ export default function ChatPage() {
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </button>
+              {/* Screenshot button (desktop only) */}
+              {canScreenshot && (
+                <button
+                  type="button"
+                  onClick={handleScreenshot}
+                  disabled={isLoading}
+                  className="p-2.5 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white/50 hover:text-white/80 disabled:opacity-50 transition-all border border-white/10 shrink-0"
+                  aria-label="Take screenshot"
+                  title="Take screenshot"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                    <circle cx="12" cy="13" r="3" />
+                  </svg>
+                </button>
+              )}
+              {/* Clipboard paste button */}
+              <button
+                type="button"
+                onClick={handleClipboardPaste}
+                disabled={isLoading}
+                className="p-2.5 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white/50 hover:text-white/80 disabled:opacity-50 transition-all border border-white/10 shrink-0"
+                aria-label="Paste from clipboard"
+                title="Paste from clipboard"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
                 </svg>
               </button>
               {/* Voice input button */}

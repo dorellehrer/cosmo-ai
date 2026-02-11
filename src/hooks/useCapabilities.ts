@@ -9,9 +9,102 @@ import { useState, useEffect, useCallback } from 'react';
  */
 
 // Types for Electron novaDesktop API
+interface NovaDesktopAutomation {
+  calendar: {
+    listEvents: (options?: { days?: number; calendarName?: string }) => Promise<unknown>;
+    createEvent: (options: { title: string; startDate: string; endDate: string; calendarName?: string; location?: string; notes?: string; allDay?: boolean }) => Promise<unknown>;
+    listCalendars: () => Promise<unknown>;
+  };
+  reminders: {
+    list: (options?: { listName?: string; includeCompleted?: boolean }) => Promise<unknown>;
+    create: (options: { name: string; listName?: string; dueDate?: string; notes?: string; priority?: number }) => Promise<unknown>;
+    listLists: () => Promise<unknown>;
+  };
+  mail: {
+    search: (options: { query: string; account?: string; limit?: number }) => Promise<unknown>;
+    send: (options: { to: string; subject: string; body: string; cc?: string }) => Promise<unknown>;
+    unreadCount: () => Promise<unknown>;
+  };
+  notes: {
+    create: (options: { title: string; body: string; folder?: string }) => Promise<unknown>;
+    search: (options: { query: string; limit?: number }) => Promise<unknown>;
+  };
+  system: {
+    getVolume: () => Promise<unknown>;
+    setVolume: (options: { volume?: number; muted?: boolean }) => Promise<unknown>;
+    getBrightness: () => Promise<unknown>;
+    setBrightness: (options: { brightness: number }) => Promise<unknown>;
+    getDarkMode: () => Promise<unknown>;
+    setDarkMode: (options: { enabled: boolean }) => Promise<unknown>;
+    getDnd: () => Promise<unknown>;
+    toggleDnd: () => Promise<unknown>;
+    sleep: () => Promise<unknown>;
+    lockScreen: () => Promise<unknown>;
+    emptyTrash: () => Promise<unknown>;
+  };
+  app: {
+    list: () => Promise<unknown>;
+    launch: (options: { name: string }) => Promise<unknown>;
+    quit: (options: { name: string; force?: boolean }) => Promise<unknown>;
+    focus: (options: { name: string }) => Promise<unknown>;
+    isRunning: (options: { name: string }) => Promise<unknown>;
+  };
+  fs: {
+    readFile: (options: { path: string }) => Promise<unknown>;
+    writeFile: (options: { path: string; content: string; append?: boolean }) => Promise<unknown>;
+    listDir: (options: { path: string; recursive?: boolean }) => Promise<unknown>;
+    search: (options: { directory: string; pattern: string; maxResults?: number }) => Promise<unknown>;
+    moveToTrash: (options: { path: string }) => Promise<unknown>;
+    revealInFinder: (options: { path: string }) => Promise<unknown>;
+    watch: (dirPath: string) => Promise<unknown>;
+    unwatch: (id: string) => Promise<unknown>;
+    onChange: (callback: (data: { id: string; event: string; filename: string }) => void) => () => void;
+  };
+  window: {
+    list: () => Promise<unknown>;
+    resize: (options: { app: string; position?: { x: number; y: number }; size?: { width: number; height: number } }) => Promise<unknown>;
+    minimizeAll: () => Promise<unknown>;
+  };
+  accessibility: {
+    check: () => Promise<unknown>;
+    request: () => Promise<unknown>;
+    click: (options: { app: string; element: string; elementType?: string }) => Promise<unknown>;
+    type: (options: { text: string; app?: string }) => Promise<unknown>;
+    pressKey: (options: { key: string; modifiers?: string[] }) => Promise<unknown>;
+    readScreen: (options: { app: string }) => Promise<unknown>;
+  };
+  shell: {
+    run: (options: { command: string }) => Promise<unknown>;
+  };
+  spotlight: {
+    search: (options: { query: string; kind?: string; limit?: number }) => Promise<unknown>;
+  };
+  speak: (options: { text: string; voice?: string; rate?: number }) => Promise<unknown>;
+  listVoices: () => Promise<unknown>;
+}
+
+interface NovaDesktopRoutines {
+  list: () => Promise<unknown>;
+  add: (routine: { name: string; schedule: string; enabled: boolean; toolChain: Array<{ toolName: string; params?: Record<string, string> }> }) => Promise<unknown>;
+  update: (id: string, updates: Record<string, unknown>) => Promise<unknown>;
+  delete: (id: string) => Promise<unknown>;
+  runNow: (id: string) => Promise<unknown>;
+  onExecuted: (callback: (data: { id: string; name: string; lastRun: string; result: string }) => void) => () => void;
+}
+
+interface NovaDesktopPower {
+  onSuspend: (callback: () => void) => () => void;
+  onResume: (callback: () => void) => () => void;
+  onLock: (callback: () => void) => () => void;
+  onUnlock: (callback: () => void) => () => void;
+  onIdle: (callback: (data: { seconds: number }) => void) => () => void;
+}
+
 interface NovaDesktop {
   platform: string;
   isDesktopApp: boolean;
+  isMac: boolean;
+  isWindows: boolean;
   minimize: () => void;
   maximize: () => void;
   close: () => void;
@@ -35,6 +128,14 @@ interface NovaDesktop {
   openExternal: (url: string) => Promise<boolean>;
   openPath: (filePath: string) => Promise<{ success?: boolean; error?: string }>;
   showInFolder: (filePath: string) => Promise<boolean>;
+  toggleQuickChat: () => void;
+  checkForUpdates: () => Promise<unknown>;
+  installUpdate: () => Promise<unknown>;
+  onUpdateStatus: (callback: (data: { status: string; version?: string }) => void) => () => void;
+  onUpdateProgress: (callback: (data: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
+  automation: NovaDesktopAutomation;
+  routines: NovaDesktopRoutines;
+  power: NovaDesktopPower;
   capabilities: string[];
 }
 
@@ -49,6 +150,7 @@ export interface PlatformCapabilities {
   isDesktop: boolean;
   isPWA: boolean;
   isWeb: boolean;
+  isMac: boolean;
   platform: 'desktop' | 'pwa' | 'web';
 
   // Feature flags
@@ -63,6 +165,23 @@ export interface PlatformCapabilities {
   canWakeLock: boolean;
   canGetSystemInfo: boolean;
 
+  // Desktop automation flags
+  canAutomate: boolean;
+  canAccessCalendar: boolean;
+  canAccessReminders: boolean;
+  canAccessMail: boolean;
+  canAccessNotes: boolean;
+  canControlSystem: boolean;
+  canControlApps: boolean;
+  canManageWindows: boolean;
+  canAccessibility: boolean;
+  canSpotlight: boolean;
+  canSpeak: boolean;
+  canHeadlessFs: boolean;
+  canRunShell: boolean;
+  canLocalRoutines: boolean;
+  canPowerMonitor: boolean;
+
   // Actions
   readFile: () => Promise<{ name: string; content: string; size: number } | null>;
   saveFile: (content: string, defaultName?: string) => Promise<boolean>;
@@ -72,14 +191,22 @@ export interface PlatformCapabilities {
   getLocation: () => Promise<{ lat: number; lon: number; city?: string } | null>;
   requestWakeLock: () => Promise<(() => void) | null>;
   getSystemInfo: () => Promise<Record<string, string | number> | null>;
+
+  // Desktop-only raw access (null on non-desktop)
+  automation: NovaDesktopAutomation | null;
+  routines: NovaDesktopRoutines | null;
+  power: NovaDesktopPower | null;
 }
 
 export function useCapabilities(): PlatformCapabilities {
   const [isDesktop, setIsDesktop] = useState(false);
   const [isPWA, setIsPWA] = useState(false);
+  const [isMac, setIsMac] = useState(false);
 
   useEffect(() => {
-    setIsDesktop(!!window.novaDesktop?.isDesktopApp);
+    const nd = window.novaDesktop;
+    setIsDesktop(!!nd?.isDesktopApp);
+    setIsMac(!!nd?.isMac);
     setIsPWA(
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone === true
@@ -242,10 +369,31 @@ export function useCapabilities(): PlatformCapabilities {
     };
   }, [isDesktop]);
 
+  // ── Desktop Automation Capabilities ──
+  const caps = isDesktop ? (window.novaDesktop?.capabilities ?? []) : [];
+  const hasCap = (c: string) => caps.includes(c);
+
+  const canAutomate = isDesktop && isMac && hasCap('automation');
+  const canAccessCalendar = canAutomate && hasCap('calendar');
+  const canAccessReminders = canAutomate && hasCap('reminders');
+  const canAccessMail = canAutomate && hasCap('mail');
+  const canAccessNotes = canAutomate && hasCap('notes');
+  const canControlSystem = canAutomate && hasCap('systemControl');
+  const canControlApps = canAutomate && hasCap('appControl');
+  const canManageWindows = canAutomate && hasCap('windowManagement');
+  const canAccessibility = canAutomate && hasCap('accessibility');
+  const canSpotlight = canAutomate && hasCap('spotlight');
+  const canSpeak = canAutomate && hasCap('tts');
+  const canHeadlessFs = canAutomate && hasCap('headlessFs');
+  const canRunShell = isDesktop && isMac;
+  const canLocalRoutines = isDesktop && hasCap('localRoutines');
+  const canPowerMonitor = isDesktop && hasCap('powerMonitor');
+
   return {
     isDesktop,
     isPWA,
     isWeb,
+    isMac,
     platform,
     canReadFiles,
     canSaveFiles,
@@ -257,6 +405,21 @@ export function useCapabilities(): PlatformCapabilities {
     canNotify,
     canWakeLock,
     canGetSystemInfo,
+    canAutomate,
+    canAccessCalendar,
+    canAccessReminders,
+    canAccessMail,
+    canAccessNotes,
+    canControlSystem,
+    canControlApps,
+    canManageWindows,
+    canAccessibility,
+    canSpotlight,
+    canSpeak,
+    canHeadlessFs,
+    canRunShell,
+    canLocalRoutines,
+    canPowerMonitor,
     readFile,
     saveFile,
     copyToClipboard,
@@ -265,5 +428,8 @@ export function useCapabilities(): PlatformCapabilities {
     getLocation,
     requestWakeLock,
     getSystemInfo,
+    automation: isDesktop ? (window.novaDesktop?.automation ?? null) : null,
+    routines: isDesktop ? (window.novaDesktop?.routines ?? null) : null,
+    power: isDesktop ? (window.novaDesktop?.power ?? null) : null,
   };
 }

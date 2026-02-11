@@ -37,8 +37,8 @@ const CREDIT_PACKAGES = [
 ];
 
 const PRO_FEATURES = [
-  '✨ Unlimited Standard messages (free)',
-  '🧠 5 intelligence levels — Standard to Genius',
+  '🧠 1,000 credits/month included',
+  '✨ 5 intelligence levels — Standard to Genius',
   '💡 Adjustable thinking depth for deeper reasoning',
   '🎨 DALL-E image generation (50/day)',
   '📅 Google Calendar (read + create + update)',
@@ -60,9 +60,8 @@ export default function PricingPage() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
-  const [userTier, setUserTier] = useState<string>('expired');
+  const [userIsPro, setUserIsPro] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
-  const [trialRemaining, setTrialRemaining] = useState<string | null>(null);
   const [showCanceled, setShowCanceled] = useState(false);
 
   useEffect(() => {
@@ -77,13 +76,7 @@ export default function PricingPage() {
       fetch('/api/usage')
         .then((res) => res.json())
         .then((data) => {
-          if (data.tier) setUserTier(data.tier);
-          if (data.trialRemaining) setTrialRemaining(data.trialRemaining);
-        })
-        .catch(console.error);
-      fetch('/api/credits')
-        .then((res) => res.json())
-        .then((data) => {
+          if (data.isPro !== undefined) setUserIsPro(data.isPro);
           if (data.credits !== undefined) setUserCredits(data.credits);
         })
         .catch(console.error);
@@ -134,8 +127,7 @@ export default function PricingPage() {
     }
   };
 
-  const isActivePro = userTier === 'pro';
-  const isActiveTrial = userTier === 'trial';
+  const isActivePro = userIsPro;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -175,20 +167,20 @@ export default function PricingPage() {
             Smarter AI, on your terms
           </h1>
           <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Standard is always free. Buy credits to unlock higher intelligence levels — deeper reasoning, creative writing, and expert-level analysis.
+            Every message costs credits. Start with 20 free credits on signup. Buy more anytime, or subscribe to Pro for 1,000 credits/month.
           </p>
         </div>
 
         {/* Intelligence Levels */}
         <div className="max-w-4xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold text-white text-center mb-3">Intelligence Levels</h2>
-          <p className="text-white/50 text-center mb-8 text-sm">Higher levels use credits per message. Standard is always free.</p>
+          <p className="text-white/50 text-center mb-8 text-sm">Every message costs credits. Standard is the cheapest at 1 credit per message.</p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {MODEL_LIST.map((model) => (
               <div
                 key={model.id}
                 className={`relative bg-white/5 border rounded-xl p-5 transition-all hover:bg-white/[0.07] ${
-                  model.creditCost === 0 ? 'border-green-500/30' : 'border-white/10'
+                  model.creditCost === 1 ? 'border-green-500/30' : 'border-white/10'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-3">
@@ -199,12 +191,12 @@ export default function PricingPage() {
                   </div>
                 </div>
                 <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                  model.creditCost === 0
+                  model.creditCost === 1
                     ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                     : 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                 }`}>
                   {model.costLabel}
-                  {model.creditCost > 0 && <span className="text-white/30 ml-1">/ message</span>}
+                  <span className="text-white/30 ml-1">/ message</span>
                 </div>
                 {model.supportsReasoning && (
                   <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-400">
@@ -221,7 +213,7 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold text-white text-center mb-3">Buy Credits</h2>
           <p className="text-white/50 text-center mb-2 text-sm">
-            Credits never expire. Use them to unlock Advanced, Creative, Max, and Genius levels.
+            Credits never expire. Use them for any intelligence level.
           </p>
           {session && (
             <p className="text-center mb-8 text-sm">
@@ -258,6 +250,7 @@ export default function PricingPage() {
 
                 {/* Usage examples */}
                 <div className="space-y-1.5 mb-6 text-xs text-white/50">
+                  <div className="flex justify-between"><span>⚡ Standard messages</span><span className="text-white/70">{pkg.credits}</span></div>
                   <div className="flex justify-between"><span>🧠 Advanced messages</span><span className="text-white/70">{Math.floor(pkg.credits / 3)}</span></div>
                   <div className="flex justify-between"><span>✨ Creative messages</span><span className="text-white/70">{Math.floor(pkg.credits / 4)}</span></div>
                   <div className="flex justify-between"><span>🚀 Max messages</span><span className="text-white/70">{Math.floor(pkg.credits / 8)}</span></div>
@@ -293,12 +286,12 @@ export default function PricingPage() {
         {/* Pro Subscription Card */}
         <div className="max-w-lg mx-auto mb-20">
           <h2 className="text-2xl font-semibold text-white text-center mb-3">Pro Subscription</h2>
-          <p className="text-white/50 text-center mb-8 text-sm">All integrations, unlimited Standard messages, and full platform access.</p>
+          <p className="text-white/50 text-center mb-8 text-sm">1,000 credits/month, all integrations, and full platform access.</p>
           <div className="relative bg-white/5 border border-violet-500/50 ring-2 ring-violet-500/20 rounded-2xl p-8 animate-fade-in">
             {/* Badge */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg">
-                {isActiveTrial ? `Trial — ${trialRemaining}` : '3-Day Free Trial'}
+                {isActivePro ? 'Your Plan' : 'Most Popular'}
               </span>
             </div>
 
@@ -310,7 +303,7 @@ export default function PricingPage() {
             <div className="text-center mb-8">
               <span className="text-5xl font-bold text-white">$20</span>
               <span className="text-white/50 text-lg">/month</span>
-              <p className="text-violet-300 text-sm mt-1">after 3-day free trial</p>
+              <p className="text-violet-300 text-sm mt-1">1,000 credits included every month</p>
             </div>
 
             <ul className="space-y-2.5 mb-8 text-sm">
@@ -331,19 +324,6 @@ export default function PricingPage() {
               >
                 ✨ Manage Subscription
               </Link>
-            ) : isActiveTrial ? (
-              <div className="space-y-3">
-                <div className="text-center py-3 px-4 rounded-xl bg-violet-500/20 border border-violet-500/30 text-violet-300 font-medium">
-                  ✨ Trial Active — {trialRemaining}
-                </div>
-                <button
-                  onClick={handleUpgrade}
-                  disabled={loading === 'pro'}
-                  className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all text-sm"
-                >
-                  Subscribe now to keep Pro access
-                </button>
-              </div>
             ) : (
               <button
                 onClick={() => {
@@ -361,16 +341,14 @@ export default function PricingPage() {
                     </svg>
                     Processing...
                   </span>
-                ) : session ? (
-                  '🚀 Upgrade to Pro'
                 ) : (
-                  '🚀 Start Your 3-Day Free Trial'
+                  '🚀 Subscribe to Pro'
                 )}
               </button>
             )}
 
             <p className="text-center text-white/30 text-xs mt-4">
-              No credit card required for trial. Cancel anytime.
+              Cancel anytime. Credits carry over even without Pro.
             </p>
           </div>
         </div>
@@ -386,7 +364,7 @@ export default function PricingPage() {
                 How do credits work?
               </h3>
               <p className="text-white/70 text-sm">
-                Credits let you use higher intelligence levels. Standard is always free. Advanced costs 3 credits/message, Creative costs 4, Max costs 8, and Genius costs 20. When you run out, you automatically fall back to Standard.
+                Every message costs credits. Standard costs 1 credit/message, Advanced costs 3, Creative costs 4, Max costs 8, and Genius costs 20. New users get 20 free credits. When credits run out, buy more or subscribe to Pro.
               </p>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 card-hover group">
@@ -410,7 +388,7 @@ export default function PricingPage() {
                 What&apos;s included in Pro?
               </h3>
               <p className="text-white/70 text-sm">
-                Pro gives you unlimited Standard messages, all integrations (Google, Spotify, Slack, etc.), AI phone calls, a personal AI agent, and full platform access. Credits for higher intelligence levels are purchased separately.
+                Pro gives you 1,000 credits/month (auto-refilled), all integrations (Google, Spotify, Slack, etc.), AI phone calls, a personal AI agent, and full platform access. You can always buy more credits on top.
               </p>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 card-hover group">

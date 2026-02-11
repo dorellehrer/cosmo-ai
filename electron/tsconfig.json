@@ -11,6 +11,6 @@
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["main.ts", "preload.ts"],
+  "include": ["main.ts", "preload.ts", "automation.ts", "gateway-client.ts", "imessage.ts", "tool-dispatcher.ts", "transcriber.ts", "push-to-talk.ts", "voice-wake.ts", "browser-automation.ts", "types.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

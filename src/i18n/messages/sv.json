@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Nova",
+    "nova": "Nova",
     "signIn": "Logga in",
     "signUp": "Registrera dig",
     "getStarted": "Kom igång",
@@ -192,7 +192,7 @@
     "greetingDescription": "Din personliga AI-assistent. Jag kan hjälpa dig med uppgifter, svara på frågor och göra ditt liv enklare. Vad vill du göra idag?",
     "askAnything": "Fråga Nova vad som helst...",
     "youSaid": "Du sa",
-    "cosmoSaid": "Nova sa",
+    "novaSaid": "Nova sa",
     "typing": "Nova skriver...",
     "sending": "Skickar...",
     "errorMessage": "Förlåt, något gick fel. Vänligen försök igen.",

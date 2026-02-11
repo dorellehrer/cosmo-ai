@@ -5,7 +5,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { LazyLoad } from '@/components/PageTransition';
 import { Placeholder } from '@/components/LoadingSpinner';
 import {
-  HeroDemo,
+  HeroShowcase,
   HowItWorks,
   ComparisonTable,
   Testimonials,
@@ -13,6 +13,7 @@ import {
   TrustBadges,
   FAQ,
   ToolsShowcase,
+  WaitlistForm,
 } from '@/components/landing';
 
 // Feature card component with hover effects
@@ -69,11 +70,11 @@ export default async function LandingPage() {
 
   const features = [
     { icon: '📧', titleKey: 'email' as const },
-    { icon: '💡', titleKey: 'smartHome' as const },
+    { icon: '�', titleKey: 'phoneCalls' as const },
     { icon: '🎵', titleKey: 'entertainment' as const },
-    { icon: '🔒', titleKey: 'privacy' as const },
+    { icon: '⚡', titleKey: 'powerLevels' as const },
     { icon: '🌐', titleKey: 'everywhere' as const },
-    { icon: '⚡', titleKey: 'noSetup' as const },
+    { icon: '🔒', titleKey: 'privacy' as const },
   ];
 
   return (
@@ -101,9 +102,21 @@ export default async function LandingPage() {
             >
               <span className="text-lg sm:text-xl">✨</span>
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-white">{common('cosmo')}</span>
+            <span className="text-lg sm:text-xl font-semibold text-white">{common('nova')}</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
+            <Link
+              href="/blog"
+              className="hidden md:inline-block px-3 py-2 text-sm text-white/70 hover:text-white font-medium transition-colors link-underline"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/showcase"
+              className="hidden md:inline-block px-3 py-2 text-sm text-white/70 hover:text-white font-medium transition-colors link-underline"
+            >
+              Showcase
+            </Link>
             <Link
               href="/download"
               className="px-3 sm:px-5 py-2 text-sm sm:text-base text-white/70 hover:text-white font-medium transition-colors link-underline"
@@ -125,6 +138,23 @@ export default async function LandingPage() {
           </div>
         </div>
       </nav>
+
+      {/* Announcement Banner */}
+      <div className="bg-gradient-to-r from-violet-600/90 to-fuchsia-600/90 border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-center gap-3 text-sm">
+          <span className="inline-flex items-center gap-1.5 text-white/90">
+            <span className="text-base">🚀</span>
+            <span className="font-medium">Nova is live!</span>
+            <span className="hidden sm:inline text-white/70">AI that makes calls, sends emails, and controls your desktop.</span>
+          </span>
+          <Link
+            href="/blog/introducing-nova-ai"
+            className="px-3 py-0.5 bg-white/20 hover:bg-white/30 rounded-full text-white text-xs font-medium transition-colors"
+          >
+            Read more →
+          </Link>
+        </div>
+      </div>
 
       <main id="main-content">
         {/* Hero Section */}
@@ -167,10 +197,8 @@ export default async function LandingPage() {
               </button>
             </div>
 
-            {/* Live Demo */}
-            <Suspense fallback={<div className="w-full max-w-lg mx-auto mt-8 h-[320px] skeleton rounded-xl" />}>
-              <HeroDemo />
-            </Suspense>
+            {/* Interactive Showcase */}
+            <HeroShowcase />
           </div>
         </section>
 
@@ -270,14 +298,27 @@ export default async function LandingPage() {
               <p className="text-sm sm:text-base text-white/70 mb-6 sm:mb-8 max-w-xl mx-auto">
                 {t('ctaDescription')}
               </p>
-              <Link
-                href="/chat"
-                className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-semibold text-base sm:text-lg transition-all shadow-lg shadow-violet-500/25 btn-hover-lift"
-              >
-                {t('getStartedFree')}
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  href="/chat"
+                  className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-full text-white font-semibold text-base sm:text-lg transition-all shadow-lg shadow-violet-500/25 btn-hover-lift"
+                >
+                  {t('getStartedFree')}
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="inline-block px-6 sm:px-8 py-3 sm:py-4 border border-white/20 hover:bg-white/10 hover:border-white/30 rounded-full text-white font-semibold text-base sm:text-lg transition-all"
+                >
+                  See pricing
+                </Link>
+              </div>
             </div>
           </section>
+        </LazyLoad>
+
+        {/* Newsletter Signup */}
+        <LazyLoad threshold={0.1} rootMargin="100px" fallback={<div className="max-w-6xl mx-auto px-6 py-20 h-48 skeleton rounded-2xl" />}>
+          <WaitlistForm />
         </LazyLoad>
 
         {/* FAQ */}
@@ -303,6 +344,18 @@ export default async function LandingPage() {
           <div className="flex items-center gap-4 sm:gap-6">
             <nav aria-label="Footer navigation">
               <div className="flex gap-4 sm:gap-6 text-white/50 text-sm flex-wrap">
+                <Link href="/blog" className="hover:text-white/80 transition-colors">
+                  Blog
+                </Link>
+                <Link href="/showcase" className="hover:text-white/80 transition-colors">
+                  Showcase
+                </Link>
+                <Link href="/all-integrations" className="hover:text-white/80 transition-colors">
+                  Integrations
+                </Link>
+                <Link href="/security" className="hover:text-white/80 transition-colors">
+                  Security
+                </Link>
                 <Link href="/download" className="hover:text-white/80 transition-colors">
                   {common('download')}
                 </Link>

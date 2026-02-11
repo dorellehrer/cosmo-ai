@@ -12,13 +12,22 @@ export function WaitlistForm() {
 
     setStatus('loading');
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // In production, you'd send this to your backend
-    console.log('Waitlist signup:', email);
-    setStatus('success');
-    setEmail('');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'waitlist' }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+      setStatus('success');
+      setEmail('');
+    } catch (err) {
+      console.error('Newsletter signup error:', err);
+      setStatus('error');
+    }
   };
 
   return (
@@ -56,6 +65,17 @@ export function WaitlistForm() {
               <p className="text-white/60 text-sm mt-2">
                 We&apos;ll email you when new features are ready.
               </p>
+            </div>
+          ) : status === 'error' ? (
+            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-6 max-w-md mx-auto">
+              <p className="text-red-400 font-medium">Something went wrong</p>
+              <p className="text-white/60 text-sm mt-2">Please try again in a moment.</p>
+              <button
+                onClick={() => setStatus('idle')}
+                className="mt-4 px-5 py-2 bg-white/10 hover:bg-white/20 rounded-full text-white text-sm transition-all"
+              >
+                Try again
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="max-w-md mx-auto">

@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { provisionAgent } from '@/lib/agent';
 import { checkRateLimit, RATE_LIMIT_API, RATE_LIMIT_AGENT_PROVISION } from '@/lib/rate-limit';
-import { getUserTier } from '@/lib/stripe';
+import { isPro } from '@/lib/stripe';
 import type { AgentStatus, ProvisionAgentRequest, ProvisioningEvent } from '@/types/agent';
 
 // GET /api/agent — List user's agent instances
@@ -86,8 +86,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd);
-    if (tier !== 'pro') {
+    if (!isPro(user)) {
       return NextResponse.json(
         { error: 'Agent provisioning requires a Pro subscription. Upgrade at /pricing.' },
         { status: 403 }

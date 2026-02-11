@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Nova",
+    "nova": "Nova",
     "signIn": "Sign in",
     "signUp": "Sign up",
     "getStarted": "Get started",
@@ -25,37 +25,37 @@
     "mainNav": "Main navigation",
     "heroTitle": "Meet Nova",
     "heroSubtitle": "Your AI that actually does things",
-    "heroDescription": "Not just another chatbot. Nova connects to your life — calendar, email, smart home, and more. Tell it what you need, it makes it happen.",
-    "startChatting": "Start your free trial",
-    "watchDemo": "Watch demo",
-    "featuresHeading": "Everything you need, one conversation away",
-    "ctaHeading": "Ready to meet your new AI companion?",
-    "ctaDescription": "Try Nova Pro free for 3 days. Unlimited messages, all integrations, AI phone calls.",
-    "getStartedFree": "Start 3-day free trial",
+    "heroDescription": "Tell Nova to check your email, reschedule meetings, send messages, make phone calls, generate images, and more — it actually does it.",
+    "startChatting": "Try Nova free",
+    "watchDemo": "See how it works",
+    "featuresHeading": "One conversation. Everything handled.",
+    "ctaHeading": "Start chatting with Nova — it's free",
+    "ctaDescription": "No credit card required. Start with 20 free credits. Upgrade anytime for smarter answers.",
+    "getStartedFree": "Get started free",
     "features": {
       "email": {
         "title": "Email & Calendar",
-        "description": "Check emails, schedule meetings, get reminders. Nova keeps your day organized."
+        "description": "Say \"schedule lunch with Sarah\" and Nova creates the event, finds a free slot, and sends the invite."
       },
-      "smartHome": {
-        "title": "Smart Home",
-        "description": "\"Turn off the lights\" — works with Hue, Sonos, and your favorite devices."
+      "phoneCalls": {
+        "title": "AI Phone Calls",
+        "description": "Nova can call people for you with a natural voice — and report back with a summary of the conversation."
       },
       "entertainment": {
-        "title": "Entertainment",
-        "description": "Play music, find shows, set the mood. Your entertainment, simplified."
+        "title": "Music & Messages",
+        "description": "Control Spotify, send WhatsApp messages, post to Slack and Discord — all from one chat."
+      },
+      "powerLevels": {
+        "title": "5 AI Power Levels",
+        "description": "Start with 20 free credits. Spend more when you need a genius-level answer. You choose."
+      },
+      "everywhere": {
+        "title": "Web, Desktop & Mobile",
+        "description": "Use Nova in your browser, download the Mac or PC app, or install it on your phone."
       },
       "privacy": {
         "title": "Privacy First",
-        "description": "Your data stays yours. We don't sell it, share it, or use it for training."
-      },
-      "everywhere": {
-        "title": "Works Everywhere",
-        "description": "Web, mobile, voice. Access Nova from any device, anytime."
-      },
-      "noSetup": {
-        "title": "No Setup Required",
-        "description": "Sign up, connect accounts, done. No terminal, no configs, no headaches."
+        "description": "Your data is encrypted, never sold, and never used to train AI. Delete everything anytime."
       }
     }
   },
@@ -192,7 +192,7 @@
     "greetingDescription": "Your personal AI assistant. I can help you with tasks, answer questions, and make your life easier. What would you like to do today?",
     "askAnything": "Ask Nova anything...",
     "youSaid": "You said",
-    "cosmoSaid": "Nova said",
+    "novaSaid": "Nova said",
     "typing": "Nova is typing...",
     "sending": "Sending...",
     "errorMessage": "Sorry, something went wrong. Please try again.",

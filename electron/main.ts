@@ -26,6 +26,10 @@ import * as automation from './automation';
 import { GatewayClient } from './gateway-client';
 import { IMessageWatcher, isAvailable as isIMessageAvailable } from './imessage';
 import { dispatchToolCall } from './tool-dispatcher';
+import { setPushToTalkGetter } from './tool-dispatcher';
+import { VoiceWake, broadcastWakeEvent } from './voice-wake';
+import { PushToTalk, broadcastPttEvent, type PttState } from './push-to-talk';
+import { BrowserAutomation } from './browser-automation';
 
 // The production URL to load (set via env or default)
 const APP_URL = process.env.NOVA_APP_URL || 'https://www.heynova.se';
@@ -43,6 +47,9 @@ let quickChatWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let gatewayClient: GatewayClient | null = null;
 let imessageWatcher: IMessageWatcher | null = null;
+let voiceWake: VoiceWake | null = null;
+let pushToTalk: PushToTalk | null = null;
+let browserAutomation: BrowserAutomation | null = null;
 
 function getIconPath(): string {
   // In packaged app, resources are in the app.asar parent directory
@@ -1481,6 +1488,146 @@ ipcMain.handle('imessage:isAvailable', () => {
   return isIMessageAvailable();
 });
 
+// ── Voice Wake Word ──────────────────────────────────────────
+
+function initVoiceWake(): void {
+  const accessKey = process.env.PICOVOICE_ACCESS_KEY;
+  if (!accessKey) {
+    console.log('[VoiceWake] Disabled (PICOVOICE_ACCESS_KEY not set)');
+    return;
+  }
+
+  voiceWake = new VoiceWake(accessKey, {
+    onWake: () => {
+      console.log('[VoiceWake] Wake detected → activating PTT');
+      broadcastWakeEvent('voice:wake');
+      // Auto-start PTT recording after wake word
+      if (pushToTalk && pushToTalk.getState() === 'idle') {
+        broadcastPttEvent('voice:ptt-state', 'recording');
+      }
+      // Bring main window to front
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    },
+    onStateChange: (state) => {
+      broadcastWakeEvent('voice:wake-state', state);
+    },
+    onError: (error) => {
+      console.error('[VoiceWake] Error:', error);
+    },
+  });
+
+  // Don't auto-start — let user enable via settings
+  console.log('[VoiceWake] Initialized (call voice:toggleWake to enable)');
+}
+
+// ── Push-to-Talk ─────────────────────────────────────────────
+
+function initPushToTalk(): void {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.log('[PTT] Disabled (OPENAI_API_KEY not set)');
+    return;
+  }
+
+  pushToTalk = new PushToTalk(
+    {
+      hotkey: 'CmdOrCtrl+Shift+M',
+      apiKey,
+      language: undefined, // Auto-detect
+    },
+    {
+      onStateChange: (state: PttState) => {
+        broadcastPttEvent('voice:ptt-state', state);
+      },
+      onTranscription: (text: string) => {
+        broadcastPttEvent('voice:transcription', text);
+      },
+      onError: (error: string) => {
+        broadcastPttEvent('voice:ptt-error', error);
+      },
+    },
+  );
+
+  pushToTalk.start();
+  console.log('[PTT] Initialized with CmdOrCtrl+Shift+M');
+
+  // Wire PTT instance into the tool dispatcher for voice.listen
+  setPushToTalkGetter(() => pushToTalk);
+}
+
+// ── Browser Automation ───────────────────────────────────────
+
+function initBrowserAutomation(): void {
+  browserAutomation = new BrowserAutomation();
+  console.log('[BrowserAutomation] Initialized');
+}
+
+// ── IPC: Voice ───────────────────────────────────────────────
+
+ipcMain.handle('voice:toggleWake', async () => {
+  if (!voiceWake) return { enabled: false, error: 'Wake word not configured' };
+  const enabled = await voiceWake.toggle();
+  return { enabled };
+});
+
+ipcMain.handle('voice:wakeState', () => {
+  return { state: voiceWake?.getState() || 'stopped' };
+});
+
+ipcMain.handle('voice:pttState', () => {
+  return { state: pushToTalk?.getState() || 'idle' };
+});
+
+ipcMain.handle('voice:pttHotkey', (_event, hotkey: string) => {
+  if (!pushToTalk) return { success: false, error: 'PTT not initialized' };
+  const ok = pushToTalk.updateHotkey(hotkey);
+  return { success: ok };
+});
+
+// ── IPC: Browser Automation ──────────────────────────────────
+
+ipcMain.handle('browser:open', async (_event, url?: string) => {
+  if (!browserAutomation) initBrowserAutomation();
+  return browserAutomation!.open(url);
+});
+
+ipcMain.handle('browser:navigate', async (_event, url: string) => {
+  if (!browserAutomation) return { success: false, error: 'Browser not initialized' };
+  return browserAutomation.navigate(url);
+});
+
+ipcMain.handle('browser:snapshot', async () => {
+  if (!browserAutomation) return { success: false, error: 'Browser not initialized' };
+  return browserAutomation.snapshot();
+});
+
+ipcMain.handle('browser:click', async (_event, target: string) => {
+  if (!browserAutomation) return { success: false, error: 'Browser not initialized' };
+  return browserAutomation.click(target);
+});
+
+ipcMain.handle('browser:type', async (_event, text: string, selector?: string) => {
+  if (!browserAutomation) return { success: false, error: 'Browser not initialized' };
+  return browserAutomation.type(text, selector);
+});
+
+ipcMain.handle('browser:screenshot', async (_event, selector?: string) => {
+  if (!browserAutomation) return { success: false, error: 'Browser not initialized' };
+  return browserAutomation.screenshot(selector);
+});
+
+ipcMain.handle('browser:close', async () => {
+  if (!browserAutomation) return { success: true, data: 'No browser open' };
+  return browserAutomation.close();
+});
+
+ipcMain.handle('browser:isOpen', () => {
+  return { open: browserAutomation?.isOpen() || false };
+});
+
 app.whenReady().then(() => {
   createMenu();
   createWindow();
@@ -1495,6 +1642,9 @@ app.whenReady().then(() => {
     console.log('[Gateway] Client disabled (ENABLE_GATEWAY_CLIENT != 1)');
   }
   initIMessageWatcher();
+  initVoiceWake();
+  initPushToTalk();
+  initBrowserAutomation();
 
   // Global shortcut: Quick Chat popup (Spotlight-style)
   globalShortcut.register('CmdOrCtrl+Shift+Space', () => {
@@ -1536,6 +1686,9 @@ app.on('will-quit', () => {
   saveRoutinesToDisk();
   gatewayClient?.disconnect();
   imessageWatcher?.stop();
+  voiceWake?.stop();
+  pushToTalk?.stop();
+  browserAutomation?.close();
 });
 
 // Prevent multiple instances

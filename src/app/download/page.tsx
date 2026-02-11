@@ -171,7 +171,7 @@ export default async function DownloadPage() {
               <span className="text-lg sm:text-xl">✨</span>
             </div>
             <span className="text-lg sm:text-xl font-semibold text-white">
-              {common('cosmo')}
+              {common('nova')}
             </span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">

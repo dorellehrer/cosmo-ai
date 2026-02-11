@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Nova",
+    "nova": "Nova",
     "signIn": "ログイン",
     "signUp": "新規登録",
     "getStarted": "始める",
@@ -192,7 +192,7 @@
     "greetingDescription": "あなたのパーソナルAIアシスタントです。タスクのお手伝い、質問への回答、生活をより簡単にすることができます。今日は何をしましょうか？",
     "askAnything": "Novaに何でも聞いてください...",
     "youSaid": "あなたが言った",
-    "cosmoSaid": "Novaが言った",
+    "novaSaid": "Novaが言った",
     "typing": "Novaが入力中...",
     "sending": "送信中...",
     "errorMessage": "申し訳ありません、問題が発生しました。もう一度お試しください。",

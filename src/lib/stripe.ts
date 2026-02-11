@@ -31,33 +31,16 @@ export const stripe: Stripe = new Proxy({} as Stripe, {
   },
 });
 
-// ── Subscription tier config (kept for backward compat) ─────────
+// ── Subscription config ─────────────────────────────────────────
 
-export const TIERS = {
-  trial: {
-    name: 'Trial',
-    messagesPerDay: Infinity,
-    price: 0,
-    priceId: null,
-  },
-  expired: {
-    name: 'Expired',
-    messagesPerDay: 0,
-    price: 0,
-    priceId: null,
-  },
-  pro: {
-    name: 'Pro',
-    messagesPerDay: Infinity,
-    price: 20,
-    priceId: process.env.STRIPE_PRO_PRICE_ID || 'price_placeholder_pro',
-  },
-} as const;
+/** Stripe Price ID for the Pro subscription ($20/month) */
+export const PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID || 'price_placeholder_pro';
 
-export type TierName = keyof typeof TIERS;
+/** Credits given to free users on signup */
+export const FREE_MONTHLY_CREDITS = 20;
 
-/** Duration of the free trial in milliseconds (3 days) */
-export const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
+/** Credits auto-refilled monthly for Pro subscribers */
+export const PRO_MONTHLY_CREDITS = 1000;
 
 /** AI call cost: $0.10 per minute (10 cents) */
 export const CALL_COST_PER_MINUTE_CENTS = 10;
@@ -106,82 +89,19 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
   },
 ];
 
-// ── Tier helpers ─────────────────────────────────────────────────
+// ── Helpers ─────────────────────────────────────────────────────
 
-export function getUserTier(
-  stripeSubscriptionId: string | null,
-  stripeCurrentPeriodEnd: Date | null,
-  trialEnd?: Date | null,
-  freeTrialUsed?: boolean
-): TierName {
-  if (stripeSubscriptionId && stripeCurrentPeriodEnd) {
-    if (new Date() <= stripeCurrentPeriodEnd) {
-      return 'pro';
-    }
-  }
-
-  if (trialEnd && new Date() <= trialEnd) {
-    return 'trial';
-  }
-
-  // Legacy user: treat as trial-eligible
-  if (!trialEnd && freeTrialUsed === false) {
-    return 'trial';
-  }
-
-  return 'expired';
+/** Check if user has an active Pro subscription */
+export function isPro(user: {
+  stripeSubscriptionId: string | null;
+  stripeCurrentPeriodEnd: Date | null;
+}): boolean {
+  if (!user.stripeSubscriptionId || !user.stripeCurrentPeriodEnd) return false;
+  return new Date() <= user.stripeCurrentPeriodEnd;
 }
 
-/** Check if user has Pro-level access (either paid or trial) */
-export function hasProAccess(tier: TierName): boolean {
-  return tier === 'pro' || tier === 'trial';
-}
-
-export function hasReachedLimit(
-  tier: TierName,
-  currentUsage: number
-): boolean {
-  if (tier === 'expired') return true;
-  const limit = TIERS[tier].messagesPerDay;
-  return currentUsage >= limit;
-}
-
-export function getRemainingMessages(
-  tier: TierName,
-  currentUsage: number
-): number {
-  if (tier === 'expired') return 0;
-  const limit = TIERS[tier].messagesPerDay;
-  if (limit === Infinity) return Infinity;
-  return Math.max(0, limit - currentUsage);
-}
-
-/** Get trial time remaining as a human-readable string */
-export function getTrialTimeRemaining(trialEnd: Date | null): string | null {
-  if (!trialEnd) return null;
-  const now = new Date();
-  const diff = trialEnd.getTime() - now.getTime();
-  if (diff <= 0) return null;
-  
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(hours / 24);
-  const remainingHours = hours % 24;
-  
-  if (days > 0) {
-    return `${days}d ${remainingHours}h remaining`;
-  }
-  if (hours > 0) {
-    return `${hours}h remaining`;
-  }
-  const minutes = Math.floor(diff / (1000 * 60));
-  return `${minutes}m remaining`;
-}
-
-// ── Credit helpers ──────────────────────────────────────────────
-
-/** Check if user can afford a model. 0-cost models are always affordable. */
+/** Check if user can afford a model based on their credit balance */
 export function canAffordModel(credits: number, creditCost: number): boolean {
-  if (creditCost === 0) return true;
   return credits >= creditCost;
 }
 
@@ -190,7 +110,7 @@ export function getCreditPackageByPriceId(priceId: string): CreditPackage | unde
   return CREDIT_PACKAGES.find((p) => p.stripePriceId === priceId);
 }
 
-// Format price for display
+/** Format price for display */
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

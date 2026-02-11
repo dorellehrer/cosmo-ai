@@ -33,11 +33,7 @@ model User {
   stripeCurrentPeriodEnd DateTime?
 
   // Credit system
-  credits          Int       @default(0) // Current credit balance
-
-  // Trial system (3-day Pro trial for new users)
-  trialEnd         DateTime? // When the trial expires
-  freeTrialUsed    Boolean   @default(false) // Prevent trial abuse on re-signup
+  credits          Int       @default(20) // Current credit balance (new users get 20 free)
 
   // AI model preference + reasoning
   preferredModel   String    @default("gpt-5-mini")
@@ -58,6 +54,9 @@ model User {
   routines         Routine[]
   callRecords      CallRecord[]
   creditPurchases  CreditPurchase[]
+  devices          Device[]
+  memories         Memory[]
+  subAgents        SubAgent[]
 }
 
 // Push notification subscriptions (Web Push API)
@@ -141,6 +140,7 @@ model Conversation {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages  Message[]
+  subAgents SubAgent[]
 
   @@index([userId])
 }
@@ -365,4 +365,104 @@ model CallRecord {
 
   @@index([userId])
   @@index([userId, createdAt])
+}
+
+// ──────────────────────────────────────────────
+// Newsletter
+// ──────────────────────────────────────────────
+
+model NewsletterSubscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  source      String   @default("waitlist") // waitlist | blog | footer
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+}
+
+// ──────────────────────────────────────────────
+// Gateway Hub — Device Registry
+// ──────────────────────────────────────────────
+
+// A user's registered device (macOS Electron, iOS, Android, web browser)
+model Device {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String   // "Dorel's MacBook Pro"
+  platform      String   // macos | ios | android | web
+  capabilities  String[] // ["imessage", "files", "voice", "hue", "sonos", "browser", "desktop"]
+  isOnline      Boolean  @default(false)
+  lastSeenAt    DateTime @default(now())
+  metadata      Json?    // { version, osVersion, arch, ... }
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions      DeviceSession[]
+
+  @@index([userId])
+  @@index([userId, isOnline])
+}
+
+// Authenticated session token for a device's WebSocket connection
+model DeviceSession {
+  id          String   @id @default(cuid())
+  deviceId    String
+  token       String   @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@index([token])
+}
+
+// ──────────────────────────────────────────────
+// Semantic Memory — pgvector embeddings
+// ──────────────────────────────────────────────
+
+model Memory {
+  id             String   @id @default(cuid())
+  userId         String
+  content        String   @db.Text    // The fact / preference / instruction
+  category       String   @default("general") // preference | fact | instruction | event | general
+  embedding      Unsupported("vector(1536)")?  // text-embedding-3-small
+  importance     Float    @default(0.5)         // 0.0–1.0 score
+  accessCount    Int      @default(0)
+  source         String   @default("extracted") // extracted | manual | consolidated
+  lastAccessedAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, category])
+  @@index([importance])
+}
+
+// ──────────────────────────────────────────────
+// Sub-Agents — background task execution
+// ──────────────────────────────────────────────
+
+model SubAgent {
+  id                    String    @id @default(cuid())
+  userId                String
+  parentConversationId  String?
+  task                  String    @db.Text   // Natural-language task description
+  status                String    @default("running") // running | completed | failed | cancelled
+  result                String?   @db.Text   // Final result / summary
+  error                 String?   @db.Text
+  model                 String    @default("gpt-5-mini")
+  tokensUsed            Int       @default(0)
+  steps                 Json?     // Array of step logs [{ action, result, ts }]
+  createdAt             DateTime  @default(now())
+  completedAt           DateTime?
+
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation          Conversation? @relation(fields: [parentConversationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([parentConversationId])
 }

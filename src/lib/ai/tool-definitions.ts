@@ -131,6 +131,13 @@ export const TOOL_STATUS_LABELS: Record<string, string> = {
   device_imessage_get_messages: 'Reading iMessage conversation…',
   device_imessage_send: 'Sending iMessage…',
   device_imessage_search: 'Searching iMessages…',
+  // Sub-agents
+  spawn_sub_agent: 'Spawning background agent…',
+  check_sub_agent: 'Checking agent status…',
+  cancel_sub_agent: 'Cancelling background agent…',
+  // Memory
+  remember_fact: 'Saving to memory…',
+  recall_memories: 'Searching memory…',
 };
 
 // ── Desktop Tool Status Labels ──────────────────
@@ -983,6 +990,91 @@ export function getIntegrationTools(connectedIntegrations: ConnectedIntegration[
       },
     },
   });
+
+  // ── Built-in: Sub-Agents (always available) ────────
+  tools.push(
+    {
+      type: 'function',
+      function: {
+        name: 'spawn_sub_agent',
+        description: 'Spawn a background sub-agent to perform a complex, multi-step task autonomously. Use this for research, data collection, content generation, or any task that would take multiple steps and doesn\'t need real-time interaction. The sub-agent runs in the background and you can check its progress later.',
+        parameters: {
+          type: 'object',
+          properties: {
+            task: { type: 'string', description: 'Detailed description of the task for the sub-agent to perform. Be specific about what you want it to do and what output you expect.' },
+            model: { type: 'string', description: 'AI model to use (optional, defaults to gpt-5-mini for efficiency)' },
+          },
+          required: ['task'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'check_sub_agent',
+        description: 'Check the status and result of a previously spawned sub-agent. Use this to see if a background task has completed and to retrieve its results.',
+        parameters: {
+          type: 'object',
+          properties: {
+            subAgentId: { type: 'string', description: 'The ID of the sub-agent to check (returned by spawn_sub_agent)' },
+          },
+          required: ['subAgentId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'cancel_sub_agent',
+        description: 'Cancel a running sub-agent. Use this if the user no longer needs the background task or wants to stop it.',
+        parameters: {
+          type: 'object',
+          properties: {
+            subAgentId: { type: 'string', description: 'The ID of the sub-agent to cancel' },
+          },
+          required: ['subAgentId'],
+        },
+      },
+    },
+  );
+
+  // ── Built-in: Memory (always available) ────────
+  tools.push(
+    {
+      type: 'function',
+      function: {
+        name: 'remember_fact',
+        description: 'Explicitly store a fact, preference, or instruction in the user\'s long-term memory. Use this when the user explicitly asks you to remember something, or when they share important personal information.',
+        parameters: {
+          type: 'object',
+          properties: {
+            content: { type: 'string', description: 'The fact, preference, or instruction to remember. Should be a concise, self-contained statement.' },
+            category: {
+              type: 'string',
+              enum: ['preference', 'fact', 'instruction', 'event', 'general'],
+              description: 'Category of the memory (default: general)',
+            },
+          },
+          required: ['content'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'recall_memories',
+        description: 'Search long-term memory for relevant facts about the user. Use this when you need to recall specific preferences, past instructions, or personal facts the user has shared. Memory is automatically injected for most conversations, so use this only for targeted recall.',
+        parameters: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'Natural language query to search for relevant memories' },
+            limit: { type: 'number', description: 'Maximum number of memories to return (default: 5)' },
+          },
+          required: ['query'],
+        },
+      },
+    },
+  );
 
   return tools;
 }

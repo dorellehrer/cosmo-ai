@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Nova",
+    "nova": "Nova",
     "signIn": "登录",
     "signUp": "注册",
     "getStarted": "开始使用",
@@ -192,7 +192,7 @@
     "greetingDescription": "你的个人 AI 助手。我可以帮你处理任务、回答问题，让你的生活更轻松。今天你想做什么？",
     "askAnything": "问 Nova 任何问题...",
     "youSaid": "你说",
-    "cosmoSaid": "Nova 说",
+    "novaSaid": "Nova 说",
     "typing": "Nova 正在输入...",
     "sending": "发送中...",
     "errorMessage": "抱歉，出了点问题。请重试。",

@@ -1,9 +1,9 @@
-# Cosmo AI — Electron Builder Configuration
+# Nova AI — Electron Builder Configuration
 # Builds native desktop apps for macOS (.dmg) and Windows (.exe/.msi)
 
-appId: com.cosmo.ai
-productName: Cosmo AI
-copyright: Copyright © 2026 Cosmo AI
+appId: com.nova.ai
+productName: Nova AI
+copyright: Copyright © 2026 Nova AI
 
 directories:
   output: electron-dist
@@ -11,8 +11,14 @@ directories:
 
 files:
   - electron/dist/**/*
+  - electron/native/**/*.node
   - public/icons/**/*
-  - "!node_modules"
+  - node_modules/electron-updater/**/*
+  - node_modules/builder-util-runtime/**/*
+  - node_modules/lazy-val/**/*
+  - node_modules/semver/**/*
+  - node_modules/tiny-typed-emitter/**/*
+  - node_modules/electron-store/**/*
   - "!src"
   - "!.next"
   - "!agent"
@@ -21,6 +27,10 @@ files:
 extraResources:
   - from: public/icons
     to: icons
+
+asar: true
+asarUnpack:
+  - electron/native/**/*.node
 
 mac:
   category: public.app-category.productivity
@@ -39,9 +49,13 @@ mac:
   gatekeeperAssess: false
   entitlements: electron/entitlements.mac.plist
   entitlementsInherit: electron/entitlements.mac.plist
+  extendInfo:
+    NSAppleEventsUsageDescription: "Nova AI needs access to automate macOS apps like Calendar, Mail, and Reminders."
+    NSMicrophoneUsageDescription: "Nova AI needs microphone access for voice input."
+    NSCameraUsageDescription: "Nova AI needs camera access for video calls."
+    NSAccessibilityUsageDescription: "Nova AI uses accessibility to automate UI interactions on your behalf."
 
 dmg:
-  background: electron/resources/dmg-background.png
   iconSize: 80
   contents:
     - x: 170
@@ -58,18 +72,17 @@ win:
       arch:
         - x64
   icon: public/icons/icon-512.png
-  publisherName: Cosmo AI
 
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: Cosmo AI
+  shortcutName: Nova AI
   installerIcon: public/icons/icon-512.png
   uninstallerIcon: public/icons/icon-512.png
 
 publish:
   provider: github
-  owner: cosmo-ai
-  repo: cosmo-ai
+  owner: nova-ai
+  repo: nova-ai

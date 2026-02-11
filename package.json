@@ -1,5 +1,5 @@
 {
-  "name": "cosmo-ai",
+  "name": "nova-ai",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -47,7 +47,8 @@
     "remark-gfm": "^4.0.1",
     "stripe": "^20.3.1",
     "uuid": "^13.0.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -59,6 +60,7 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/uuid": "^10.0.0",
     "@types/web-push": "^3.6.4",
+    "@types/ws": "^8.18.1",
     "electron": "^35.7.5",
     "electron-builder": "^26.7.0",
     "eslint": "^9",

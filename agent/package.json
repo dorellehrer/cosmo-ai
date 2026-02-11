@@ -1,5 +1,5 @@
 {
-  "name": "cosmo-agent",
+  "name": "nova-agent",
   "version": "1.0.0",
   "private": true,
   "type": "module",

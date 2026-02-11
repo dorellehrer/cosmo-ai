@@ -1,6 +1,6 @@
 {
   "common": {
-    "cosmo": "Nova",
+    "nova": "Nova",
     "signIn": "Anmelden",
     "signUp": "Registrieren",
     "getStarted": "Loslegen",
@@ -192,7 +192,7 @@
     "greetingDescription": "Dein persönlicher KI-Assistent. Ich kann dir bei Aufgaben helfen, Fragen beantworten und dein Leben einfacher machen. Was möchtest du heute tun?",
     "askAnything": "Frag Nova alles...",
     "youSaid": "Du sagtest",
-    "cosmoSaid": "Nova sagte",
+    "novaSaid": "Nova sagte",
     "typing": "Nova tippt...",
     "sending": "Wird gesendet...",
     "errorMessage": "Entschuldigung, etwas ist schiefgelaufen. Bitte versuche es erneut.",
