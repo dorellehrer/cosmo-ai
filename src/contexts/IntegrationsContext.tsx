@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useNotifications } from './NotificationsContext';
+import { getIntegrationProviderMeta, isPreviewProvider } from '@/lib/integrations/providers';
 
 export interface Integration {
   id: string;
@@ -10,6 +11,8 @@ export interface Integration {
   icon: string;
   color: string;
   services?: string[];
+  connectionMode?: 'oauth' | 'preview';
+  status?: 'live' | 'coming_soon';
   connected: boolean;
   connectedAt?: string;
   email?: string;
@@ -106,7 +109,15 @@ const IntegrationsContext = createContext<IntegrationsContextType | undefined>(u
 export function IntegrationsProvider({ children }: { children: ReactNode }) {
   const { addNotification } = useNotifications();
   const [integrations, setIntegrations] = useState<Integration[]>(() =>
-    AVAILABLE_INTEGRATIONS.map((i) => ({ ...i, connected: false }))
+    AVAILABLE_INTEGRATIONS.map((i) => {
+      const meta = getIntegrationProviderMeta(i.id);
+      return {
+        ...i,
+        connectionMode: meta?.connectionMode || 'preview',
+        status: meta?.status || 'coming_soon',
+        connected: false,
+      };
+    })
   );
   const [isLoading, setIsLoading] = useState(true);
 
@@ -187,15 +198,27 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
   );
 
   const connectIntegration = useCallback(async (id: string) => {
+    if (isPreviewProvider(id)) {
+      const integration = integrations.find((i) => i.id === id);
+      addNotification({
+        type: 'info',
+        category: 'integration',
+        title: 'Coming Soon',
+        message: `${integration?.name || id} is in preview and not yet connectable.`,
+      });
+      return;
+    }
+
     try {
       const res = await fetch(`/api/integrations/${id}/connect`, { method: 'POST' });
       const data = await res.json();
 
       if (!res.ok) {
+        const comingSoon = data?.code === 'NOT_YET_SUPPORTED';
         addNotification({
-          type: 'error',
+          type: comingSoon ? 'info' : 'error',
           category: 'integration',
-          title: 'Connection Failed',
+          title: comingSoon ? 'Coming Soon' : 'Connection Failed',
           message: data.error || 'Failed to start connection',
         });
         return;
@@ -213,7 +236,7 @@ export function IntegrationsProvider({ children }: { children: ReactNode }) {
         message: 'Network error — please try again',
       });
     }
-  }, [addNotification]);
+  }, [addNotification, integrations]);
 
   const disconnectIntegration = useCallback(async (id: string) => {
     const integration = integrations.find((i) => i.id === id);

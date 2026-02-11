@@ -21,7 +21,7 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand,
 } from '@aws-sdk/client-secrets-manager';
-import { getToolsForSkills, executeSkillTool } from './skills.js';
+import { canonicalizeSkillId, getToolsForSkills, executeSkillTool } from './skills.js';
 import type { ChannelAdapter, ChannelMessage } from './channels/base.js';
 import { TelegramAdapter } from './channels/telegram.js';
 import { DiscordAdapter } from './channels/discord.js';
@@ -40,7 +40,7 @@ const config = {
   healthPort: parseInt(process.env.HEALTH_PORT || '18790'),
   dataDir: process.env.DATA_DIR || '/data',
   modelProvider: process.env.MODEL_PROVIDER || 'openai',
-  modelName: process.env.MODEL_NAME || 'gpt-4o-mini',
+  modelName: process.env.MODEL_NAME || 'gpt-5-mini',
   agentName: process.env.AGENT_NAME || 'Nova',
   personality: process.env.AGENT_PERSONALITY || 'friendly',
   databaseUrl: process.env.DATABASE_URL || '',
@@ -60,6 +60,64 @@ const pool = config.databaseUrl
 
 let aiClient: OpenAI;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function toStringRecord(value: unknown): Record<string, string> {
+  if (!isRecord(value)) return {};
+  const result: Record<string, string> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item === 'string') {
+      result[key] = item;
+    } else if (typeof item === 'number' || typeof item === 'boolean') {
+      result[key] = String(item);
+    }
+  }
+  return result;
+}
+
+function parseApiKeySecret(secretString: string): string | null {
+  try {
+    const parsed = JSON.parse(secretString) as unknown;
+    if (isRecord(parsed)) {
+      if (parsed.kind === 'api_key' && typeof parsed.apiKey === 'string') {
+        return parsed.apiKey;
+      }
+      if (typeof parsed.apiKey === 'string') {
+        return parsed.apiKey;
+      }
+    }
+  } catch {
+    // Legacy plain string secret format
+  }
+
+  return secretString || null;
+}
+
+function parseChannelConfigSecret(secretString: string, expectedChannelType?: string): Record<string, string> {
+  try {
+    const parsed = JSON.parse(secretString) as unknown;
+    if (isRecord(parsed) && parsed.kind === 'channel_config') {
+      if (
+        typeof parsed.channelType === 'string' &&
+        expectedChannelType &&
+        parsed.channelType !== expectedChannelType
+      ) {
+        console.warn(
+          `[Agent] Channel secret type mismatch: expected ${expectedChannelType}, got ${parsed.channelType}`,
+        );
+      }
+      return toStringRecord(parsed.config);
+    }
+
+    // Legacy format: secret contains config object directly
+    return toStringRecord(parsed);
+  } catch {
+    return {};
+  }
+}
+
 /**
  * Fetch the user's API key from AWS Secrets Manager at startup.
  * Falls back to environment variable for local development.
@@ -77,8 +135,7 @@ async function initializeAIClient(): Promise<void> {
         new GetSecretValueCommand({ SecretId: secretArn })
       );
       if (result.SecretString) {
-        const parsed = JSON.parse(result.SecretString);
-        apiKey = parsed.apiKey || result.SecretString;
+        apiKey = parseApiKeySecret(result.SecretString) || apiKey;
       }
       console.log('✅ API key loaded from Secrets Manager');
     } catch (error) {
@@ -245,7 +302,25 @@ async function handleMessage(
 
         // Execute each tool call
         for (const toolCall of choice.message.tool_calls) {
-          const args = JSON.parse(toolCall.function.arguments || '{}');
+          if (!('function' in toolCall) || !toolCall.function) {
+            session.messages.push({
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({
+                error: 'Unsupported tool call type',
+                toolCallType: (toolCall as { type?: string }).type || 'unknown',
+              }),
+            });
+            continue;
+          }
+
+          let args: Record<string, unknown> = {};
+          try {
+            args = JSON.parse(toolCall.function.arguments || '{}') as Record<string, unknown>;
+          } catch {
+            args = {};
+          }
+
           const result = await executeSkillTool(toolCall.function.name, args);
           session.messages.push({
             role: 'tool',
@@ -464,7 +539,9 @@ async function loadSkillsFromDB(): Promise<void> {
       'SELECT "skillId" FROM "AgentSkill" WHERE "userId" = $1 AND enabled = true',
       [config.userId]
     );
-    enabledSkillIds = result.rows.map((r: { skillId: string }) => r.skillId);
+    enabledSkillIds = Array.from(
+      new Set(result.rows.map((r: { skillId: string }) => canonicalizeSkillId(r.skillId)))
+    );
     console.log(`Loaded ${enabledSkillIds.length} skills: ${enabledSkillIds.join(', ') || '(none)'}`);
   } catch (error) {
     console.error('Failed to load skills from DB:', error);
@@ -490,7 +567,7 @@ async function loadChannelsFromDB(): Promise<void> {
           const smClient = new SecretsManagerClient({ region: process.env.AWS_REGION || 'eu-north-1' });
           const secret = await smClient.send(new GetSecretValueCommand({ SecretId: row.configSecretArn }));
           if (secret.SecretString) {
-            channelConfig = JSON.parse(secret.SecretString);
+            channelConfig = parseChannelConfigSecret(secret.SecretString, row.channelType);
           }
         } catch (err) {
           console.error(`Failed to fetch credentials for ${row.channelType}:`, err);

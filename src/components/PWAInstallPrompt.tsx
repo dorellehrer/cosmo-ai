@@ -209,7 +209,7 @@ export function PWAInstallPrompt() {
                   2
                 </div>
                 <div>
-                  <p className="text-white font-medium">Scroll and tap "Add to Home Screen"</p>
+                  <p className="text-white font-medium">Scroll and tap &quot;Add to Home Screen&quot;</p>
                   <p className="text-white/60 text-sm mt-1">
                     Look for the icon with a + symbol
                   </p>
@@ -222,7 +222,7 @@ export function PWAInstallPrompt() {
                   3
                 </div>
                 <div>
-                  <p className="text-white font-medium">Tap "Add"</p>
+                  <p className="text-white font-medium">Tap &quot;Add&quot;</p>
                   <p className="text-white/60 text-sm mt-1">
                     Nova will appear on your home screen
                   </p>

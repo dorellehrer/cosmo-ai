@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { buildAuthorizationUrl, OAUTH_PROVIDERS, NON_OAUTH_PROVIDERS } from '@/lib/integrations';
+import {
+  buildAuthorizationUrl,
+  createSignedOAuthState,
+  getIntegrationProviderMeta,
+  isOAuthProvider,
+  isPreviewProvider,
+  OAUTH_PROVIDERS,
+} from '@/lib/integrations';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 import crypto from 'crypto';
 
@@ -23,16 +30,27 @@ export async function POST(
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    // Check if provider uses standard OAuth
-    if (NON_OAUTH_PROVIDERS.includes(provider)) {
+    // Preview-only providers are visible in UI but not connectable yet
+    if (isPreviewProvider(provider)) {
       return NextResponse.json(
-        { error: `${provider} uses a custom connection flow — not yet supported` },
-        { status: 400 }
+        {
+          error: `${provider} integration is coming soon`,
+          code: 'NOT_YET_SUPPORTED',
+          provider,
+        },
+        { status: 409 }
       );
     }
 
-    if (!OAUTH_PROVIDERS[provider]) {
-      return NextResponse.json({ error: `Unknown provider: ${provider}` }, { status: 400 });
+    if (!isOAuthProvider(provider)) {
+      return NextResponse.json(
+        {
+          error: `Unknown provider: ${provider}`,
+          code: 'UNKNOWN_PROVIDER',
+          provider,
+        },
+        { status: 400 }
+      );
     }
 
     // Verify provider credentials are configured
@@ -45,16 +63,18 @@ export async function POST(
     }
 
     // Generate state parameter (CSRF protection) — includes userId for verification
-    const statePayload = JSON.stringify({
+    const state = createSignedOAuthState({
       userId: session.user.id,
       nonce: crypto.randomBytes(16).toString('hex'),
-      ts: Date.now(),
+      provider,
     });
-    const state = Buffer.from(statePayload).toString('base64url');
 
     const authUrl = buildAuthorizationUrl(provider, state);
 
-    return NextResponse.json({ authUrl });
+    return NextResponse.json({
+      authUrl,
+      provider: getIntegrationProviderMeta(provider),
+    });
   } catch (error) {
     console.error('Integration connect error:', error);
     return NextResponse.json({ error: 'Failed to initiate connection' }, { status: 500 });

@@ -1,19 +1,23 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserTier, hasReachedLimit, TIERS, getRemainingMessages, hasProAccess, TRIAL_DURATION_MS, canAffordModel } from "@/lib/stripe";
+import { canAffordModel, isPro } from "@/lib/stripe";
 import { checkRateLimit, RATE_LIMIT_CHAT } from '@/lib/rate-limit';
 import {
   getConnectedIntegrations,
+  getGatewayDeviceTools,
   buildSystemPrompt,
   getIntegrationTools,
   TOOL_STATUS_LABELS,
+  DESKTOP_TOOL_STATUS_LABELS,
 } from '@/lib/ai/tool-definitions';
 import { executeToolCall } from '@/lib/ai/tool-executor';
 import { createProvider } from '@/lib/ai/providers';
 import type { ChatMessage, FileAttachment } from '@/lib/ai/providers';
 import { getModelConfig, DEFAULT_MODEL, FREE_MODEL } from '@/lib/ai/models';
 import type { ReasoningLevel } from '@/lib/ai/models';
+import { DESKTOP_TOOLS } from '@/lib/desktop-tools';
+import { getDeviceSummary, routeToolCall } from '@/lib/gateway/message-router';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -115,21 +119,6 @@ export async function POST(req: Request) {
     // Check usage limits
     const today = getToday();
 
-    // Auto-provision trial for legacy users (created before trial system)
-    if (!user.trialEnd && !user.freeTrialUsed) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          trialEnd: new Date(Date.now() + TRIAL_DURATION_MS),
-          freeTrialUsed: true,
-        },
-      });
-      user.trialEnd = new Date(Date.now() + TRIAL_DURATION_MS);
-      user.freeTrialUsed = true;
-    }
-
-    const tier = getUserTier(user.stripeSubscriptionId, user.stripeCurrentPeriodEnd, user.trialEnd, user.freeTrialUsed);
-
     const usageRecord = await prisma.usageRecord.findUnique({
       where: {
         userId_date: {
@@ -141,28 +130,14 @@ export async function POST(req: Request) {
 
     const currentUsage = usageRecord?.count || 0;
 
-    if (hasReachedLimit(tier, currentUsage)) {
-      const isExpired = tier === 'expired';
-      return new Response(
-        JSON.stringify({
-          error: isExpired
-            ? 'Your trial has expired. Subscribe to Pro to continue using Nova.'
-            : 'Daily message limit reached',
-          code: isExpired ? 'TRIAL_EXPIRED' : 'LIMIT_REACHED',
-          limit: TIERS[tier].messagesPerDay,
-          used: currentUsage,
-          tier,
-        }),
-        { status: isExpired ? 403 : 429, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Parse request — supports JSON or FormData (for file uploads)
     let messages: { role: string; content: string }[];
     let conversationId: string | undefined;
     let requestModel: string | undefined;
     let requestReasoning: ReasoningLevel | undefined;
-    let uploadedFiles: File[] = [];
+    const uploadedFiles: File[] = [];
+    let hasDesktopTools = false;
+    let toolResults: Array<{ callId: string; result: string }> | undefined;
 
     const contentType = req.headers.get('content-type') || '';
     if (contentType.includes('multipart/form-data')) {
@@ -171,6 +146,7 @@ export async function POST(req: Request) {
       conversationId = (formData.get('conversationId') as string) || undefined;
       requestModel = (formData.get('model') as string) || undefined;
       requestReasoning = (formData.get('reasoningEffort') as ReasoningLevel) || undefined;
+      hasDesktopTools = formData.get('desktopTools') === 'true';
       // Collect all uploaded files
       for (const [key, value] of formData.entries()) {
         if (key === 'files' && value instanceof File) {
@@ -183,6 +159,8 @@ export async function POST(req: Request) {
       conversationId = body.conversationId;
       requestModel = body.model;
       requestReasoning = body.reasoningEffort;
+      hasDesktopTools = body.desktopTools === true;
+      toolResults = body.toolResults;
     }
 
     // Process uploaded files
@@ -201,7 +179,6 @@ export async function POST(req: Request) {
       : userMessage.content;
 
     const newUsage = currentUsage + 1;
-    const remaining = getRemainingMessages(tier, newUsage);
 
     // Get or create conversation
     let conversation;
@@ -244,8 +221,23 @@ export async function POST(req: Request) {
 
     // Fetch user's connected integrations for tool use
     const connectedIntegrations = await getConnectedIntegrations(user.id);
-    let systemPrompt = buildSystemPrompt(connectedIntegrations);
-    const tools = getIntegrationTools(connectedIntegrations);
+    const deviceSummary = getDeviceSummary(user.id);
+    const gatewayRoutingEnabled = process.env.ENABLE_GATEWAY_TOOL_ROUTING === '1';
+    const gatewayTools = gatewayRoutingEnabled
+      ? getGatewayDeviceTools(deviceSummary.capabilities)
+      : [];
+    let systemPrompt = buildSystemPrompt(connectedIntegrations, hasDesktopTools);
+    const tools = [
+      ...getIntegrationTools(connectedIntegrations),
+      ...gatewayTools,
+      ...(hasDesktopTools ? DESKTOP_TOOLS : []),
+    ];
+
+    // Add connected device context to system prompt
+    if (gatewayRoutingEnabled && deviceSummary.deviceCount > 0) {
+      const deviceList = deviceSummary.devices.map(d => `${d.platform} (${d.capabilities.join(', ')})`).join('; ');
+      systemPrompt += `\n\nConnected devices: ${deviceList}. You can use device-specific capabilities like iMessage when available.`;
+    }
 
     // Append user's custom system prompt if set
     if (user.systemPrompt) {
@@ -258,9 +250,21 @@ export async function POST(req: Request) {
     let modelConfig = getModelConfig(modelId);
     modelId = modelConfig.id; // Ensure modelId matches a valid model (handles legacy DB values)
 
-    // Credit gating: if model costs credits and user can't afford it, fall back to free model
+    // Credit gating: if model costs credits and user can't afford it, fall back to Standard
+    // If user can't even afford Standard (1 credit), reject the request
     let usedFallback = false;
-    if (modelConfig.creditCost > 0 && !canAffordModel(user.credits, modelConfig.creditCost)) {
+    if (!canAffordModel(user.credits, modelConfig.creditCost)) {
+      if (!canAffordModel(user.credits, 1)) {
+        // Can't afford any model — no credits left
+        return new Response(
+          JSON.stringify({
+            error: 'You have no credits remaining. Buy credits to continue chatting.',
+            code: 'NO_CREDITS',
+            credits: user.credits,
+          }),
+          { status: 402, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
       modelId = FREE_MODEL;
       modelConfig = getModelConfig(FREE_MODEL);
       usedFallback = true;
@@ -305,6 +309,49 @@ export async function POST(req: Request) {
     let toolRound = 0;
     const MAX_TOOL_ROUNDS = 3;
     const toolStatusEvents: string[] = [];
+    const desktopToolNames = new Set(DESKTOP_TOOLS.map(t => t.function.name));
+    const gatewayToolNames = new Set(gatewayTools.map(t => t.function.name));
+
+    const executeServerOrGatewayTool = async (
+      functionName: string,
+      toolArgs: Record<string, unknown>
+    ): Promise<string> => {
+      if (gatewayRoutingEnabled && gatewayToolNames.has(functionName)) {
+        const routed = await routeToolCall(user.id, functionName, toolArgs);
+        if (!routed.result.success) {
+          return JSON.stringify({
+            status: 'informational',
+            message: routed.result.error || 'No compatible desktop capability is currently online.',
+            nextStep: 'Open Nova Desktop and make sure the relevant capability is enabled, then try again.',
+          });
+        }
+        return JSON.stringify({
+          status: 'ok',
+          routed: routed.routed,
+          deviceId: routed.deviceId || null,
+          result: routed.result.result ?? null,
+        });
+      }
+
+      return executeToolCall(
+        functionName,
+        toolArgs,
+        connectedIntegrations,
+        user.id,
+        provider,
+      );
+    };
+
+    // If this is a continuation with tool results from the client, inject them
+    if (toolResults && toolResults.length > 0) {
+      for (const tr of toolResults) {
+        aiMessages.push({
+          role: 'tool',
+          toolCallId: tr.callId,
+          content: tr.result,
+        });
+      }
+    }
 
     while (toolRound < MAX_TOOL_ROUNDS) {
       const toolResponse = await provider.chat({
@@ -317,20 +364,80 @@ export async function POST(req: Request) {
       });
 
       if (toolResponse.finishReason === 'tool_calls' && toolResponse.message.toolCalls) {
-        // Add assistant's tool_calls message
+        // Check if any tool calls are desktop-only (must be executed client-side)
+        const serverCalls = toolResponse.message.toolCalls.filter(tc => !desktopToolNames.has(tc.functionName));
+        const clientCalls = toolResponse.message.toolCalls.filter(tc => desktopToolNames.has(tc.functionName));
+
+        if (clientCalls.length > 0) {
+          // Add assistant's tool_calls message for context
+          aiMessages.push(toolResponse.message);
+
+          // Execute any server-side tools first
+          for (const toolCall of serverCalls) {
+            const statusLabel = TOOL_STATUS_LABELS[toolCall.functionName] || `Using ${toolCall.functionName}…`;
+            toolStatusEvents.push(statusLabel);
+            const result = await executeServerOrGatewayTool(toolCall.functionName, toolCall.arguments);
+            aiMessages.push({
+              role: 'tool',
+              toolCallId: toolCall.id,
+              content: result,
+            });
+          }
+
+          // Return desktop tool calls to the client for execution
+          // The client will execute them and send results back in a continuation request
+          const desktopToolCallsPayload = clientCalls.map(tc => ({
+            callId: tc.id,
+            name: tc.functionName,
+            arguments: tc.arguments,
+            statusLabel: DESKTOP_TOOL_STATUS_LABELS[tc.functionName] || `Running ${tc.functionName.replace('desktop_', '').replace(/_/g, ' ')}…`,
+          }));
+
+          // Save the pending AI messages context so the continuation knows where we were
+          // (the client will re-send messages + tool results)
+          const encoder = new TextEncoder();
+          const stream = new ReadableStream({
+            start(controller) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({
+                  conversationId: conversation.id,
+                  credits: user.credits - modelConfig.creditCost,
+                  creditCost: modelConfig.creditCost,
+                  modelUsed: modelId,
+                  usedFallback,
+                  reasoningEffort: reasoningEffort || null,
+                  isPro: isPro(user),
+                })}\n\n`)
+              );
+              // Send desktop tool calls for client execution
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ desktopToolCalls: desktopToolCallsPayload })}\n\n`)
+              );
+              // Send the full AI messages context for the continuation
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ pendingMessages: aiMessages })}\n\n`)
+              );
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+              controller.close();
+            },
+          });
+
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+            },
+          });
+        }
+
+        // All tool calls are server-side — execute normally
         aiMessages.push(toolResponse.message);
 
-        // Execute each tool call
         for (const toolCall of toolResponse.message.toolCalls) {
           const statusLabel = TOOL_STATUS_LABELS[toolCall.functionName] || `Using ${toolCall.functionName}…`;
           toolStatusEvents.push(statusLabel);
-          const result = await executeToolCall(
-            toolCall.functionName,
-            toolCall.arguments,
-            connectedIntegrations,
-            user.id,
-            provider,
-          );
+          const result = await executeServerOrGatewayTool(toolCall.functionName, toolCall.arguments);
           aiMessages.push({
             role: 'tool',
             toolCallId: toolCall.id,
@@ -370,12 +477,7 @@ export async function POST(req: Request) {
             modelUsed: modelId,
             usedFallback,
             reasoningEffort: reasoningEffort || null,
-            usage: {
-              used: newUsage,
-              limit: TIERS[tier].messagesPerDay,
-              remaining,
-              tier,
-            }
+            isPro: isPro(user),
           })}\n\n`)
         );
 
@@ -403,13 +505,11 @@ export async function POST(req: Request) {
         // Increment usage AFTER successful response
         await incrementUsage(user.id, today, usageRecord ?? null);
 
-        // Deduct credits for non-free models
-        if (modelConfig.creditCost > 0) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { credits: { decrement: modelConfig.creditCost } },
-          });
-        }
+        // Deduct credits for the message
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { credits: { decrement: modelConfig.creditCost } },
+        });
 
         // Generate title if this is the first exchange
         const messageCount = await prisma.message.count({
