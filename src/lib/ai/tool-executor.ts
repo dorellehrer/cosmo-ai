@@ -1125,8 +1125,9 @@ export async function executeToolCall(
         // In production, messages are received via webhook and stored in DB.
         // For now, return a helpful message about the webhook-based architecture.
         return JSON.stringify({
-          info: 'WhatsApp messages are received in real-time via webhooks. Recent messages from your conversations are shown in the WhatsApp integration panel.',
-          tip: 'Ask me to send a message instead, or check the WhatsApp integration page for received messages.',
+          status: 'informational',
+          message: 'WhatsApp messages are received in real time via webhooks and are not directly readable via REST.',
+          nextStep: 'Ask me to send a WhatsApp message, or check the WhatsApp integration page for received messages.',
         });
       }
 
@@ -1300,11 +1301,12 @@ export async function executeToolCall(
           // In production, this would call Twilio/Vapi/Bland.ai to initiate the call
           // For now, simulate the call initiation
           return JSON.stringify({
+            status: 'beta_simulated',
             success: true,
             callId: callRecord.id,
             message: `AI call initiated to ${contactName} (${phoneNumber}). The AI will ${objective}. Tone: ${tone}. You'll receive a transcript and summary when the call ends.`,
             estimatedCost: '$0.10/minute',
-            note: 'AI Phone Calls are in beta. The call will appear in your call history once completed.',
+            nextStep: 'AI Phone Calls are in beta. The call will appear in your call history once completed.',
           });
         } catch (err) {
           return JSON.stringify({ error: `Failed to initiate call: ${err instanceof Error ? err.message : 'Unknown error'}` });

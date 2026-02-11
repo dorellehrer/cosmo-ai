@@ -118,8 +118,10 @@ function ConnectionModal({
 }) {
   const [isConnecting, setIsConnecting] = useState(false);
   const details = INTEGRATION_DETAILS[integration.id];
+  const isComingSoon = integration.status === 'coming_soon' || integration.connectionMode === 'preview';
 
   const handleConnect = () => {
+    if (isComingSoon) return;
     setIsConnecting(true);
     onConnect();
     // The page will redirect to OAuth provider — no need to close modal
@@ -186,13 +188,20 @@ function ConnectionModal({
 
               <button
                 onClick={handleConnect}
-                className={`w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${integration.color} hover:opacity-90 transition-opacity`}
+                disabled={isComingSoon}
+                className={`w-full py-3 rounded-xl font-semibold text-white transition-opacity ${
+                  isComingSoon
+                    ? 'bg-white/10 text-white/60 cursor-not-allowed'
+                    : `bg-gradient-to-r ${integration.color} hover:opacity-90`
+                }`}
               >
-                Connect {integration.name}
+                {isComingSoon ? `${integration.name} Coming Soon` : `Connect ${integration.name}`}
               </button>
               
               <p className="text-white/40 text-xs text-center mt-4">
-                You&apos;ll be redirected to {integration.name} to authorize access. Nova requests read-only permissions.
+                {isComingSoon
+                  ? `${integration.name} is in preview and not yet connectable.`
+                  : `You'll be redirected to ${integration.name} to authorize access. Nova requests read-only permissions.`}
               </p>
             </>
           )}
@@ -309,6 +318,11 @@ export default function IntegrationsPage() {
                         Connected
                       </span>
                     )}
+                    {!integration.connected && integration.status === 'coming_soon' && (
+                      <span className="px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium">
+                        Coming soon
+                      </span>
+                    )}
                   </div>
 
                   {/* Features preview */}
@@ -350,10 +364,18 @@ export default function IntegrationsPage() {
                     </div>
                   ) : (
                     <button
-                      onClick={() => setConnectingId(integration.id)}
-                      className={`w-full py-2.5 rounded-xl font-medium text-white bg-gradient-to-r ${integration.color} hover:opacity-90 transition-opacity`}
+                      onClick={() => {
+                        if (integration.status === 'coming_soon') return;
+                        setConnectingId(integration.id);
+                      }}
+                      disabled={integration.status === 'coming_soon'}
+                      className={`w-full py-2.5 rounded-xl font-medium transition-opacity ${
+                        integration.status === 'coming_soon'
+                          ? 'bg-white/10 text-white/60 cursor-not-allowed'
+                          : `text-white bg-gradient-to-r ${integration.color} hover:opacity-90`
+                      }`}
                     >
-                      Connect
+                      {integration.status === 'coming_soon' ? 'Coming Soon' : 'Connect'}
                     </button>
                   )}
                 </div>

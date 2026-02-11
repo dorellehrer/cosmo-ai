@@ -5,7 +5,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { decryptToken, refreshAccessToken, OAUTH_PROVIDERS, encryptToken } from '@/lib/integrations';
+import { decryptToken, refreshAccessToken, OAUTH_PROVIDERS, encryptToken, isOAuthProvider } from '@/lib/integrations';
 import type { ToolDefinition } from './providers';
 
 // ── Types ───────────────────────────────────────
@@ -43,21 +43,39 @@ export const integrationDescriptions: Record<string, string> = {
   phone: 'AI Phone Calls — you can make AI-powered voice calls to contacts and view recent call history with transcripts. Calls are billed at $0.10/minute',
 };
 
-export function buildSystemPrompt(connectedIntegrations: ConnectedIntegration[]): string {
-  if (connectedIntegrations.length === 0) {
-    return BASE_SYSTEM_PROMPT + '\n\nWhen users ask about capabilities you don\'t have yet (like controlling smart home, checking emails, etc.), acknowledge what you\'ll be able to do soon and offer alternatives for now.';
+export function buildSystemPrompt(connectedIntegrations: ConnectedIntegration[], hasDesktopTools = false): string {
+  let prompt = BASE_SYSTEM_PROMPT;
+
+  if (connectedIntegrations.length > 0) {
+    const connectedList = connectedIntegrations
+      .map((i) => integrationDescriptions[i.provider] || i.provider)
+      .join('\n- ');
+
+    prompt += `\n\nYou have access to the following connected integrations:\n- ${connectedList}\n\nWhen the user asks about these services, use the available tools to fetch real data. Be helpful and proactive — if someone mentions a meeting, check their calendar. If they mention music, check Spotify.`;
+  } else {
+    prompt += '\n\nWhen users ask about capabilities you don\'t have yet (like controlling smart home, checking emails, etc.), acknowledge what you\'ll be able to do soon and offer alternatives for now.';
   }
 
-  const connectedList = connectedIntegrations
-    .map((i) => integrationDescriptions[i.provider] || i.provider)
-    .join('\n- ');
+  if (hasDesktopTools) {
+    prompt += `\n\nYou also have access to macOS desktop automation tools. You can:
+- Read/write files, search files, reveal in Finder
+- Check and create Calendar events and Reminders
+- Search and send emails via Mail
+- Create and search Notes
+- Control system settings (volume, brightness, dark mode, Do Not Disturb)
+- Launch, quit, and focus applications
+- Manage windows (list, resize, minimize)
+- Run Spotlight searches
+- Run allowlisted shell commands
+- Speak text aloud
+- Create scheduled automation routines
+- Read screen elements and interact with UI via Accessibility (click buttons, type text, press keys)
+- Check and request Accessibility permissions
 
-  return `${BASE_SYSTEM_PROMPT}
+Use these tools when the user asks to interact with their Mac. Be proactive — if they mention a file, offer to find or read it. If they mention a reminder, offer to create one. If they want to interact with app UI elements, use accessibility tools (but check permission first).`;
+  }
 
-You have access to the following connected integrations:
-- ${connectedList}
-
-When the user asks about these services, use the available tools to fetch real data. Be helpful and proactive — if someone mentions a meeting, check their calendar. If they mention music, check Spotify.`;
+  return prompt;
 }
 
 // ── Tool Status Labels ──────────────────────────
@@ -100,14 +118,76 @@ export const TOOL_STATUS_LABELS: Record<string, string> = {
   create_routine: 'Creating routine…',
   // WhatsApp
   whatsapp_send_message: 'Sending WhatsApp message…',
-  whatsapp_read_messages: 'Reading WhatsApp messages…',
+  whatsapp_read_messages: 'WhatsApp beta preview (simulated)…',
   // Discord
   discord_send_message: 'Sending Discord message…',
   discord_read_messages: 'Reading Discord messages…',
   discord_list_servers: 'Loading Discord servers…',
   // AI Phone Calls
-  call_contact: 'Initiating AI phone call…',
+  call_contact: 'Phone call beta preview (simulated)…',
   call_list_recent: 'Loading recent calls…',
+  // Gateway device tools
+  device_imessage_get_chats: 'Checking iMessage chats on your device…',
+  device_imessage_get_messages: 'Reading iMessage conversation…',
+  device_imessage_send: 'Sending iMessage…',
+  device_imessage_search: 'Searching iMessages…',
+};
+
+// ── Desktop Tool Status Labels ──────────────────
+
+export const DESKTOP_TOOL_STATUS_LABELS: Record<string, string> = {
+  desktop_calendar_list_events: 'Checking your calendar…',
+  desktop_calendar_create_event: 'Creating calendar event…',
+  desktop_reminders_list: 'Loading your reminders…',
+  desktop_reminders_create: 'Creating reminder…',
+  desktop_mail_search: 'Searching your email…',
+  desktop_mail_send: 'Sending email…',
+  desktop_mail_unread_count: 'Checking unread mail…',
+  desktop_notes_create: 'Creating note…',
+  desktop_notes_search: 'Searching notes…',
+  desktop_system_get_volume: 'Checking volume…',
+  desktop_system_set_volume: 'Adjusting volume…',
+  desktop_system_get_dark_mode: 'Checking dark mode…',
+  desktop_system_set_dark_mode: 'Toggling dark mode…',
+  desktop_system_get_brightness: 'Checking brightness…',
+  desktop_system_set_brightness: 'Adjusting brightness…',
+  desktop_system_toggle_dnd: 'Toggling Do Not Disturb…',
+  desktop_system_lock_screen: 'Locking screen…',
+  desktop_system_empty_trash: 'Emptying trash…',
+  desktop_app_list: 'Listing running apps…',
+  desktop_app_launch: 'Launching app…',
+  desktop_app_quit: 'Quitting app…',
+  desktop_app_focus: 'Focusing app…',
+  desktop_fs_read_file: 'Reading file…',
+  desktop_fs_write_file: 'Writing file…',
+  desktop_fs_list_dir: 'Listing directory…',
+  desktop_fs_search: 'Searching files…',
+  desktop_fs_move_to_trash: 'Moving to trash…',
+  desktop_fs_reveal_in_finder: 'Revealing in Finder…',
+  desktop_window_list: 'Listing windows…',
+  desktop_window_resize: 'Resizing window…',
+  desktop_window_minimize_all: 'Minimizing all windows…',
+  desktop_spotlight_search: 'Searching with Spotlight…',
+  desktop_speak: 'Speaking text…',
+  desktop_shell_run: 'Running command…',
+  desktop_routine_create: 'Creating routine…',
+  desktop_routine_list: 'Loading routines…',
+  desktop_routine_delete: 'Deleting routine…',
+  desktop_routine_run_now: 'Running routine…',
+  // Accessibility
+  desktop_accessibility_check: 'Checking accessibility permission…',
+  desktop_accessibility_request: 'Requesting accessibility permission…',
+  desktop_accessibility_click: 'Clicking element…',
+  desktop_accessibility_type: 'Typing text…',
+  desktop_accessibility_press_key: 'Pressing key…',
+  desktop_accessibility_read_screen: 'Reading screen elements…',
+  // Additional
+  desktop_calendar_list_calendars: 'Listing calendars…',
+  desktop_reminders_list_lists: 'Listing reminder lists…',
+  desktop_app_is_running: 'Checking if app is running…',
+  desktop_system_sleep: 'Putting Mac to sleep…',
+  desktop_system_get_dnd: 'Checking Do Not Disturb…',
+  desktop_list_voices: 'Listing available voices…',
 };
 
 // ── Integration Token Helpers ───────────────────
@@ -126,7 +206,7 @@ async function getValidToken(integration: {
 
     // Check if token is expired (with 5 min buffer)
     if (integration.expiresAt && integration.expiresAt.getTime() < Date.now() + 5 * 60 * 1000) {
-      if (!integration.refreshToken || !OAUTH_PROVIDERS[integration.provider]) {
+      if (!integration.refreshToken || !isOAuthProvider(integration.provider) || !OAUTH_PROVIDERS[integration.provider]) {
         return null;
       }
       const refreshToken = decryptToken(integration.refreshToken);
@@ -164,6 +244,78 @@ export async function getConnectedIntegrations(userId: string): Promise<Connecte
     }
   }
   return results;
+}
+
+// ── Gateway Device Tools ───────────────────────
+
+export function getGatewayDeviceTools(availableCapabilities: string[]): ToolDefinition[] {
+  const caps = new Set(availableCapabilities);
+  const tools: ToolDefinition[] = [];
+
+  if (caps.has('imessage')) {
+    tools.push(
+      {
+        type: 'function',
+        function: {
+          name: 'device_imessage_get_chats',
+          description: 'List recent iMessage chats from the user’s connected desktop device.',
+          parameters: {
+            type: 'object',
+            properties: {
+              limit: { type: 'number', description: 'Maximum chats to return (default 20)', default: 20 },
+            },
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'device_imessage_get_messages',
+          description: 'Read recent iMessages in a specific chat on the connected desktop device.',
+          parameters: {
+            type: 'object',
+            properties: {
+              chatIdentifier: { type: 'string', description: 'Chat identifier (phone/email thread)' },
+              limit: { type: 'number', description: 'Maximum messages to return (default 50)', default: 50 },
+            },
+            required: ['chatIdentifier'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'device_imessage_send',
+          description: 'Send an iMessage from the connected desktop device.',
+          parameters: {
+            type: 'object',
+            properties: {
+              to: { type: 'string', description: 'Phone number, email, or chat identifier' },
+              text: { type: 'string', description: 'Message text to send' },
+            },
+            required: ['to', 'text'],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'device_imessage_search',
+          description: 'Search iMessage history on the connected desktop device.',
+          parameters: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Search text' },
+              limit: { type: 'number', description: 'Maximum matches to return (default 30)', default: 30 },
+            },
+            required: ['query'],
+          },
+        },
+      }
+    );
+  }
+
+  return tools;
 }
 
 // ── Tool Definitions ────────────────────────────

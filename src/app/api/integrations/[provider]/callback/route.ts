@@ -4,7 +4,8 @@ import {
   exchangeCodeForTokens,
   fetchProviderUserInfo,
   encryptToken,
-  OAUTH_PROVIDERS,
+  isOAuthProvider,
+  verifySignedOAuthState,
 } from '@/lib/integrations';
 
 // GET /api/integrations/[provider]/callback — OAuth redirect handler
@@ -35,25 +36,14 @@ export async function GET(
       );
     }
 
-    // Decode and validate state
-    let stateData: { userId: string; nonce: string; ts: number };
-    try {
-      const decoded = Buffer.from(state, 'base64url').toString('utf8');
-      stateData = JSON.parse(decoded);
-    } catch {
+    const stateCheck = verifySignedOAuthState(state, provider);
+    if (!stateCheck.ok) {
       return NextResponse.redirect(
-        `${baseUrl}/integrations?error=${encodeURIComponent('Invalid state parameter')}`
+        `${baseUrl}/integrations?error=${encodeURIComponent(`OAuth state validation failed (${stateCheck.code})`)}`
       );
     }
 
-    // Validate state age (max 10 minutes)
-    if (Date.now() - stateData.ts > 10 * 60 * 1000) {
-      return NextResponse.redirect(
-        `${baseUrl}/integrations?error=${encodeURIComponent('Authorization expired — please try again')}`
-      );
-    }
-
-    const userId = stateData.userId;
+    const userId = stateCheck.payload.userId;
 
     // Verify user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -64,7 +54,7 @@ export async function GET(
     }
 
     // Verify provider is valid
-    if (!OAUTH_PROVIDERS[provider]) {
+    if (!isOAuthProvider(provider)) {
       return NextResponse.redirect(
         `${baseUrl}/integrations?error=${encodeURIComponent(`Unknown provider: ${provider}`)}`
       );

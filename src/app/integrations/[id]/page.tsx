@@ -113,6 +113,11 @@ export default function IntegrationDetailPage() {
   const baseIntegration = AVAILABLE_INTEGRATIONS.find((i) => i.id === id);
   const integration = integrations.find((i) => i.id === id);
   const details = INTEGRATION_DETAILS[id];
+  const nowMs = Date.now();
+  const expiresAtMs = integration?.expiresAt ? new Date(integration.expiresAt).getTime() : null;
+  const isExpired = expiresAtMs !== null && expiresAtMs < nowMs;
+  const isExpiringSoon = expiresAtMs !== null && !isExpired && expiresAtMs < nowMs + 24 * 60 * 60 * 1000;
+  const isComingSoon = integration?.status === 'coming_soon' || integration?.connectionMode === 'preview';
 
   useEffect(() => {
     if (!baseIntegration) {
@@ -120,7 +125,7 @@ export default function IntegrationDetailPage() {
     }
   }, [baseIntegration, router]);
 
-  if (!baseIntegration || !integration || !details) {
+  if (!baseIntegration || !integration) {
     return null;
   }
 
@@ -186,13 +191,13 @@ export default function IntegrationDetailPage() {
               )}
               {integration.connected && integration.expiresAt && (
                 <p className={`text-sm mt-1 ${
-                  new Date(integration.expiresAt).getTime() < Date.now()
+                  isExpired
                     ? 'text-red-400'
-                    : new Date(integration.expiresAt).getTime() < Date.now() + 24 * 60 * 60 * 1000
+                    : isExpiringSoon
                       ? 'text-amber-400'
                       : 'text-green-400/70'
                 }`}>
-                  {new Date(integration.expiresAt).getTime() < Date.now()
+                  {isExpired
                     ? 'Token expired — reconnect required'
                     : `Token valid until ${new Date(integration.expiresAt).toLocaleDateString()}`
                   }
@@ -203,6 +208,7 @@ export default function IntegrationDetailPage() {
         </div>
 
         {/* Content Grid */}
+        {!isComingSoon && details ? (
         <div className="grid md:grid-cols-2 gap-6">
           {/* About */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-6">
@@ -255,9 +261,18 @@ export default function IntegrationDetailPage() {
             </ul>
           </div>
         </div>
+        ) : (
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-white mb-2">Preview Integration</h3>
+            <p className="text-white/70 text-sm">
+              {baseIntegration.name} is listed in Nova, but connection is not available yet.
+              You can still browse the planned capabilities here while we finalize backend and OAuth flows.
+            </p>
+          </div>
+        )}
 
         {/* Try It Out Section */}
-        {integration.connected && details.examplePrompts.length > 0 && (
+        {integration.connected && details && details.examplePrompts.length > 0 && (
           <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Try It Out</h3>
             <p className="text-white/60 text-sm mb-3">Try saying these in your chat with Nova:</p>
@@ -285,13 +300,13 @@ export default function IntegrationDetailPage() {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Manage Connection</h3>
                 <p className="text-white/60 text-sm">
-                  {integration.expiresAt && new Date(integration.expiresAt).getTime() < Date.now()
+                  {isExpired
                     ? 'Your connection has expired. Reconnect to continue using this integration.'
                     : 'This integration is currently active. Disconnect to revoke access.'
                   }
                 </p>
               </div>
-              {integration.expiresAt && new Date(integration.expiresAt).getTime() < Date.now() && (
+              {isExpired && (
                 <button
                   onClick={handleConnect}
                   className={`px-4 py-2 rounded-lg bg-gradient-to-r ${baseIntegration.color} text-white text-sm font-medium hover:opacity-90 transition-opacity mr-2`}
@@ -330,14 +345,21 @@ export default function IntegrationDetailPage() {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">Connect {baseIntegration.name}</h3>
                 <p className="text-white/60 text-sm">
-                  Enable this integration to unlock its features with Nova.
+                  {isComingSoon
+                    ? `${baseIntegration.name} is in preview and not yet connectable.`
+                    : 'Enable this integration to unlock its features with Nova.'}
                 </p>
               </div>
               <button
                 onClick={handleConnect}
-                className={`px-6 py-2.5 rounded-xl bg-gradient-to-r ${baseIntegration.color} text-white font-medium hover:opacity-90 transition-opacity`}
+                disabled={isComingSoon}
+                className={`px-6 py-2.5 rounded-xl text-white font-medium transition-opacity ${
+                  isComingSoon
+                    ? 'bg-white/10 text-white/60 cursor-not-allowed'
+                    : `bg-gradient-to-r ${baseIntegration.color} hover:opacity-90`
+                }`}
               >
-                Connect
+                {isComingSoon ? 'Coming Soon' : 'Connect'}
               </button>
             </div>
           )}

@@ -97,12 +97,30 @@ export const SKILL_TOOLS: Record<string, OpenAI.Chat.Completions.ChatCompletionT
   ],
 };
 
+// Legacy skill IDs mapped to current executable IDs.
+const LEGACY_SKILL_ID_MAP: Record<string, string> = {
+  'calendar-manager': 'datetime',
+  'email-assistant': 'web-search',
+  'smart-home': 'web-search',
+  'file-manager': 'calculator',
+  'browser-control': 'web-search',
+  reminder: 'reminders',
+};
+
+export function canonicalizeSkillId(skillId: string): string {
+  return LEGACY_SKILL_ID_MAP[skillId] ?? skillId;
+}
+
 /**
  * Get tools for a set of enabled skill IDs.
  */
 export function getToolsForSkills(enabledSkillIds: string[]): OpenAI.Chat.Completions.ChatCompletionTool[] {
   const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [];
-  for (const skillId of enabledSkillIds) {
+  const seen = new Set<string>();
+  for (const rawSkillId of enabledSkillIds) {
+    const skillId = canonicalizeSkillId(rawSkillId);
+    if (seen.has(skillId)) continue;
+    seen.add(skillId);
     const skillTools = SKILL_TOOLS[skillId];
     if (skillTools) {
       tools.push(...skillTools);

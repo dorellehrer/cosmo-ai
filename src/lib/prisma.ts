@@ -1,6 +1,7 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import fs from "fs";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -18,7 +19,7 @@ function createPrismaClient() {
         // Use AWS RDS CA bundle when available, otherwise allow RDS certs
         rejectUnauthorized: !!process.env.RDS_CA_CERT_PATH,
         ...(process.env.RDS_CA_CERT_PATH && {
-          ca: require('fs').readFileSync(process.env.RDS_CA_CERT_PATH, 'utf8'),
+          ca: fs.readFileSync(process.env.RDS_CA_CERT_PATH, 'utf8'),
         }),
       },
     }),

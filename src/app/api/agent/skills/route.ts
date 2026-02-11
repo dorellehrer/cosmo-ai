@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { BUILTIN_SKILLS } from '@/types/agent';
+import { BUILTIN_SKILLS, getSkillIdVariants, toCanonicalSkillId } from '@/types/agent';
 import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/agent/skills — List installed skills + available marketplace
@@ -29,7 +29,8 @@ export async function GET() {
 
     // Merge with available skills to show install status
     const available = BUILTIN_SKILLS.map(skill => {
-      const userSkill = installed.find(s => s.skillId === skill.id);
+      const variants = getSkillIdVariants(skill.id);
+      const userSkill = installed.find(s => variants.includes(s.skillId));
       return {
         ...skill,
         installed: !!userSkill,
@@ -70,14 +71,19 @@ export async function POST(req: Request) {
     }
 
     // Find skill definition
-    const skillDef = BUILTIN_SKILLS.find(s => s.id === skillId);
+    const canonicalSkillId = toCanonicalSkillId(skillId);
+    const variants = getSkillIdVariants(canonicalSkillId);
+    const skillDef = BUILTIN_SKILLS.find(s => s.id === canonicalSkillId);
     if (!skillDef) {
       return NextResponse.json({ error: 'Skill not found' }, { status: 404 });
     }
 
     // Check if already installed
     const existing = await prisma.agentSkill.findFirst({
-      where: { userId: session.user.id, skillId },
+      where: {
+        userId: session.user.id,
+        skillId: { in: variants },
+      },
     });
 
     if (existing) {
@@ -125,8 +131,14 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'skillId and enabled (boolean) are required' }, { status: 400 });
     }
 
+    const canonicalSkillId = toCanonicalSkillId(skillId);
+    const variants = getSkillIdVariants(canonicalSkillId);
+
     const result = await prisma.agentSkill.updateMany({
-      where: { userId: session.user.id, skillId },
+      where: {
+        userId: session.user.id,
+        skillId: { in: variants },
+      },
       data: { enabled },
     });
 
@@ -134,7 +146,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Skill not found or not installed' }, { status: 404 });
     }
 
-    return NextResponse.json({ updated: true, skillId, enabled });
+    return NextResponse.json({ updated: true, skillId: canonicalSkillId, enabled });
   } catch (error) {
     console.error('Failed to toggle skill:', error);
     return NextResponse.json({ error: 'Failed to toggle skill' }, { status: 500 });
