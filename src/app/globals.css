@@ -50,6 +50,63 @@ body {
   overflow-y: scroll;
 }
 
+/* Lock body scroll when chat is active (set by chat page) */
+body.chat-active {
+  overflow: hidden;
+}
+
+/* ===== PWA / Standalone App Styles ===== */
+@media (display-mode: standalone) {
+  /* Remove body scrollbar in standalone PWA */
+  body {
+    overflow: hidden;
+  }
+
+  /* Safe area insets for notched devices */
+  html {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Window Controls Overlay (PWA title bar) */
+@media (display-mode: window-controls-overlay) {
+  body {
+    overflow: hidden;
+  }
+
+  html {
+    padding-top: env(titlebar-area-height, 0);
+  }
+
+  /* PWA draggable title bar region */
+  .pwa-titlebar-drag {
+    position: fixed;
+    top: 0;
+    left: env(titlebar-area-x, 0);
+    width: env(titlebar-area-width, 100%);
+    height: env(titlebar-area-height, 0);
+    -webkit-app-region: drag;
+    app-region: drag;
+    z-index: 9999;
+  }
+}
+
+/* App mode detection (set by AppModeDetector component) */
+html[data-app-mode="pwa"],
+html[data-app-mode="desktop"] {
+  overflow: hidden;
+  height: 100%;
+}
+
+html[data-app-mode="pwa"] body,
+html[data-app-mode="desktop"] body {
+  overflow: hidden;
+  height: 100%;
+}
+
 /* ===== Page Transitions ===== */
 .page-transition {
   transition: opacity var(--transition-fast) var(--ease-out),

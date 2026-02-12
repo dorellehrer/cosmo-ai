@@ -73,18 +73,38 @@ export default function ChatPage() {
   const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const animatedIdsRef = useRef<Set<string>>(new Set());
+  const streamBufferRef = useRef<string>('');
+  const rafIdRef = useRef<number | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToBottom = useCallback((force = false) => {
+    const main = mainRef.current;
+    if (!main) return;
+    // Only auto-scroll if user is near the bottom (within 150px) or forced
+    const isNearBottom = main.scrollHeight - main.scrollTop - main.clientHeight < 150;
+    if (isNearBottom || force) {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
+
+  // Lock body scroll while on chat page
+  useEffect(() => {
+    document.body.classList.add('chat-active');
+    return () => {
+      document.body.classList.remove('chat-active');
+    };
+  }, []);
 
   // Fetch conversations list
   const fetchConversations = useCallback(async (query?: string) => {
@@ -471,6 +491,8 @@ export default function ChatPage() {
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, assistantMessage]);
+    // Force scroll when user sends a new message
+    setTimeout(() => scrollToBottom(true), 50);
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -653,13 +675,21 @@ export default function ChatPage() {
                               );
                             }
                             if (cParsed.content) {
-                              setMessages((prev) =>
-                                prev.map((m) =>
-                                  m.id === assistantId
-                                    ? { ...m, content: m.content + cParsed.content, toolStatus: undefined }
-                                    : m
-                                )
-                              );
+                              streamBufferRef.current += cParsed.content;
+                              if (rafIdRef.current === null) {
+                                rafIdRef.current = requestAnimationFrame(() => {
+                                  const buffered = streamBufferRef.current;
+                                  streamBufferRef.current = '';
+                                  rafIdRef.current = null;
+                                  setMessages((prev) =>
+                                    prev.map((m) =>
+                                      m.id === assistantId
+                                        ? { ...m, content: m.content + buffered, toolStatus: undefined }
+                                        : m
+                                    )
+                                  );
+                                });
+                              }
                             }
                           } catch {
                             // Ignore parse errors
@@ -670,15 +700,23 @@ export default function ChatPage() {
                   }
                 }
 
-                // Handle content
+                // Handle content — buffer tokens and flush via RAF
                 if (parsed.content) {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantId
-                        ? { ...m, content: m.content + parsed.content, toolStatus: undefined }
-                        : m
-                    )
-                  );
+                  streamBufferRef.current += parsed.content;
+                  if (rafIdRef.current === null) {
+                    rafIdRef.current = requestAnimationFrame(() => {
+                      const buffered = streamBufferRef.current;
+                      streamBufferRef.current = '';
+                      rafIdRef.current = null;
+                      setMessages((prev) =>
+                        prev.map((m) =>
+                          m.id === assistantId
+                            ? { ...m, content: m.content + buffered, toolStatus: undefined }
+                            : m
+                        )
+                      );
+                    });
+                  }
                 }
               } catch {
                 // Ignore JSON parse errors for incomplete chunks
@@ -699,6 +737,22 @@ export default function ChatPage() {
         )
       );
     } finally {
+      // Flush any remaining buffered content
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      if (streamBufferRef.current) {
+        const remaining = streamBufferRef.current;
+        streamBufferRef.current = '';
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? { ...m, content: m.content + remaining, toolStatus: undefined }
+              : m
+          )
+        );
+      }
       abortControllerRef.current = null;
       setIsLoading(false);
       // Refresh conversations list
@@ -898,7 +952,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex">
+    <div className="h-dvh bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex overflow-hidden">
       {/* Sidebar Overlay (mobile) */}
       {sidebarOpen && (
         <div
@@ -1257,7 +1311,7 @@ export default function ChatPage() {
         </header>
 
         {/* Chat Area */}
-        <main className="flex-1 overflow-y-auto" role="main" aria-label="Chat messages">
+        <main ref={mainRef} className="flex-1 overflow-y-auto min-h-0" role="main" aria-label="Chat messages">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
             {loadingChat ? (
               <div className="space-y-3 sm:space-y-4 animate-pulse" role="status" aria-label={t('loadingConversation')}>
@@ -1301,12 +1355,18 @@ export default function ChatPage() {
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4" role="log" aria-live="polite" aria-atomic="false">
-                {messages.map((message, index) => (
+                {messages.map((message, index) => {
+                  // Only animate newly appearing messages, not streaming updates
+                  const shouldAnimate = !animatedIdsRef.current.has(message.id);
+                  if (shouldAnimate) {
+                    animatedIdsRef.current.add(message.id);
+                  }
+                  return (
                   <div
                     key={message.id}
                     className={`group/msg flex flex-col ${
                       message.role === 'user' ? 'items-end' : 'items-start'
-                    } animate-fade-in`}
+                    }${shouldAnimate ? ' animate-fade-in' : ''}`}
                   >
                     <div
                       className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 ${
@@ -1463,7 +1523,7 @@ export default function ChatPage() {
                       </div>
                     )}
                   </div>
-                ))}
+                );})}
                 <div ref={messagesEndRef} />
               </div>
             )}

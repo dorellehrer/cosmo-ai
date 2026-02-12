@@ -86,7 +86,7 @@ function ImageWithLoading({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export function MessageRenderer({ content, role }: MessageRendererProps) {
+export const MessageRenderer = React.memo(function MessageRenderer({ content, role }: MessageRendererProps) {
   // For user messages, keep them simple
   if (role === 'user') {
     return <p className="whitespace-pre-wrap text-sm sm:text-base">{content}</p>;
@@ -236,4 +236,4 @@ export function MessageRenderer({ content, role }: MessageRendererProps) {
       </ReactMarkdown>
     </div>
   );
-}
+});

@@ -51,7 +51,8 @@ export function PageTransition({ children }: PageTransitionProps) {
     <div 
       className={`page-transition ${isTransitioning ? 'page-transition-exit' : 'page-transition-enter'}`}
       style={{
-        minHeight: '100vh',
+        height: '100%',
+        minHeight: '100dvh',
       }}
     >
       {displayChildren}

@@ -4,6 +4,7 @@ import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import { Providers } from '@/components/Providers';
 import { PageTransition } from '@/components/PageTransition';
+import { AppModeDetector } from '@/components/AppModeDetector';
 import { isRtlLocale, type Locale } from '@/i18n/config';
 import './globals.css';
 
@@ -123,6 +124,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${inter.className} antialiased`}>
+        <AppModeDetector />
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <PageTransition>
