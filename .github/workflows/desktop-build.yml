@@ -47,6 +47,8 @@ jobs:
           path: |
             electron-dist/*.dmg
             electron-dist/*.zip
+            electron-dist/*.blockmap
+            electron-dist/latest-mac.yml
           retention-days: 30
 
   build-windows:
@@ -97,5 +99,8 @@ jobs:
             artifacts/*.dmg
             artifacts/*.zip
             artifacts/*.exe
+            artifacts/*.blockmap
+            artifacts/latest-mac.yml
+            artifacts/latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
+import { MacDownloadButtons, WindowsDownloadButton } from '@/components/DownloadButtons';
 
 export const metadata: Metadata = {
   title: 'Download Nova AI — Desktop & Mobile',
@@ -209,11 +210,7 @@ export default async function DownloadPage() {
             title={t('macos.title')}
             illustration={<MacBookIcon />}
             badge={t('macos.badge')}
-            cta={
-              <div className="block w-full text-center px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-white/50 font-semibold">
-                Coming Soon
-              </div>
-            }
+            cta={<MacDownloadButtons />}
           >
             <Step
               number={1}
@@ -237,11 +234,7 @@ export default async function DownloadPage() {
             title={t('windows.title')}
             illustration={<WindowsIcon />}
             badge={t('windows.badge')}
-            cta={
-              <div className="block w-full text-center px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-white/50 font-semibold">
-                Coming Soon
-              </div>
-            }
+            cta={<WindowsDownloadButton />}
           >
             <Step
               number={1}

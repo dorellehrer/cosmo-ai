@@ -32,6 +32,8 @@ asar: true
 asarUnpack:
   - electron/native/**/*.node
 
+afterSign: scripts/notarize.js
+
 mac:
   category: public.app-category.productivity
   target:
@@ -84,5 +86,5 @@ nsis:
 
 publish:
   provider: github
-  owner: nova-ai
-  repo: nova-ai
+  owner: dorellehrer
+  repo: cosmo-ai
