@@ -73,7 +73,7 @@ win:
     - target: nsis
       arch:
         - x64
-  icon: public/icons/icon-512.png
+  icon: public/icons/icon.ico
 
 nsis:
   oneClick: false
@@ -81,8 +81,8 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Nova AI
-  installerIcon: public/icons/icon-512.png
-  uninstallerIcon: public/icons/icon-512.png
+  installerIcon: public/icons/icon.ico
+  uninstallerIcon: public/icons/icon.ico
 
 publish:
   provider: github
