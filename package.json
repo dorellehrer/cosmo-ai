@@ -16,6 +16,7 @@
     "electron:build:win": "npm run electron:compile && electron-builder --win",
     "smoke:gateway": "node scripts/gateway-smoke-check.mjs",
     "smoke:gateway:delta": "node scripts/gateway-health-delta.mjs",
+    "verify:single-chat": "node scripts/verify-single-chat-invariants.mjs",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "test:headed": "npx playwright test --headed"

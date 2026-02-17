@@ -61,6 +61,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Verify single-chat invariants
+        run: npm run verify:single-chat
+
       - name: Build web app
         run: npm run build
 

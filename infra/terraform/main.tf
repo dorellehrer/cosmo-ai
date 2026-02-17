@@ -80,6 +80,8 @@ module "cloudwatch" {
 
   project_name = var.project_name
   environment  = var.environment
+  alb_arn_suffix = module.ecs.alb_arn_suffix
+  gateway_ws_target_group_arn_suffix = module.ecs.gateway_ws_target_group_arn_suffix
 }
 
 module "rds" {

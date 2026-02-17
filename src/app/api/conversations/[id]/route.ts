@@ -138,9 +138,16 @@ export async function PATCH(
     }
 
     const body = await req.json();
+
+    if (body.pinned !== undefined) {
+      return NextResponse.json(
+        { error: 'Pinning is disabled in single-chat mode' },
+        { status: 400 }
+      );
+    }
+
     const data: Record<string, unknown> = {};
     if (body.title !== undefined) data.title = body.title;
-    if (body.pinned !== undefined) data.pinned = Boolean(body.pinned);
 
     const { canonical, isCanonical } = await assertCanonicalConversation(session.user.id, id);
 

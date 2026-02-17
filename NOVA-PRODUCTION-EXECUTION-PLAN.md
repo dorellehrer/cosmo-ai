@@ -24,7 +24,7 @@ Ship Nova to stable full production with enforceable trust boundaries, observabi
 
 ### Phase 2 — Operational Observability
 
-- ⬜ Add dashboard/alerts for:
+- ✅ Add dashboard/alerts for:
   - blocked trust events rate
   - `config.reload` failures
   - stale online devices
@@ -33,12 +33,12 @@ Ship Nova to stable full production with enforceable trust boundaries, observabi
 
 ### Phase 2.1 — In Progress
 
-- ⬜ Add dashboard/alerts implementation details to infra (CloudWatch alarms + runbook)
+- ✅ Add dashboard/alerts implementation details to infra (CloudWatch alarms + runbook)
 
 ### Phase 3 — Product Integrity
 
-- ⬜ Remove remaining backend multi-conversation mutation paths not needed in single-chat mode
-- ⬜ Add invariant checks in CI for one-conversation-per-user
+- ✅ Remove remaining backend multi-conversation mutation paths not needed in single-chat mode
+- ✅ Add invariant checks in CI for one-conversation-per-user
 
 ### Phase 4 — Release Safety
 

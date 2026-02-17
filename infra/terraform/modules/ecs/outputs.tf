@@ -25,3 +25,11 @@ output "alb_dns_name" {
 output "gateway_ws_target_group_arn" {
   value = aws_lb_target_group.gateway_ws.arn
 }
+
+output "alb_arn_suffix" {
+  value = aws_lb.app.arn_suffix
+}
+
+output "gateway_ws_target_group_arn_suffix" {
+  value = aws_lb_target_group.gateway_ws.arn_suffix
+}
