@@ -35,7 +35,9 @@ import { BrowserAutomation } from './browser-automation';
 const APP_URL = process.env.NOVA_APP_URL || 'https://www.heynova.se';
 const IS_DEV = process.env.NODE_ENV === 'development';
 const DEV_URL = 'http://localhost:3000';
-const ENABLE_GATEWAY_CLIENT = process.env.ENABLE_GATEWAY_CLIENT === '1';
+const ENABLE_GATEWAY_CLIENT =
+  process.env.ENABLE_GATEWAY_CLIENT === '1' ||
+  (process.env.ENABLE_GATEWAY_CLIENT === undefined && !IS_DEV);
 const ENABLE_IMESSAGE_WATCHER = process.env.ENABLE_IMESSAGE_WATCHER === '1';
 const ENABLE_IMESSAGE_CAPABILITY = process.env.ENABLE_IMESSAGE_CAPABILITY === '1';
 
