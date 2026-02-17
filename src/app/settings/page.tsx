@@ -894,6 +894,21 @@ export default function SettingsPage() {
                 ))
               )}
             </div>
+
+            <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs text-white/60 flex flex-wrap items-center gap-2">
+              <span>{t('channelTrust')}:</span>
+              <span className="px-1.5 py-0.5 rounded border border-white/20 text-white/80">
+                {trustMode === 'owner_only' && t('channelTrustOwnerOnly')}
+                {trustMode === 'allowlist' && t('channelTrustAllowlist')}
+                {trustMode === 'open' && t('channelTrustOpen')}
+              </span>
+              <span>•</span>
+              <span>{trustedContacts.length}</span>
+              <span>/</span>
+              <span>{trustedContacts.filter((contact) => contact.isOwner).length}</span>
+              <span>•</span>
+              <span>{t('ownerBadge').toLowerCase()}</span>
+            </div>
           </div>
         </section>
 

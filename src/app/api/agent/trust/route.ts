@@ -123,6 +123,21 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Invalid trust mode' }, { status: 400 });
     }
 
+    if (mode === 'owner_only') {
+      const ownerCountRows = await prisma.$queryRaw<Array<{ count: bigint | number | string }>>`
+        SELECT COUNT(*)::bigint AS count
+        FROM "AgentTrustedContact"
+        WHERE "userId" = ${session.user.id} AND "isOwner" = true
+      `;
+      const ownerCount = Number(ownerCountRows[0]?.count || 0);
+      if (ownerCount < 1) {
+        return NextResponse.json(
+          { error: 'At least one owner contact is required for owner-only mode' },
+          { status: 400 }
+        );
+      }
+    }
+
     await prisma.$executeRaw`
       UPDATE "User"
       SET "channelTrustMode" = ${mode}
@@ -166,6 +181,32 @@ export async function POST(req: Request) {
 
     if (!channelType || !identifier) {
       return NextResponse.json({ error: 'channelType and identifier are required' }, { status: 400 });
+    }
+
+    if (!isOwner) {
+      const existingRows = await prisma.$queryRaw<Array<{ isOwner: boolean }>>`
+        SELECT "isOwner"
+        FROM "AgentTrustedContact"
+        WHERE "userId" = ${session.user.id}
+          AND "channelType" = ${channelType}
+          AND identifier = ${identifier}
+        LIMIT 1
+      `;
+
+      if (existingRows[0]?.isOwner) {
+        const ownerCountRows = await prisma.$queryRaw<Array<{ count: bigint | number | string }>>`
+          SELECT COUNT(*)::bigint AS count
+          FROM "AgentTrustedContact"
+          WHERE "userId" = ${session.user.id} AND "isOwner" = true
+        `;
+        const ownerCount = Number(ownerCountRows[0]?.count || 0);
+        if (ownerCount <= 1) {
+          return NextResponse.json(
+            { error: 'Cannot remove the last owner contact. Add another owner first.' },
+            { status: 400 }
+          );
+        }
+      }
     }
 
     const rows = await prisma.$queryRaw<Array<{

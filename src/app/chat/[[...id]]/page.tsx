@@ -66,12 +66,8 @@ export default function ChatPage() {
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
-  const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
-  const [renameValue, setRenameValue] = useState('');
-  const singleChatMode = true;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -107,12 +103,9 @@ export default function ChatPage() {
   }, []);
 
   // Fetch conversations list
-  const fetchConversations = useCallback(async (query?: string) => {
+  const fetchConversations = useCallback(async () => {
     try {
-      const url = query && query.length >= 2
-        ? `/api/conversations?q=${encodeURIComponent(query)}`
-        : '/api/conversations';
-      const response = await fetch(url);
+      const response = await fetch('/api/conversations');
       if (response.ok) {
         const data = await response.json();
         setConversations(data);
@@ -127,33 +120,6 @@ export default function ChatPage() {
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
-
-  // Debounced search for conversations
-  useEffect(() => {
-    if (!searchQuery.trim()) return;
-    const timer = setTimeout(() => {
-      fetchConversations(searchQuery.trim());
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery, fetchConversations]);
-
-  // Reset search: re-fetch all when query is cleared
-  useEffect(() => {
-    if (searchQuery === '') {
-      fetchConversations();
-    }
-  }, [searchQuery, fetchConversations]);
-
-  // Client-side filtered conversations
-  const filteredConversations = searchQuery.trim()
-    ? conversations.filter((c) => {
-        const q = searchQuery.toLowerCase();
-        return (
-          c.title?.toLowerCase().includes(q) ||
-          c.messages?.[0]?.content?.toLowerCase().includes(q)
-        );
-      })
-    : conversations;
 
   // Load user's preferred model + credits
   useEffect(() => {
@@ -245,112 +211,6 @@ export default function ChatPage() {
     }
   }, [conversationId, loadConversation]);
 
-  const startNewChat = () => {
-    router.push('/chat');
-    setMessages([]);
-    setCurrentConversationId(null);
-    setCurrentTitle(null);
-    setSidebarOpen(false);
-    inputRef.current?.focus();
-  };
-
-  const deleteConversation = async (id: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!confirm(t('deleteConversation'))) return;
-
-    try {
-      const response = await fetch(`/api/conversations/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setConversations((prev) => prev.filter((c) => c.id !== id));
-        if (currentConversationId === id) {
-          startNewChat();
-        }
-      }
-    } catch (error) {
-      console.error('Failed to delete conversation:', error);
-    }
-  };
-
-  const startRenaming = (id: string, currentTitle: string | null, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setRenamingConversationId(id);
-    setRenameValue(currentTitle || '');
-  };
-
-  const cancelRenaming = () => {
-    setRenamingConversationId(null);
-    setRenameValue('');
-  };
-
-  const saveRename = async () => {
-    if (!renamingConversationId || !renameValue.trim()) {
-      cancelRenaming();
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/conversations/${renamingConversationId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: renameValue.trim() }),
-      });
-
-      if (response.ok) {
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.id === renamingConversationId ? { ...c, title: renameValue.trim() } : c
-          )
-        );
-        if (currentConversationId === renamingConversationId) {
-          setCurrentTitle(renameValue.trim());
-        }
-      }
-    } catch (error) {
-      console.error('Failed to rename conversation:', error);
-    } finally {
-      cancelRenaming();
-    }
-  };
-
-  const togglePin = async (convId: string, currentPinned: boolean, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const newPinned = !currentPinned;
-
-    // Enforce max 5 pinned (soft limit)
-    if (newPinned) {
-      const pinnedCount = conversations.filter((c) => c.pinned).length;
-      if (pinnedCount >= 5) return;
-    }
-
-    // Optimistic update
-    setConversations((prev) =>
-      prev.map((c) => (c.id === convId ? { ...c, pinned: newPinned } : c))
-    );
-
-    try {
-      await fetch(`/api/conversations/${convId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pinned: newPinned }),
-      });
-      // Re-fetch to get proper sort order
-      fetchConversations();
-    } catch (error) {
-      console.error('Failed to toggle pin:', error);
-      // Revert
-      setConversations((prev) =>
-        prev.map((c) => (c.id === convId ? { ...c, pinned: currentPinned } : c))
-      );
-    }
-  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -1026,66 +886,6 @@ export default function ChatPage() {
         aria-label="Conversations sidebar"
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          {!singleChatMode && (
-            <div className="p-3 sm:p-4 border-b border-white/10" data-drag-region>
-              <button
-                onClick={startNewChat}
-                className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-lg sm:rounded-xl text-white text-sm sm:text-base font-medium transition-all shadow-lg shadow-violet-500/25 group"
-                aria-label={t('newChat')}
-                title="⌘N"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-                <span className="flex-1">{t('newChat')}</span>
-                <ShortcutBadge shortcut="⌘+N" className="opacity-60 group-hover:opacity-100" />
-              </button>
-            </div>
-          )}
-
-          {/* Conversation Search */}
-          {!singleChatMode && (
-          <div className="px-3 pt-2">
-            <div className="relative">
-              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Escape') setSearchQuery(''); }}
-                placeholder={t('searchConversations')}
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-8 py-1.5 text-xs text-white/80 placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                  aria-label={t('clearSearch')}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M18 6 6 18M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-          )}
-
           {/* Conversations List */}
           <div className="flex-1 overflow-y-auto p-2">
             {loadingConversations ? (
@@ -1097,97 +897,31 @@ export default function ChatPage() {
               <div className="text-center py-8 text-white/40 text-xs sm:text-sm">
                 {t('noConversations')}
               </div>
-            ) : filteredConversations.length === 0 ? (
-              <div className="text-center py-8 text-white/40 text-xs sm:text-sm">
-                {t('noSearchResults')}
-              </div>
             ) : (
               <nav aria-label="Conversation history">
                 <ul className="space-y-1" role="list">
-                  {!singleChatMode && filteredConversations.some((c) => c.pinned) && !searchQuery && (
-                    <li className="px-3 py-1">
-                      <span className="text-[10px] font-medium text-white/30 uppercase tracking-wider">{t('pinned')}</span>
-                    </li>
-                  )}
-                  {filteredConversations.map((conv, idx) => (
+                  {conversations.map((conv) => (
                     <li key={conv.id}>
-                      {/* Divider between pinned and unpinned */}
-                      {!singleChatMode && !searchQuery && idx > 0 && filteredConversations[idx - 1]?.pinned && !conv.pinned && (
-                        <div className="border-t border-white/10 my-1 mx-2" />
-                      )}
-                      {renamingConversationId === conv.id ? (
-                        <div className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg bg-white/15">
-                          <input
-                            type="text"
-                            value={renameValue}
-                            onChange={(e) => setRenameValue(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') saveRename();
-                              if (e.key === 'Escape') cancelRenaming();
-                            }}
-                            onBlur={saveRename}
-                            className="flex-1 bg-white/10 border border-white/20 rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:ring-1 focus:ring-violet-500 min-w-0"
-                            autoFocus
-                          />
+                      <Link
+                        href={`/chat/${conv.id}`}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all ${
+                          currentConversationId === conv.id
+                            ? 'bg-white/15 text-white'
+                            : 'text-white/70 hover:bg-white/10 hover:text-white'
+                        }`}
+                        aria-current={currentConversationId === conv.id ? 'page' : undefined}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-medium truncate">
+                            {conv.title || conv.messages?.[0]?.content?.slice(0, 30) || t('newChat')}
+                            {!conv.title && conv.messages?.[0]?.content && conv.messages[0].content.length > 30 && '...'}
+                          </p>
+                          <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">
+                            {formatDate(conv.updatedAt)}
+                          </p>
                         </div>
-                      ) : (
-                        <Link
-                          href={`/chat/${conv.id}`}
-                          onClick={() => setSidebarOpen(false)}
-                          className={`group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all ${
-                            currentConversationId === conv.id
-                              ? 'bg-white/15 text-white'
-                              : 'text-white/70 hover:bg-white/10 hover:text-white'
-                          }`}
-                          aria-current={currentConversationId === conv.id ? 'page' : undefined}
-                        >
-                          <div className="flex-1 min-w-0"
-                            onDoubleClick={(e) => startRenaming(conv.id, conv.title, e as unknown as React.MouseEvent)}
-                          >
-                            <p className="text-xs sm:text-sm font-medium truncate">
-                              {conv.title || conv.messages?.[0]?.content?.slice(0, 30) || t('newChat')}
-                              {!conv.title && conv.messages?.[0]?.content && conv.messages[0].content.length > 30 && '...'}
-                            </p>
-                            <p className="text-[10px] sm:text-xs text-white/40 mt-0.5">
-                              {formatDate(conv.updatedAt)}
-                            </p>
-                          </div>
-                          {!singleChatMode && (
-                          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
-                            <button
-                              onClick={(e) => togglePin(conv.id, !!conv.pinned, e)}
-                              className={`p-1 sm:p-1.5 hover:bg-white/10 rounded-lg transition-colors ${conv.pinned ? 'text-violet-400' : 'text-white/40 hover:text-white/70'}`}
-                              aria-label={conv.pinned ? t('unpinConversation') : t('pinConversation')}
-                              title={conv.pinned ? t('unpinConversation') : t('pinConversation')}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill={conv.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M12 17v5" />
-                                <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16h14v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={(e) => startRenaming(conv.id, conv.title, e)}
-                              className="p-1 sm:p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-white/70"
-                              aria-label={t('renameConversation')}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                                <path d="m15 5 4 4" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={(e) => deleteConversation(conv.id, e)}
-                              className="p-1 sm:p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-red-400"
-                              aria-label={`Delete conversation: ${conv.title || 'Untitled'}`}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                              </svg>
-                            </button>
-                          </div>
-                          )}
-                        </Link>
-                      )}
+                      </Link>
                     </li>
                   ))}
                 </ul>

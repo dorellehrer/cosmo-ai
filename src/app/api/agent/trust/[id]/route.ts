@@ -25,14 +25,36 @@ export async function DELETE(
       );
     }
 
+    const existingRows = await prisma.$queryRaw<Array<{ isOwner: boolean }>>`
+      SELECT "isOwner"
+      FROM "AgentTrustedContact"
+      WHERE id = ${id} AND "userId" = ${session.user.id}
+      LIMIT 1
+    `;
+
+    if (!existingRows[0]) {
+      return NextResponse.json({ error: 'Trusted contact not found' }, { status: 404 });
+    }
+
+    if (existingRows[0].isOwner) {
+      const ownerCountRows = await prisma.$queryRaw<Array<{ count: bigint | number | string }>>`
+        SELECT COUNT(*)::bigint AS count
+        FROM "AgentTrustedContact"
+        WHERE "userId" = ${session.user.id} AND "isOwner" = true
+      `;
+      const ownerCount = Number(ownerCountRows[0]?.count || 0);
+      if (ownerCount <= 1) {
+        return NextResponse.json(
+          { error: 'Cannot delete the last owner contact. Add another owner first.' },
+          { status: 400 }
+        );
+      }
+    }
+
     const deleted = await prisma.$executeRaw`
       DELETE FROM "AgentTrustedContact"
       WHERE id = ${id} AND "userId" = ${session.user.id}
     `;
-
-    if (!deleted) {
-      return NextResponse.json({ error: 'Trusted contact not found' }, { status: 404 });
-    }
 
     await touchRunningAgentActivity(session.user.id).catch(() => {});
     await triggerAgentConfigReload(session.user.id).catch((err) => {
