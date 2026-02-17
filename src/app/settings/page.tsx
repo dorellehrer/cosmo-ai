@@ -52,6 +52,17 @@ const INTEGRATION_ICONS: Record<string, React.ReactNode> = {
 };
 
 export default function SettingsPage() {
+  type TrustMode = 'owner_only' | 'allowlist' | 'open';
+  type TrustedContact = {
+    id: string;
+    channelType: string;
+    identifier: string;
+    label: string | null;
+    isOwner: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+
   const t = useTranslations('settings');
   const common = useTranslations('common');
   const router = useRouter();
@@ -87,6 +98,16 @@ export default function SettingsPage() {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [savingSystemPrompt, setSavingSystemPrompt] = useState(false);
   const [systemPromptTimeout, setSystemPromptTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [trustMode, setTrustMode] = useState<TrustMode>('allowlist');
+  const [trustedContacts, setTrustedContacts] = useState<TrustedContact[]>([]);
+  const [loadingTrust, setLoadingTrust] = useState(true);
+  const [savingTrustMode, setSavingTrustMode] = useState(false);
+  const [addingTrustedContact, setAddingTrustedContact] = useState(false);
+  const [deletingTrustedContactId, setDeletingTrustedContactId] = useState<string | null>(null);
+  const [contactChannelType, setContactChannelType] = useState('whatsapp');
+  const [contactIdentifier, setContactIdentifier] = useState('');
+  const [contactLabel, setContactLabel] = useState('');
+  const [contactIsOwner, setContactIsOwner] = useState(false);
 
   // Load profile from API
   useEffect(() => {
@@ -102,6 +123,17 @@ export default function SettingsPage() {
       })
       .catch((err) => console.error('Failed to load profile:', err))
       .finally(() => setProfileLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/agent/trust')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.mode) setTrustMode(data.mode as TrustMode);
+        if (Array.isArray(data?.contacts)) setTrustedContacts(data.contacts as TrustedContact[]);
+      })
+      .catch((err) => console.error('Failed to load trust policy:', err))
+      .finally(() => setLoadingTrust(false));
   }, []);
 
   // Auto-save name with debounce
@@ -210,6 +242,82 @@ export default function SettingsPage() {
       console.error('Failed to save model:', err);
     } finally {
       setSavingModel(false);
+    }
+  };
+
+  const updateTrustMode = async (nextMode: TrustMode) => {
+    setTrustMode(nextMode);
+    setSavingTrustMode(true);
+    try {
+      const res = await fetch('/api/agent/trust', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: nextMode }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to save trust mode');
+      }
+    } catch (err) {
+      console.error('Failed to save trust mode:', err);
+    } finally {
+      setSavingTrustMode(false);
+    }
+  };
+
+  const handleAddTrustedContact = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const identifier = contactIdentifier.trim();
+    if (!identifier) return;
+
+    setAddingTrustedContact(true);
+    try {
+      const res = await fetch('/api/agent/trust', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channelType: contactChannelType,
+          identifier,
+          label: contactLabel.trim() || null,
+          isOwner: contactIsOwner,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to add trusted contact');
+      }
+
+      const data = await res.json();
+      if (data?.contact) {
+        const next = data.contact as TrustedContact;
+        setTrustedContacts((prev) => {
+          const withoutExisting = prev.filter((contact) => contact.id !== next.id);
+          return [next, ...withoutExisting];
+        });
+      }
+
+      setContactIdentifier('');
+      setContactLabel('');
+      setContactIsOwner(false);
+    } catch (err) {
+      console.error('Failed to add trusted contact:', err);
+    } finally {
+      setAddingTrustedContact(false);
+    }
+  };
+
+  const handleDeleteTrustedContact = async (id: string) => {
+    setDeletingTrustedContactId(id);
+    try {
+      const res = await fetch(`/api/agent/trust/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        throw new Error('Failed to delete trusted contact');
+      }
+      setTrustedContacts((prev) => prev.filter((contact) => contact.id !== id));
+    } catch (err) {
+      console.error('Failed to delete trusted contact:', err);
+    } finally {
+      setDeletingTrustedContactId(null);
     }
   };
 
@@ -683,6 +791,112 @@ export default function SettingsPage() {
         </section>
 
         {/* Preferences Section */}
+        <section className="mb-8 sm:mb-12" aria-labelledby="channel-trust-heading">
+          <h2 id="channel-trust-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400" aria-hidden="true">
+              <path d="M20 13c0 5-3.5 7-8 7s-8-2-8-7a8 8 0 1 1 16 0Z"/>
+              <path d="M12 10v4"/>
+              <path d="M10 12h4"/>
+            </svg>
+            {t('channelTrust')}
+            {savingTrustMode && <span className="text-xs text-white/40 font-normal">{common('loading')}</span>}
+          </h2>
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <p className="text-white/60 text-sm mb-4">{t('channelTrustDescription')}</p>
+            <div className="grid sm:grid-cols-3 gap-2 mb-5">
+              {(['owner_only', 'allowlist', 'open'] as TrustMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => updateTrustMode(mode)}
+                  className={`text-sm rounded-lg border px-3 py-2 transition-colors ${
+                    trustMode === mode
+                      ? 'bg-violet-500/20 border-violet-500/50 text-white'
+                      : 'bg-white/[0.02] border-white/10 text-white/70 hover:bg-white/5 hover:border-white/20'
+                  }`}
+                  disabled={loadingTrust || savingTrustMode}
+                >
+                  {mode === 'owner_only' && t('channelTrustOwnerOnly')}
+                  {mode === 'allowlist' && t('channelTrustAllowlist')}
+                  {mode === 'open' && t('channelTrustOpen')}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={handleAddTrustedContact} className="grid sm:grid-cols-4 gap-2 mb-4">
+              <select
+                value={contactChannelType}
+                onChange={(e) => setContactChannelType(e.target.value)}
+                className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                aria-label={t('channelType')}
+              >
+                <option value="whatsapp" className="bg-slate-800">WhatsApp</option>
+                <option value="telegram" className="bg-slate-800">Telegram</option>
+                <option value="discord" className="bg-slate-800">Discord</option>
+                <option value="slack" className="bg-slate-800">Slack</option>
+                <option value="sms" className="bg-slate-800">SMS</option>
+                <option value="email" className="bg-slate-800">Email</option>
+              </select>
+              <input
+                type="text"
+                value={contactIdentifier}
+                onChange={(e) => setContactIdentifier(e.target.value)}
+                placeholder={t('trustedIdentifierPlaceholder')}
+                className="sm:col-span-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              />
+              <input
+                type="text"
+                value={contactLabel}
+                onChange={(e) => setContactLabel(e.target.value)}
+                placeholder={t('trustedLabelPlaceholder')}
+                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              />
+              <label className="sm:col-span-3 inline-flex items-center gap-2 text-xs text-white/70 mt-1">
+                <input
+                  type="checkbox"
+                  checked={contactIsOwner}
+                  onChange={(e) => setContactIsOwner(e.target.checked)}
+                  className="rounded border-white/20 bg-white/10 text-violet-500 focus:ring-violet-500"
+                />
+                {t('trustedMarkOwner')}
+              </label>
+              <button
+                type="submit"
+                disabled={addingTrustedContact || !contactIdentifier.trim()}
+                className="sm:col-span-1 px-3 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+              >
+                {addingTrustedContact ? common('loading') : t('addTrustedContact')}
+              </button>
+            </form>
+
+            <div className="space-y-2">
+              {trustedContacts.length === 0 ? (
+                <p className="text-white/40 text-sm">{t('noTrustedContacts')}</p>
+              ) : (
+                trustedContacts.map((contact) => (
+                  <div key={contact.id} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm text-white truncate">
+                        {contact.channelType}: {contact.identifier}
+                      </p>
+                      <p className="text-xs text-white/40 truncate">
+                        {contact.label || t('noLabel')}
+                        {contact.isOwner ? ` • ${t('ownerBadge')}` : ''}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteTrustedContact(contact.id)}
+                      disabled={deletingTrustedContactId === contact.id}
+                      className="px-2.5 py-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium transition-colors disabled:opacity-50"
+                    >
+                      {deletingTrustedContactId === contact.id ? common('loading') : common('delete')}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </section>
+
         <section className="mb-8 sm:mb-12" aria-labelledby="preferences-heading">
           <h2 id="preferences-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
             {t('preferences')}

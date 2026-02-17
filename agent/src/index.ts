@@ -220,20 +220,64 @@ type TrustMode = 'owner_only' | 'allowlist' | 'open';
 const TRUST_MODES = new Set<TrustMode>(['owner_only', 'allowlist', 'open']);
 let trustMode: TrustMode = 'allowlist';
 const trustedContacts = new Map<string, { isOwner: boolean }>();
+let trustBlockedCount = 0;
 
-function normalizeIdentifier(identifier: string): string {
-  return identifier.trim().toLowerCase();
+function normalizeChannelType(channelType: string): string {
+  return channelType.trim().toLowerCase();
+}
+
+function normalizePhoneLike(value: string): string {
+  let normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/^(whatsapp:|sms:|tel:)/, '')
+    .replace(/[\s().-]/g, '');
+
+  const hadPlus = normalized.startsWith('+');
+  normalized = normalized.replace(/\+/g, '').replace(/\D/g, '');
+
+  if (!normalized) return '';
+  if (!hadPlus && normalized.startsWith('00')) {
+    return `+${normalized.slice(2)}`;
+  }
+
+  return hadPlus ? `+${normalized}` : normalized;
+}
+
+function normalizeIdentifier(channelType: string, identifier: string): string {
+  const normalizedChannel = normalizeChannelType(channelType);
+  const raw = identifier.trim();
+
+  if (!raw) return '';
+
+  switch (normalizedChannel) {
+    case 'whatsapp':
+    case 'sms':
+      return normalizePhoneLike(raw);
+    case 'telegram':
+      return raw.toLowerCase().replace(/^@+/, '');
+    case 'email':
+      return raw.toLowerCase();
+    case 'discord':
+    case 'slack':
+    case 'webchat':
+      return raw.toLowerCase();
+    default:
+      return raw.toLowerCase();
+  }
 }
 
 function getTrustedKey(channelType: string, identifier: string): string {
-  return `${channelType}:${normalizeIdentifier(identifier)}`;
+  const normalizedChannel = normalizeChannelType(channelType);
+  return `${normalizedChannel}:${normalizeIdentifier(normalizedChannel, identifier)}`;
 }
 
 function isTrustedSender(channelType: string, senderId: string): boolean {
-  if (channelType === 'webchat') return true;
+  const normalizedChannel = normalizeChannelType(channelType);
+  if (normalizedChannel === 'webchat') return true;
   if (trustMode === 'open') return true;
 
-  const trusted = trustedContacts.get(getTrustedKey(channelType, senderId));
+  const trusted = trustedContacts.get(getTrustedKey(normalizedChannel, senderId));
   if (!trusted) return false;
 
   if (trustMode === 'owner_only') {
@@ -602,6 +646,9 @@ healthApp.get('/metrics', (_req, res) => {
     memoryUsage: process.memoryUsage(),
     sessions: sessions.size,
     memoryBufferSize: memoryBuffer.length,
+    trustMode,
+    trustedContactCount: trustedContacts.size,
+    trustBlockedCount,
   });
 });
 
@@ -671,7 +718,16 @@ async function loadChannelsFromDB(): Promise<void> {
       // Register message handler
       adapter.onMessage(async (msg: ChannelMessage) => {
         if (!isTrustedSender(msg.channelType, msg.senderId)) {
-          console.warn(`[Trust] Blocked untrusted sender on ${msg.channelType}: ${msg.senderId}`);
+          trustBlockedCount += 1;
+          const normalizedChannel = normalizeChannelType(msg.channelType);
+          const normalizedSender = normalizeIdentifier(normalizedChannel, msg.senderId);
+          console.warn('[Trust] Blocked sender', {
+            channelType: normalizedChannel,
+            senderId: msg.senderId,
+            normalizedSender,
+            mode: trustMode,
+            blockedCount: trustBlockedCount,
+          });
           return 'This Nova assistant only responds to approved contacts for this account.';
         }
 
@@ -715,7 +771,7 @@ async function loadTrustPolicyFromDB(): Promise<void> {
     );
 
     for (const row of contactsResult.rows) {
-      const channelType = String(row.channelType || '').toLowerCase();
+      const channelType = normalizeChannelType(String(row.channelType || ''));
       const identifier = String(row.identifier || '');
       if (!channelType || !identifier) continue;
 

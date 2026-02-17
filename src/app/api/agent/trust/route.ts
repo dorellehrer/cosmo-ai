@@ -10,8 +10,49 @@ type TrustMode = 'owner_only' | 'allowlist' | 'open';
 
 const TRUST_MODES = new Set<TrustMode>(['owner_only', 'allowlist', 'open']);
 
-function normalizeIdentifier(identifier: string): string {
-  return identifier.trim().toLowerCase();
+function normalizeChannelType(channelType: string): string {
+  return channelType.trim().toLowerCase();
+}
+
+function normalizePhoneLike(value: string): string {
+  let normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/^(whatsapp:|sms:|tel:)/, '')
+    .replace(/[\s().-]/g, '');
+
+  const hadPlus = normalized.startsWith('+');
+  normalized = normalized.replace(/\+/g, '').replace(/\D/g, '');
+
+  if (!normalized) return '';
+  if (!hadPlus && normalized.startsWith('00')) {
+    return `+${normalized.slice(2)}`;
+  }
+
+  return hadPlus ? `+${normalized}` : normalized;
+}
+
+function normalizeIdentifier(channelType: string, identifier: string): string {
+  const normalizedChannel = normalizeChannelType(channelType);
+  const raw = identifier.trim();
+
+  if (!raw) return '';
+
+  switch (normalizedChannel) {
+    case 'whatsapp':
+    case 'sms':
+      return normalizePhoneLike(raw);
+    case 'telegram':
+      return raw.toLowerCase().replace(/^@+/, '');
+    case 'email':
+      return raw.toLowerCase();
+    case 'discord':
+    case 'slack':
+    case 'webchat':
+      return raw.toLowerCase();
+    default:
+      return raw.toLowerCase();
+  }
 }
 
 export async function GET() {
@@ -116,12 +157,12 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const channelType = typeof body?.channelType === 'string' ? body.channelType.trim().toLowerCase() : '';
+    const channelType = typeof body?.channelType === 'string' ? normalizeChannelType(body.channelType) : '';
     const identifierRaw = typeof body?.identifier === 'string' ? body.identifier : '';
     const label = typeof body?.label === 'string' ? body.label.trim() : null;
     const isOwner = Boolean(body?.isOwner);
 
-    const identifier = normalizeIdentifier(identifierRaw);
+    const identifier = normalizeIdentifier(channelType, identifierRaw);
 
     if (!channelType || !identifier) {
       return NextResponse.json({ error: 'channelType and identifier are required' }, { status: 400 });
