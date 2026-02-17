@@ -64,6 +64,9 @@ jobs:
       - name: Verify single-chat invariants
         run: npm run verify:single-chat
 
+      - name: Generate Prisma client
+        run: npx prisma generate
+
       - name: Build web app
         run: npm run build
 
