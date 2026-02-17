@@ -8,6 +8,7 @@
  */
 
 import * as automation from './automation';
+import { BrowserAutomation } from './browser-automation';
 import * as imessage from './imessage';
 import type { PushToTalk } from './push-to-talk';
 
@@ -332,11 +333,10 @@ async function executeToolCall(
 // Browser Automation singleton
 // ──────────────────────────────────────────────
 
-let _browserInstance: InstanceType<typeof import('./browser-automation').BrowserAutomation> | null = null;
+let _browserInstance: BrowserAutomation | null = null;
 
 function getBrowserInstance() {
   if (!_browserInstance) {
-    const { BrowserAutomation } = require('./browser-automation') as typeof import('./browser-automation');
     _browserInstance = new BrowserAutomation();
   }
   return _browserInstance;
