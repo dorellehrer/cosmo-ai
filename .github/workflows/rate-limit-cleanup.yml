@@ -23,13 +23,13 @@ jobs:
           set -euo pipefail
 
           if [ -z "${CLEANUP_URL:-}" ]; then
-            echo "Missing required secret: RATE_LIMIT_CLEANUP_URL"
-            exit 1
+            echo "Skipping cleanup: missing required secret RATE_LIMIT_CLEANUP_URL"
+            exit 0
           fi
 
           if [ -z "${MAINTENANCE_TOKEN:-}" ]; then
-            echo "Missing required secret: RATE_LIMIT_MAINTENANCE_TOKEN"
-            exit 1
+            echo "Skipping cleanup: missing required secret RATE_LIMIT_MAINTENANCE_TOKEN"
+            exit 0
           fi
 
           URL="${CLEANUP_URL}?batchSize=5000&maxBatches=3&graceSeconds=3600"
