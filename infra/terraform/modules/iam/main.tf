@@ -84,8 +84,8 @@ resource "aws_iam_role_policy" "ecs_task" {
         }
       },
       {
-        Effect   = "Allow"
-        Action   = "iam:PassRole"
+        Effect = "Allow"
+        Action = "iam:PassRole"
         Resource = [
           aws_iam_role.ecs_execution.arn,
           aws_iam_role.agent_task.arn

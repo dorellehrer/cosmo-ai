@@ -145,7 +145,7 @@ resource "aws_ecs_task_definition" "app" {
       containerPort = 3000
       hostPort      = 3000
       protocol      = "tcp"
-    }, {
+      }, {
       containerPort = var.gateway_ws_port
       hostPort      = var.gateway_ws_port
       protocol      = "tcp"

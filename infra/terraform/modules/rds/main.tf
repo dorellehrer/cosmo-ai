@@ -32,10 +32,10 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [var.rds_sg_id]
 
-  multi_az                = false
-  publicly_accessible     = false
-  backup_retention_period = 7
-  skip_final_snapshot     = false
+  multi_az                  = false
+  publicly_accessible       = false
+  backup_retention_period   = 7
+  skip_final_snapshot       = false
   final_snapshot_identifier = "${var.project_name}-${var.environment}-final-snapshot"
 
   performance_insights_enabled = true

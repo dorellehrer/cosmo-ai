@@ -97,30 +97,30 @@ module "rds" {
 module "ecs" {
   source = "./modules/ecs"
 
-  project_name          = var.project_name
-  environment           = var.environment
-  aws_region            = var.aws_region
-  vpc_id                = module.vpc.vpc_id
-  public_subnet_ids     = module.vpc.public_subnet_ids
-  private_subnet_ids    = module.vpc.private_subnet_ids
-  app_sg_id             = module.vpc.app_sg_id
-  agent_sg_id           = module.vpc.agent_sg_id
-  app_image             = "${module.ecr.app_repo_url}:latest"
-  agent_image           = "${module.ecr.agent_repo_url}:latest"
-  app_execution_role    = module.iam.ecs_execution_role_arn
-  app_task_role         = module.iam.ecs_task_role_arn
-  agent_execution_role  = module.iam.ecs_execution_role_arn
-  agent_task_role       = module.iam.agent_task_role_arn
-  log_group_name        = module.cloudwatch.log_group_name
-  database_url          = module.rds.connection_string
-  app_cpu               = var.app_cpu
-  app_memory            = var.app_memory
-  agent_cpu             = var.agent_cpu
-  agent_memory          = var.agent_memory
-  app_desired_count     = var.app_desired_count
-  gateway_ws_port       = var.gateway_ws_port
+  project_name           = var.project_name
+  environment            = var.environment
+  aws_region             = var.aws_region
+  vpc_id                 = module.vpc.vpc_id
+  public_subnet_ids      = module.vpc.public_subnet_ids
+  private_subnet_ids     = module.vpc.private_subnet_ids
+  app_sg_id              = module.vpc.app_sg_id
+  agent_sg_id            = module.vpc.agent_sg_id
+  app_image              = "${module.ecr.app_repo_url}:latest"
+  agent_image            = "${module.ecr.agent_repo_url}:latest"
+  app_execution_role     = module.iam.ecs_execution_role_arn
+  app_task_role          = module.iam.ecs_task_role_arn
+  agent_execution_role   = module.iam.ecs_execution_role_arn
+  agent_task_role        = module.iam.agent_task_role_arn
+  log_group_name         = module.cloudwatch.log_group_name
+  database_url           = module.rds.connection_string
+  app_cpu                = var.app_cpu
+  app_memory             = var.app_memory
+  agent_cpu              = var.agent_cpu
+  agent_memory           = var.agent_memory
+  app_desired_count      = var.app_desired_count
+  gateway_ws_port        = var.gateway_ws_port
   gateway_ws_health_path = var.gateway_ws_health_path
-  https_listener_arn    = var.https_listener_arn
+  https_listener_arn     = var.https_listener_arn
 }
 
 module "lambda" {
