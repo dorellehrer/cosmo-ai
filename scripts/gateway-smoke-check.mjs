@@ -107,6 +107,10 @@ async function safeJson(response) {
   }
 }
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function checkHealth(headers) {
   const response = await request('/api/gateway/health', {
     method: 'GET',
@@ -148,18 +152,28 @@ async function registerDevice(headers) {
 }
 
 async function checkGatewayStatus(headers, expectedDeviceId) {
-  const response = await request('/api/gateway', {
-    method: 'GET',
-    headers,
-  });
-  const body = await safeJson(response);
+  const attempts = 5;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const response = await request('/api/gateway', {
+      method: 'GET',
+      headers,
+    });
+    const body = await safeJson(response);
 
-  assert(response.ok, `Gateway status failed (${response.status})`);
-  assert(body?.status === 'ok', 'Gateway status is not ok');
-  assert(Array.isArray(body?.user?.devices), 'user.devices missing');
-  assert(body.user.devices.some((device) => device.deviceId === expectedDeviceId), 'Registered device not present in user.devices');
+    assert(response.ok, `Gateway status failed (${response.status})`);
+    assert(body?.status === 'ok', 'Gateway status is not ok');
+    assert(Array.isArray(body?.user?.devices), 'user.devices missing');
 
-  return body;
+    if (body.user.devices.some((device) => device.deviceId === expectedDeviceId)) {
+      return body;
+    }
+
+    if (attempt < attempts) {
+      await wait(2000);
+    }
+  }
+
+  throw new Error('Registered device not present in user.devices');
 }
 
 async function checkChatSurface(headers) {
