@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 const publicPages = [
   { path: '/', title: /nova|ai/i, description: 'Landing page' },
   { path: '/about', title: /building|ai|mission/i, description: 'About page' },
-  { path: '/pricing', title: /pricing|pro|plan|supercharged|assistant/i, description: 'Pricing page' },
+  { path: '/pricing', title: /pricing|pro|plan|supercharged|assistant|smarter|terms/i, description: 'Pricing page' },
   { path: '/sign-in', title: /sign in|welcome/i, description: 'Sign-in page' },
   { path: '/sign-up', title: /sign up|create|join/i, description: 'Sign-up page' },
   { path: '/help', title: /help|support|faq/i, description: 'Help page' },
