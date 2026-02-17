@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { getOrCreateCanonicalConversation } from '@/lib/canonical-conversation';
 
 // GET /api/conversations - List all conversations for the current user
 export async function GET(req: Request) {
@@ -22,32 +23,20 @@ export async function GET(req: Request) {
       );
     }
 
-    const { searchParams } = new URL(req.url);
-    const query = searchParams.get('q')?.trim();
+    const canonicalConversation = await getOrCreateCanonicalConversation(session.user.id);
 
-    const where: Record<string, unknown> = { userId: session.user.id };
-
-    if (query && query.length >= 2) {
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { messages: { some: { content: { contains: query, mode: 'insensitive' } } } },
-      ];
-    }
-
-    const conversations = await prisma.conversation.findMany({
-      where,
-      orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
-      take: 50,
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: canonicalConversation.id },
       include: {
         messages: {
           take: 1,
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
           select: { content: true, role: true },
         },
       },
     });
 
-    return NextResponse.json(conversations);
+    return NextResponse.json(conversation ? [conversation] : []);
   } catch (error) {
     console.error("Error fetching conversations:", error);
     return NextResponse.json(
@@ -75,15 +64,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json().catch(() => ({}));
-    const { title } = body;
-
-    const conversation = await prisma.conversation.create({
-      data: {
-        userId: session.user.id,
-        title: title || null,
-      },
-    });
+    const conversation = await getOrCreateCanonicalConversation(session.user.id);
 
     return NextResponse.json(conversation);
   } catch (error) {

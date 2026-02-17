@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { assertCanonicalConversation } from '@/lib/canonical-conversation';
 
 // GET /api/conversations/[id] - Get a specific conversation with messages
 export async function GET(
@@ -26,9 +27,21 @@ export async function GET(
       );
     }
 
+    const { canonical, isCanonical } = await assertCanonicalConversation(session.user.id, id);
+
+    if (!isCanonical) {
+      return NextResponse.json(
+        {
+          error: 'Single-chat mode is enabled for this account',
+          canonicalConversationId: canonical.id,
+        },
+        { status: 409 }
+      );
+    }
+
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id,
+        id: canonical.id,
         userId: session.user.id,
       },
       include: {
@@ -77,26 +90,22 @@ export async function DELETE(
       );
     }
 
-    // Verify ownership
-    const conversation = await prisma.conversation.findFirst({
-      where: {
-        id,
-        userId: session.user.id,
-      },
-    });
+    const { canonical, isCanonical } = await assertCanonicalConversation(session.user.id, id);
 
-    if (!conversation) {
+    if (!isCanonical) {
       return NextResponse.json(
-        { error: "Conversation not found" },
-        { status: 404 }
+        {
+          error: 'Single-chat mode is enabled for this account',
+          canonicalConversationId: canonical.id,
+        },
+        { status: 409 }
       );
     }
 
-    await prisma.conversation.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { error: 'Deleting the canonical conversation is disabled in single-chat mode' },
+      { status: 403 }
+    );
   } catch (error) {
     console.error("Error deleting conversation:", error);
     return NextResponse.json(
@@ -133,23 +142,20 @@ export async function PATCH(
     if (body.title !== undefined) data.title = body.title;
     if (body.pinned !== undefined) data.pinned = Boolean(body.pinned);
 
-    // Verify ownership
-    const conversation = await prisma.conversation.findFirst({
-      where: {
-        id,
-        userId: session.user.id,
-      },
-    });
+    const { canonical, isCanonical } = await assertCanonicalConversation(session.user.id, id);
 
-    if (!conversation) {
+    if (!isCanonical) {
       return NextResponse.json(
-        { error: "Conversation not found" },
-        { status: 404 }
+        {
+          error: 'Single-chat mode is enabled for this account',
+          canonicalConversationId: canonical.id,
+        },
+        { status: 409 }
       );
     }
 
     const updated = await prisma.conversation.update({
-      where: { id },
+      where: { id: canonical.id },
       data,
     });
 

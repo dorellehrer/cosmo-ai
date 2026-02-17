@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { assertCanonicalConversation } from '@/lib/canonical-conversation';
 
 type RouteParams = { params: Promise<{ id: string; messageId: string }> };
 
@@ -24,13 +25,15 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       );
     }
 
-    // Verify conversation ownership
-    const conversation = await prisma.conversation.findFirst({
-      where: { id, userId: session.user.id },
-    });
-
-    if (!conversation) {
-      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+    const { canonical, isCanonical } = await assertCanonicalConversation(session.user.id, id);
+    if (!isCanonical) {
+      return NextResponse.json(
+        {
+          error: 'Single-chat mode is enabled for this account',
+          canonicalConversationId: canonical.id,
+        },
+        { status: 409 }
+      );
     }
 
     const { content } = await req.json();
@@ -69,13 +72,15 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       );
     }
 
-    // Verify conversation ownership
-    const conversation = await prisma.conversation.findFirst({
-      where: { id, userId: session.user.id },
-    });
-
-    if (!conversation) {
-      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+    const { canonical, isCanonical } = await assertCanonicalConversation(session.user.id, id);
+    if (!isCanonical) {
+      return NextResponse.json(
+        {
+          error: 'Single-chat mode is enabled for this account',
+          canonicalConversationId: canonical.id,
+        },
+        { status: 409 }
+      );
     }
 
     // Get the target message to find its timestamp

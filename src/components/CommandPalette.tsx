@@ -10,14 +10,8 @@ interface Command {
   subtitle?: string;
   icon: string;
   shortcut?: string[];
-  category: 'navigation' | 'actions' | 'conversations';
+  category: 'navigation' | 'actions';
   action: () => void;
-}
-
-interface Conversation {
-  id: string;
-  title: string | null;
-  updatedAt: string;
 }
 
 interface CommandPaletteProps {
@@ -33,23 +27,9 @@ export function CommandPalette({ isOpen, onClose, onOpenShortcuts }: CommandPale
   
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loadingConversations, setLoadingConversations] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
-  // Fetch conversations for search
-  useEffect(() => {
-    if (isOpen) {
-      setLoadingConversations(true);
-      fetch('/api/conversations')
-        .then(res => res.ok ? res.json() : [])
-        .then(data => setConversations(data))
-        .catch(() => setConversations([]))
-        .finally(() => setLoadingConversations(false));
-    }
-  }, [isOpen]);
 
   // Focus input when opened
   useEffect(() => {
@@ -62,11 +42,10 @@ export function CommandPalette({ isOpen, onClose, onOpenShortcuts }: CommandPale
 
   const baseCommands: Command[] = [
     {
-      id: 'new-chat',
-      title: t('newChat'),
-      subtitle: t('startFreshConversation'),
-      icon: '✨',
-      shortcut: ['⌘', 'N'],
+      id: 'chat',
+      title: t('chat') || 'Chat',
+      subtitle: t('goToChat') || 'Open your conversation with Nova',
+      icon: '💬',
       category: 'actions',
       action: () => {
         router.push('/chat');
@@ -143,22 +122,7 @@ export function CommandPalette({ isOpen, onClose, onOpenShortcuts }: CommandPale
     },
   ];
 
-  // Add conversations to commands
-  const conversationCommands: Command[] = conversations
-    .filter(c => c.title)
-    .map(conv => ({
-      id: `conv-${conv.id}`,
-      title: conv.title || t('untitled'),
-      subtitle: new Date(conv.updatedAt).toLocaleDateString(),
-      icon: '💬',
-      category: 'conversations' as const,
-      action: () => {
-        router.push(`/chat/${conv.id}`);
-        onClose();
-      },
-    }));
-
-  const allCommands = [...baseCommands, ...conversationCommands];
+  const allCommands = baseCommands;
 
   // Filter commands based on search
   const filteredCommands = search.trim()
@@ -217,7 +181,6 @@ export function CommandPalette({ isOpen, onClose, onOpenShortcuts }: CommandPale
   const categoryLabels: Record<string, string> = {
     actions: t('actions'),
     navigation: t('navigation'),
-    conversations: t('conversations'),
   };
 
   return (
@@ -276,11 +239,7 @@ export function CommandPalette({ isOpen, onClose, onOpenShortcuts }: CommandPale
             className="max-h-[60vh] overflow-y-auto overscroll-contain py-2"
             role="listbox"
           >
-            {loadingConversations ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : flatCommands.length === 0 ? (
+            {flatCommands.length === 0 ? (
               <div className="text-center py-8 text-white/40">
                 {t('noResults')}
               </div>

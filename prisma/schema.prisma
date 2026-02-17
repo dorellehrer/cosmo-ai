@@ -170,7 +170,7 @@ model Conversation {
   messages  Message[]
   subAgents SubAgent[]
 
-  @@index([userId])
+  @@unique([userId])
 }
 
 // Message model - individual chat messages

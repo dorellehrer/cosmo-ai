@@ -21,6 +21,7 @@ import { getDistributedDeviceSummary, routeToolCall } from '@/lib/gateway/messag
 import { recall } from '@/lib/memory';
 import { extractMemories, formatMemoriesForPrompt } from '@/lib/memory-extractor';
 import { remember } from '@/lib/memory';
+import { getOrCreateCanonicalConversation } from '@/lib/canonical-conversation';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
@@ -179,28 +180,17 @@ export async function POST(req: Request) {
       ? `${userMessage.content}\n\n${fileContextText}`
       : userMessage.content;
 
-    // Get or create conversation
-    let conversation;
-    if (conversationId) {
-      conversation = await prisma.conversation.findFirst({
-        where: {
-          id: conversationId,
-          userId: session.user.id,
-        },
-      });
+    // Single-chat mode: always use canonical conversation for this user
+    const conversation = await getOrCreateCanonicalConversation(session.user.id);
 
-      if (!conversation) {
-        return new Response(
-          JSON.stringify({ error: 'Conversation not found' }),
-          { status: 404, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-    } else {
-      conversation = await prisma.conversation.create({
-        data: {
-          userId: session.user.id,
-        },
-      });
+    if (conversationId && conversationId !== conversation.id) {
+      return new Response(
+        JSON.stringify({
+          error: 'Single-chat mode is enabled for this account',
+          canonicalConversationId: conversation.id,
+        }),
+        { status: 409, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     // Save user message to database (text-only, no base64 blobs)
