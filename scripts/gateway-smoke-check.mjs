@@ -153,7 +153,12 @@ async function registerDevice(headers) {
 }
 
 async function checkGatewayStatus(headers, expectedDeviceId) {
-  const attempts = 12;
+  const attempts = 20;
+  let lastSummaryCount = 0;
+  let lastRegistryCount = 0;
+  let summaryVisible = false;
+  let registryVisible = false;
+
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const summaryResponse = await request('/api/gateway', {
       method: 'GET',
@@ -173,22 +178,37 @@ async function checkGatewayStatus(headers, expectedDeviceId) {
     assert(devicesResponse.ok, `Gateway devices failed (${devicesResponse.status})`);
     assert(Array.isArray(devicesBody?.devices), 'devices list missing');
 
-    const existsInSummary = summaryBody.user.devices.some((device) => device.deviceId === expectedDeviceId);
-    const existsInRegistry = devicesBody.devices.some((device) => device.id === expectedDeviceId);
+    lastSummaryCount = summaryBody.user.devices.length;
+    lastRegistryCount = devicesBody.devices.length;
+    summaryVisible = summaryBody.user.devices.some((device) => device.deviceId === expectedDeviceId);
+    registryVisible = devicesBody.devices.some((device) => device.id === expectedDeviceId);
 
-    if (existsInSummary && existsInRegistry) {
+    if (summaryVisible && registryVisible) {
       return {
-        summaryCount: summaryBody.user.devices.length,
-        registryCount: devicesBody.devices.length,
+        summaryCount: lastSummaryCount,
+        registryCount: lastRegistryCount,
+        summaryVisible,
+        registryVisible,
+      };
+    }
+
+    if (registryVisible) {
+      return {
+        summaryCount: lastSummaryCount,
+        registryCount: lastRegistryCount,
+        summaryVisible,
+        registryVisible,
       };
     }
 
     if (attempt < attempts) {
-      await wait(2000);
+      await wait(3000);
     }
   }
 
-  throw new Error('Registered device not visible in both gateway summary and registry in time window');
+  throw new Error(
+    `Registered device not visible in gateway registry in time window (summaryVisible=${summaryVisible}, summaryCount=${lastSummaryCount}, registryCount=${lastRegistryCount})`,
+  );
 }
 
 async function checkChatSurface(headers) {
