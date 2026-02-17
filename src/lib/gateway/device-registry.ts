@@ -9,6 +9,12 @@ import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 
+const DEVICE_FRESHNESS_WINDOW_MS = 2 * 60 * 1000;
+
+function getFreshnessThreshold() {
+  return new Date(Date.now() - DEVICE_FRESHNESS_WINDOW_MS);
+}
+
 // ──────────────────────────────────────────────
 // Device CRUD
 // ──────────────────────────────────────────────
@@ -34,7 +40,6 @@ export async function registerDevice(
       data: {
         capabilities: data.capabilities,
         metadata: data.metadata ? (data.metadata as Prisma.InputJsonValue) : undefined,
-        isOnline: true,
         lastSeenAt: new Date(),
       },
     });
@@ -47,7 +52,7 @@ export async function registerDevice(
       platform: data.platform,
       capabilities: data.capabilities,
       metadata: data.metadata ? (data.metadata as Prisma.InputJsonValue) : Prisma.JsonNull,
-      isOnline: true,
+      isOnline: false,
       lastSeenAt: new Date(),
     },
   });
@@ -127,20 +132,47 @@ export async function touchDevice(deviceId: string) {
 
 /** Get all online devices for a user, optionally filtered by capability */
 export async function getOnlineDevices(userId: string, capability?: string) {
+  const freshnessThreshold = getFreshnessThreshold();
   const devices = await prisma.device.findMany({
-    where: { userId, isOnline: true },
+    where: {
+      userId,
+      isOnline: true,
+      lastSeenAt: { gte: freshnessThreshold },
+    },
   });
 
   if (!capability) return devices;
   return devices.filter(d => d.capabilities.includes(capability));
 }
 
-export async function getGatewayClusterPresenceStats() {
-  const staleThreshold = new Date(Date.now() - 5 * 60 * 1000);
+export async function markStaleDevicesOffline() {
+  const staleThreshold = getFreshnessThreshold();
+  const result = await prisma.device.updateMany({
+    where: {
+      isOnline: true,
+      lastSeenAt: { lt: staleThreshold },
+    },
+    data: {
+      isOnline: false,
+    },
+  });
 
-  const [onlineDevices, staleOnlineDevices, byPlatform] = await Promise.all([
+  return result.count;
+}
+
+export async function getGatewayClusterPresenceStats() {
+  const staleThreshold = getFreshnessThreshold();
+
+  const staleOnlineDevices = await prisma.device.count({
+    where: { isOnline: true, lastSeenAt: { lt: staleThreshold } },
+  });
+
+  if (staleOnlineDevices > 0) {
+    await markStaleDevicesOffline();
+  }
+
+  const [onlineDevices, byPlatform] = await Promise.all([
     prisma.device.count({ where: { isOnline: true } }),
-    prisma.device.count({ where: { isOnline: true, lastSeenAt: { lt: staleThreshold } } }),
     prisma.device.groupBy({
       by: ['platform'],
       where: { isOnline: true },
