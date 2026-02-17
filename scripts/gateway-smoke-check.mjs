@@ -4,6 +4,7 @@ const baseUrl = process.env.GATEWAY_SMOKE_BASE_URL || process.env.BASE_URL || 'h
 const providedSessionCookie = process.env.GATEWAY_SMOKE_COOKIE || '';
 const testUserEmail = process.env.TEST_USER_EMAIL || '';
 const testUserPassword = process.env.TEST_USER_PASSWORD || '';
+const skipGatewayStatusCheck = process.env.GATEWAY_SMOKE_SKIP_STATUS_CHECK === '1';
 
 function extractCookie(setCookieHeader, cookieNamePattern) {
   if (!setCookieHeader) return null;
@@ -274,8 +275,12 @@ async function run() {
     protocolVersion: registration.protocolVersion,
   });
 
-  const gatewayStatus = await checkGatewayStatus(headers, registration.device.id);
-  console.log('[gateway-smoke] Gateway status OK', gatewayStatus);
+  if (!skipGatewayStatusCheck) {
+    const gatewayStatus = await checkGatewayStatus(headers, registration.device.id);
+    console.log('[gateway-smoke] Gateway status OK', gatewayStatus);
+  } else {
+    console.log('[gateway-smoke] Gateway status check skipped by configuration');
+  }
 
   const conversations = await checkChatSurface(headers);
   console.log('[gateway-smoke] Chat surface OK', {

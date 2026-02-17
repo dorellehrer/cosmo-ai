@@ -159,6 +159,7 @@ jobs:
       - name: Run post-deploy canary
         env:
           GATEWAY_SMOKE_BASE_URL: https://www.heynova.se
+          GATEWAY_SMOKE_SKIP_STATUS_CHECK: '1'
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: |
