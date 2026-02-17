@@ -194,7 +194,6 @@
   "chat": {
     "newChat": "नई चैट",
     "noConversations": "अभी कोई बातचीत नहीं",
-    "deleteConversation": "इस बातचीत को हटाएं?",
     "today": "आज",
     "yesterday": "कल",
     "daysAgo": "{days} दिन पहले",
@@ -230,19 +229,11 @@
     "regenerating": "फिर से बना रहा है...",
     "speakMessage": "ज़ोर से पढ़ें",
     "stopSpeaking": "पढ़ना बंद करें",
-    "searchConversations": "बातचीत खोजें...",
-    "noSearchResults": "कोई बातचीत नहीं मिली",
-    "clearSearch": "खोज मिटाएं",
     "editMessage": "संदेश संपादित करें",
     "saveEdit": "सहेजें",
     "cancelEdit": "रद्द करें",
-    "renameConversation": "बातचीत का नाम बदलें",
-    "rename": "नाम बदलें",
     "exportChat": "बातचीत निर्यात करें",
-    "exportSuccess": "बातचीत निर्यात हो गई",
-    "pinConversation": "बातचीत पिन करें",
-    "unpinConversation": "बातचीत अनपिन करें",
-    "pinned": "पिन की गई"
+    "exportSuccess": "बातचीत निर्यात हो गई"
   },
   "routines": {
     "title": "रूटीन",

@@ -194,7 +194,6 @@
   "chat": {
     "newChat": "Nova Conversa",
     "noConversations": "Nenhuma conversa ainda",
-    "deleteConversation": "Excluir esta conversa?",
     "today": "Hoje",
     "yesterday": "Ontem",
     "daysAgo": "Há {days} dias",
@@ -230,19 +229,11 @@
     "regenerating": "Gerando novamente...",
     "speakMessage": "Ler em voz alta",
     "stopSpeaking": "Parar leitura",
-    "searchConversations": "Buscar conversas...",
-    "noSearchResults": "Nenhuma conversa encontrada",
-    "clearSearch": "Limpar busca",
     "editMessage": "Editar mensagem",
     "saveEdit": "Salvar",
     "cancelEdit": "Cancelar",
-    "renameConversation": "Renomear conversa",
-    "rename": "Renomear",
     "exportChat": "Exportar conversa",
-    "exportSuccess": "Conversa exportada",
-    "pinConversation": "Fixar conversa",
-    "unpinConversation": "Desafixar conversa",
-    "pinned": "Fixada"
+    "exportSuccess": "Conversa exportada"
   },
   "routines": {
     "title": "Rotinas",

@@ -194,7 +194,6 @@
   "chat": {
     "newChat": "محادثة جديدة",
     "noConversations": "لا توجد محادثات بعد",
-    "deleteConversation": "حذف هذه المحادثة؟",
     "today": "اليوم",
     "yesterday": "أمس",
     "daysAgo": "منذ {days} أيام",
@@ -230,19 +229,11 @@
     "regenerating": "جاري إعادة التوليد...",
     "speakMessage": "قراءة بصوت عالٍ",
     "stopSpeaking": "إيقاف القراءة",
-    "searchConversations": "البحث في المحادثات...",
-    "noSearchResults": "لم يتم العثور على محادثات",
-    "clearSearch": "مسح البحث",
     "editMessage": "تعديل الرسالة",
     "saveEdit": "حفظ",
     "cancelEdit": "إلغاء",
-    "renameConversation": "إعادة تسمية المحادثة",
-    "rename": "إعادة التسمية",
     "exportChat": "تصدير المحادثة",
-    "exportSuccess": "تم تصدير المحادثة",
-    "pinConversation": "تثبيت المحادثة",
-    "unpinConversation": "إلغاء تثبيت المحادثة",
-    "pinned": "مثبّتة"
+    "exportSuccess": "تم تصدير المحادثة"
   },
   "routines": {
     "title": "الروتينات",

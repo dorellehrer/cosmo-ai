@@ -194,7 +194,6 @@
   "chat": {
     "newChat": "Ny Chatt",
     "noConversations": "Inga konversationer ännu",
-    "deleteConversation": "Radera denna konversation?",
     "today": "Idag",
     "yesterday": "Igår",
     "daysAgo": "{days} dagar sedan",
@@ -230,19 +229,11 @@
     "regenerating": "Genererar om...",
     "speakMessage": "Läs upp",
     "stopSpeaking": "Sluta läsa",
-    "searchConversations": "Sök konversationer...",
-    "noSearchResults": "Inga konversationer hittades",
-    "clearSearch": "Rensa sökning",
     "editMessage": "Redigera meddelande",
     "saveEdit": "Spara",
     "cancelEdit": "Avbryt",
-    "renameConversation": "Byt namn på konversation",
-    "rename": "Byt namn",
     "exportChat": "Exportera konversation",
-    "exportSuccess": "Konversation exporterad",
-    "pinConversation": "Fäst konversation",
-    "unpinConversation": "Lossa konversation",
-    "pinned": "Fäst"
+    "exportSuccess": "Konversation exporterad"
   },
   "routines": {
     "title": "Rutiner",
