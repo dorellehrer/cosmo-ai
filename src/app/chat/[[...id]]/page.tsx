@@ -598,11 +598,12 @@ export default function ChatPage() {
           }
 
           // Handle tool status (e.g. "Searching the web...")
-          if (typeof parsed.toolStatus === 'string' && parsed.toolStatus) {
+          const toolStatus = typeof parsed.toolStatus === 'string' ? parsed.toolStatus : undefined;
+          if (toolStatus) {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantId
-                  ? { ...m, toolStatus: parsed.toolStatus }
+                  ? { ...m, toolStatus }
                   : m
               )
             );
