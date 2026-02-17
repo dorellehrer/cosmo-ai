@@ -128,3 +128,9 @@ variable "cron_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "alarm_email_endpoint" {
+  description = "Optional email endpoint for CloudWatch alarm notifications"
+  type        = string
+  default     = ""
+}

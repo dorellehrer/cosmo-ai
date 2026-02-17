@@ -10,21 +10,32 @@ import type {
   ChatMessage,
   StreamChunk,
   ToolDefinition,
-  FileAttachment,
 } from './providers';
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let client: OpenAI | null = null;
+
+function getClient(): OpenAI {
+  if (client) return client;
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is required for OpenAI provider requests');
+  }
+
+  client = new OpenAI({ apiKey });
+  return client;
+}
 
 /** Get the shared OpenAI client (needed for DALL-E image generation) */
 export function getOpenAIClient(): OpenAI {
-  return client;
+  return getClient();
 }
 
 export class OpenAIProvider implements AIProvider {
   readonly name = 'openai';
 
   async chat(params: ChatParams): Promise<ChatResponse> {
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: params.model,
       messages: toOpenAIMessages(params.messages),
       temperature: params.temperature ?? 0.7,
@@ -45,7 +56,7 @@ export class OpenAIProvider implements AIProvider {
   async chatStream(
     params: Omit<ChatParams, 'tools'>
   ): Promise<AsyncIterable<StreamChunk>> {
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: params.model,
       messages: toOpenAIMessages(params.messages),
       temperature: params.temperature ?? 0.7,
@@ -64,7 +75,7 @@ export class OpenAIProvider implements AIProvider {
     temperature?: number;
     maxTokens?: number;
   }): Promise<string> {
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: params.model,
       messages: [
         { role: 'system', content: params.systemPrompt },

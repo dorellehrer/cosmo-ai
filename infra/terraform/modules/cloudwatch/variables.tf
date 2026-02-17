@@ -5,3 +5,8 @@ variable "project_name" {
 variable "environment" {
   type = string
 }
+
+variable "alarm_email_endpoint" {
+  type    = string
+  default = ""
+}

@@ -75,6 +75,35 @@ function isValidNormalizedIdentifier(channelType: string, identifier: string): b
   }
 }
 
+async function recordTrustAuditEvent(input: {
+  userId: string;
+  action: string;
+  channelType?: string;
+  senderIdentifier?: string;
+  normalizedSender?: string;
+}) {
+  await prisma.$executeRaw`
+    INSERT INTO "AgentTrustEvent" (
+      id,
+      "userId",
+      "channelType",
+      "senderIdentifier",
+      "normalizedSender",
+      action,
+      "createdAt"
+    )
+    VALUES (
+      ${randomUUID()},
+      ${input.userId},
+      ${input.channelType ?? 'system'},
+      ${input.senderIdentifier ?? 'system'},
+      ${input.normalizedSender ?? 'system'},
+      ${input.action},
+      NOW()
+    )
+  `;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -163,6 +192,14 @@ export async function PATCH(req: Request) {
       SET "channelTrustMode" = ${mode}
       WHERE id = ${session.user.id}
     `;
+
+    await recordTrustAuditEvent({
+      userId: session.user.id,
+      action: 'policy_mode_changed',
+      channelType: 'system',
+      senderIdentifier: 'channelTrustMode',
+      normalizedSender: mode,
+    });
 
     await touchRunningAgentActivity(session.user.id).catch(() => {});
     await triggerAgentConfigReload(session.user.id).catch((err) => {
@@ -254,6 +291,14 @@ export async function POST(req: Request) {
         "updatedAt" = NOW()
       RETURNING id, "channelType", identifier, label, "isOwner", "createdAt", "updatedAt"
     `;
+
+    await recordTrustAuditEvent({
+      userId: session.user.id,
+      action: isOwner ? 'trusted_contact_upserted_owner' : 'trusted_contact_upserted',
+      channelType,
+      senderIdentifier: identifier,
+      normalizedSender: identifier,
+    });
 
     await touchRunningAgentActivity(session.user.id).catch(() => {});
     await triggerAgentConfigReload(session.user.id).catch((err) => {

@@ -57,11 +57,25 @@ export async function GET(req: Request) {
       LIMIT 20
     `;
 
+    const auditRows = await prisma.$queryRaw<Array<{ action: string; count: bigint | number | string }>>`
+      SELECT action, COUNT(*)::bigint AS count
+      FROM "AgentTrustEvent"
+      WHERE "userId" = ${session.user.id}
+        AND action <> 'blocked_untrusted'
+        AND "createdAt" >= NOW() - (${hours} * INTERVAL '1 hour')
+      GROUP BY action
+      ORDER BY count DESC
+    `;
+
     return NextResponse.json({
       windowHours: hours,
       totalBlocked: Number(totalsRows[0]?.totalBlocked || 0),
       byChannel: byChannelRows.map((row) => ({
         channelType: row.channelType,
+        count: Number(row.count || 0),
+      })),
+      audit: auditRows.map((row) => ({
+        action: row.action,
         count: Number(row.count || 0),
       })),
       recent: recentRows,

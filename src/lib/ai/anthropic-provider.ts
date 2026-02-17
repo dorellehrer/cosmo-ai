@@ -12,7 +12,19 @@ import type {
   ToolDefinition,
 } from './providers';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+let client: Anthropic | null = null;
+
+function getClient(): Anthropic {
+  if (client) return client;
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY is required for Anthropic provider requests');
+  }
+
+  client = new Anthropic({ apiKey });
+  return client;
+}
 
 export class AnthropicProvider implements AIProvider {
   readonly name = 'anthropic';
@@ -20,7 +32,7 @@ export class AnthropicProvider implements AIProvider {
   async chat(params: ChatParams): Promise<ChatResponse> {
     const { systemPrompt, messages } = splitSystemMessage(params.messages);
 
-    const response = await client.messages.create({
+    const response = await getClient().messages.create({
       model: params.model,
       system: systemPrompt,
       messages: toAnthropicMessages(messages),
@@ -39,7 +51,7 @@ export class AnthropicProvider implements AIProvider {
   ): Promise<AsyncIterable<StreamChunk>> {
     const { systemPrompt, messages } = splitSystemMessage(params.messages);
 
-    const stream = client.messages.stream({
+    const stream = getClient().messages.stream({
       model: params.model,
       system: systemPrompt,
       messages: toAnthropicMessages(messages),
@@ -57,7 +69,7 @@ export class AnthropicProvider implements AIProvider {
     temperature?: number;
     maxTokens?: number;
   }): Promise<string> {
-    const response = await client.messages.create({
+    const response = await getClient().messages.create({
       model: params.model,
       system: params.systemPrompt,
       messages: [{ role: 'user', content: params.userMessage }],
@@ -209,7 +221,7 @@ function fromAnthropicResponse(
 }
 
 async function* streamAdapter(
-  stream: ReturnType<typeof client.messages.stream>
+  stream: ReturnType<Anthropic['messages']['stream']>
 ): AsyncIterable<StreamChunk> {
   for await (const event of stream) {
     if (

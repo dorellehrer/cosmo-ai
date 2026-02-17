@@ -152,20 +152,34 @@ async function registerDevice(headers) {
 }
 
 async function checkGatewayStatus(headers, expectedDeviceId) {
-  const attempts = 5;
+  const attempts = 12;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    const response = await request('/api/gateway', {
+    const summaryResponse = await request('/api/gateway', {
       method: 'GET',
       headers,
     });
-    const body = await safeJson(response);
+    const summaryBody = await safeJson(summaryResponse);
 
-    assert(response.ok, `Gateway status failed (${response.status})`);
-    assert(body?.status === 'ok', 'Gateway status is not ok');
-    assert(Array.isArray(body?.user?.devices), 'user.devices missing');
+    const devicesResponse = await request('/api/gateway/devices', {
+      method: 'GET',
+      headers,
+    });
+    const devicesBody = await safeJson(devicesResponse);
 
-    if (body.user.devices.some((device) => device.deviceId === expectedDeviceId)) {
-      return body;
+    assert(summaryResponse.ok, `Gateway status failed (${summaryResponse.status})`);
+    assert(summaryBody?.status === 'ok', 'Gateway status is not ok');
+    assert(Array.isArray(summaryBody?.user?.devices), 'user.devices missing');
+    assert(devicesResponse.ok, `Gateway devices failed (${devicesResponse.status})`);
+    assert(Array.isArray(devicesBody?.devices), 'devices list missing');
+
+    const existsInSummary = summaryBody.user.devices.some((device) => device.deviceId === expectedDeviceId);
+    const existsInRegistry = devicesBody.devices.some((device) => device.id === expectedDeviceId);
+
+    if (existsInSummary && existsInRegistry) {
+      return {
+        summaryCount: summaryBody.user.devices.length,
+        registryCount: devicesBody.devices.length,
+      };
     }
 
     if (attempt < attempts) {
@@ -173,7 +187,7 @@ async function checkGatewayStatus(headers, expectedDeviceId) {
     }
   }
 
-  throw new Error('Registered device not present in user.devices');
+  throw new Error('Registered device not visible in both gateway summary and registry in time window');
 }
 
 async function checkChatSurface(headers) {
@@ -260,8 +274,8 @@ async function run() {
     protocolVersion: registration.protocolVersion,
   });
 
-  await checkGatewayStatus(headers, registration.device.id);
-  console.log('[gateway-smoke] Gateway status OK');
+  const gatewayStatus = await checkGatewayStatus(headers, registration.device.id);
+  console.log('[gateway-smoke] Gateway status OK', gatewayStatus);
 
   const conversations = await checkChatSurface(headers);
   console.log('[gateway-smoke] Chat surface OK', {

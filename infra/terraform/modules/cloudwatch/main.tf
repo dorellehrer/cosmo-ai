@@ -8,6 +8,22 @@ resource "aws_cloudwatch_log_group" "ecs" {
   tags = { Name = "${var.project_name}-${var.environment}-log-group" }
 }
 
+resource "aws_sns_topic" "alarms" {
+  name = "${var.project_name}-${var.environment}-ops-alarms"
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-ops-alarms"
+  }
+}
+
+resource "aws_sns_topic_subscription" "alarm_email" {
+  count = var.alarm_email_endpoint != "" ? 1 : 0
+
+  topic_arn = aws_sns_topic.alarms.arn
+  protocol  = "email"
+  endpoint  = var.alarm_email_endpoint
+}
+
 # ── Alarms ────────────────────────────────────────────
 
 # High CPU on app service
@@ -21,6 +37,7 @@ resource "aws_cloudwatch_metric_alarm" "app_cpu_high" {
   statistic           = "Average"
   threshold           = 80
   alarm_description   = "App CPU utilization > 80% for 15 minutes"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
 
   dimensions = {
     ClusterName = "${var.project_name}-agents"
@@ -41,6 +58,7 @@ resource "aws_cloudwatch_metric_alarm" "app_memory_high" {
   statistic           = "Average"
   threshold           = 85
   alarm_description   = "App memory utilization > 85% for 15 minutes"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
 
   dimensions = {
     ClusterName = "${var.project_name}-agents"
@@ -87,6 +105,7 @@ resource "aws_cloudwatch_metric_alarm" "trust_blocked_sender_spike" {
   threshold           = 25
   alarm_description   = "Blocked sender events spiked to >=25 over 15 minutes"
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
 
   tags = { Name = "${var.project_name}-${var.environment}-trust-blocked-sender-spike" }
 }
@@ -102,6 +121,7 @@ resource "aws_cloudwatch_metric_alarm" "trust_config_reload_failed" {
   threshold           = 1
   alarm_description   = "At least one trust config reload failure in the last 5 minutes"
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
 
   tags = { Name = "${var.project_name}-${var.environment}-trust-config-reload-failed" }
 }

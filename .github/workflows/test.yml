@@ -73,6 +73,14 @@ jobs:
       - name: Build agent
         run: npm --prefix agent run build
 
+      - name: Prisma schema drift check
+        run: npx prisma validate
+
+      - name: Production health precheck
+        run: |
+          set -euo pipefail
+          curl -sf "$BASE_URL/api/health" > /dev/null
+
   test:
     name: Playwright E2E
     runs-on: ubuntu-latest

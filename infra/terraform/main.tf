@@ -78,8 +78,9 @@ module "ecr" {
 module "cloudwatch" {
   source = "./modules/cloudwatch"
 
-  project_name = var.project_name
-  environment  = var.environment
+  project_name         = var.project_name
+  environment          = var.environment
+  alarm_email_endpoint = var.alarm_email_endpoint
 }
 
 module "rds" {
@@ -149,6 +150,7 @@ resource "aws_cloudwatch_metric_alarm" "gateway_ws_unhealthy_hosts" {
   threshold           = 0
   alarm_description   = "Gateway WS target group has unhealthy hosts"
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [module.cloudwatch.alarm_topic_arn]
 
   dimensions = {
     LoadBalancer = module.ecs.alb_arn_suffix
@@ -167,6 +169,7 @@ resource "aws_cloudwatch_metric_alarm" "gateway_ws_target_connection_errors" {
   threshold           = 5
   alarm_description   = "Gateway WS target connection errors >= 5 over 10 minutes"
   treat_missing_data  = "notBreaching"
+  alarm_actions       = [module.cloudwatch.alarm_topic_arn]
 
   dimensions = {
     LoadBalancer = module.ecs.alb_arn_suffix

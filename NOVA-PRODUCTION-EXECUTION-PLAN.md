@@ -1,6 +1,6 @@
 # Nova Production Execution Plan
 
-Last updated: 2026-02-17
+Last updated: 2026-02-18
 
 ## Objective
 
@@ -42,12 +42,21 @@ Ship Nova to stable full production with enforceable trust boundaries, observabi
 
 ### Phase 4 — Release Safety
 
-- ⬜ Add pre-deploy gate checklist in CI (schema drift + health precheck)
-- ⬜ Add post-deploy canary verification script (trust read/write/block flow)
+- ✅ Add pre-deploy gate checklist in CI (schema drift + health precheck)
+- ✅ Add post-deploy canary verification script (trust read/write/block flow)
+- ✅ Add deploy workflow rollout verification (`services-stable`, rollout state, health check)
+
+### Phase 5 — Operations Maturity
+
+- ✅ Route operational alarms through SNS topic + optional email endpoint
+- ✅ Define operational SLO targets in runbook
+- ⬜ Add SLO dashboard widgets in CloudWatch/Datadog
 
 ### Phase 5 — UX & Policy Completion
 
 - ⬜ Add explicit UI error handling for owner guard failures (backend already enforces)
+- ✅ Persist trust policy/contact audit events in `AgentTrustEvent`
+- ✅ Extend trust diagnostics payload with audit aggregates
 - ⬜ Add trust diagnostics panel backed by `/api/agent/trust/events`
 
 ## Working Notes

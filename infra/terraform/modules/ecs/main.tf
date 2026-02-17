@@ -44,6 +44,9 @@ resource "aws_lb_target_group" "app" {
   vpc_id      = var.vpc_id
   target_type = "ip"
 
+  deregistration_delay          = 30
+  load_balancing_algorithm_type = "least_outstanding_requests"
+
   health_check {
     path                = "/api/health"
     port                = "traffic-port"
@@ -63,6 +66,9 @@ resource "aws_lb_target_group" "gateway_ws" {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
+
+  deregistration_delay          = 30
+  load_balancing_algorithm_type = "least_outstanding_requests"
 
   health_check {
     path                = var.gateway_ws_health_path

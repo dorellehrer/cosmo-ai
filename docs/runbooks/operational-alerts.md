@@ -2,6 +2,20 @@
 
 Last updated: 2026-02-17
 
+## Alert Routing
+
+- All operational alarms publish to SNS topic: `${project}-${environment}-ops-alarms`.
+- Optional email receiver is configured via Terraform variable `alarm_email_endpoint`.
+- Ownership:
+  - Primary on-call: Platform/Infra
+  - Secondary on-call: API owner
+
+## SLO Targets
+
+- Gateway health availability (rolling 30d): >= 99.9%
+- Trust config reload reliability (rolling 30d): >= 99.5%
+- Smoke check pass rate (daily + post-deploy, rolling 30d): >= 99.0%
+
 ## Scope
 
 This runbook covers Phase 2 operational alarms for Nova production.
@@ -57,3 +71,4 @@ This runbook covers Phase 2 operational alarms for Nova production.
 ## Escalation
 
 - If alarm persists > 30 minutes, escalate to on-call owner and prepare rollback decision.
+- If SLO target breach lasts > 24h, open a production incident and schedule a remediation review.

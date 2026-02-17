@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import { touchRunningAgentActivity, triggerAgentConfigReload } from '@/lib/agent';
+import { randomUUID } from 'crypto';
 
 export async function DELETE(
   _req: Request,
@@ -25,8 +26,12 @@ export async function DELETE(
       );
     }
 
-    const existingRows = await prisma.$queryRaw<Array<{ isOwner: boolean }>>`
-      SELECT "isOwner"
+    const existingRows = await prisma.$queryRaw<Array<{
+      isOwner: boolean;
+      channelType: string;
+      identifier: string;
+    }>>`
+      SELECT "isOwner", "channelType", identifier
       FROM "AgentTrustedContact"
       WHERE id = ${id} AND "userId" = ${session.user.id}
       LIMIT 1
@@ -51,9 +56,30 @@ export async function DELETE(
       }
     }
 
-    const deleted = await prisma.$executeRaw`
+    await prisma.$executeRaw`
       DELETE FROM "AgentTrustedContact"
       WHERE id = ${id} AND "userId" = ${session.user.id}
+    `;
+
+    await prisma.$executeRaw`
+      INSERT INTO "AgentTrustEvent" (
+        id,
+        "userId",
+        "channelType",
+        "senderIdentifier",
+        "normalizedSender",
+        action,
+        "createdAt"
+      )
+      VALUES (
+        ${randomUUID()},
+        ${session.user.id},
+        ${existingRows[0].channelType},
+        ${existingRows[0].identifier},
+        ${existingRows[0].identifier},
+        ${existingRows[0].isOwner ? 'trusted_contact_deleted_owner' : 'trusted_contact_deleted'},
+        NOW()
+      )
     `;
 
     await touchRunningAgentActivity(session.user.id).catch(() => {});

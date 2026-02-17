@@ -98,3 +98,8 @@ output "log_group_name" {
   description = "CloudWatch log group name"
   value       = module.cloudwatch.log_group_name
 }
+
+output "alarm_topic_arn" {
+  description = "SNS topic ARN used for operational alarm routing"
+  value       = module.cloudwatch.alarm_topic_arn
+}
