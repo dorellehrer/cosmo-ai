@@ -216,6 +216,33 @@ interface MemoryEntry {
 
 const memoryBuffer: MemoryEntry[] = [];
 
+type TrustMode = 'owner_only' | 'allowlist' | 'open';
+const TRUST_MODES = new Set<TrustMode>(['owner_only', 'allowlist', 'open']);
+let trustMode: TrustMode = 'allowlist';
+const trustedContacts = new Map<string, { isOwner: boolean }>();
+
+function normalizeIdentifier(identifier: string): string {
+  return identifier.trim().toLowerCase();
+}
+
+function getTrustedKey(channelType: string, identifier: string): string {
+  return `${channelType}:${normalizeIdentifier(identifier)}`;
+}
+
+function isTrustedSender(channelType: string, senderId: string): boolean {
+  if (channelType === 'webchat') return true;
+  if (trustMode === 'open') return true;
+
+  const trusted = trustedContacts.get(getTrustedKey(channelType, senderId));
+  if (!trusted) return false;
+
+  if (trustMode === 'owner_only') {
+    return trusted.isOwner;
+  }
+
+  return true;
+}
+
 async function flushMemory(): Promise<void> {
   if (!pool || memoryBuffer.length === 0) return;
 
@@ -516,6 +543,7 @@ wss.on('connection', (ws: WebSocket) => {
           if (pool) {
             try {
               await loadSkillsFromDB();
+              await loadTrustPolicyFromDB();
               await loadChannelsFromDB();
               startHeartbeat();
               ws.send(JSON.stringify({
@@ -523,6 +551,8 @@ wss.on('connection', (ws: WebSocket) => {
                 action: 'config.reload',
                 skillCount: enabledSkillIds.length,
                 channelCount: channelAdapters.length,
+                trustMode,
+                trustedContactCount: trustedContacts.size,
               }));
             } catch (err) {
               console.error('Config reload failed:', err);
@@ -640,6 +670,11 @@ async function loadChannelsFromDB(): Promise<void> {
 
       // Register message handler
       adapter.onMessage(async (msg: ChannelMessage) => {
+        if (!isTrustedSender(msg.channelType, msg.senderId)) {
+          console.warn(`[Trust] Blocked untrusted sender on ${msg.channelType}: ${msg.senderId}`);
+          return 'This Nova assistant only responds to approved contacts for this account.';
+        }
+
         const sessionKey = `${msg.channelType}:${msg.senderId}`;
         return handleMessage(sessionKey, msg.content);
       });
@@ -654,6 +689,44 @@ async function loadChannelsFromDB(): Promise<void> {
     }
   } catch (error) {
     console.error('Failed to load channels from DB:', error);
+  }
+}
+
+async function loadTrustPolicyFromDB(): Promise<void> {
+  if (!pool) return;
+
+  trustedContacts.clear();
+  trustMode = 'allowlist';
+
+  try {
+    const modeResult = await pool.query(
+      'SELECT "channelTrustMode" FROM "User" WHERE id = $1 LIMIT 1',
+      [config.userId],
+    );
+
+    const rawMode = modeResult.rows[0]?.channelTrustMode as TrustMode | undefined;
+    if (rawMode && TRUST_MODES.has(rawMode)) {
+      trustMode = rawMode;
+    }
+
+    const contactsResult = await pool.query(
+      'SELECT "channelType", identifier, "isOwner" FROM "AgentTrustedContact" WHERE "userId" = $1',
+      [config.userId],
+    );
+
+    for (const row of contactsResult.rows) {
+      const channelType = String(row.channelType || '').toLowerCase();
+      const identifier = String(row.identifier || '');
+      if (!channelType || !identifier) continue;
+
+      trustedContacts.set(getTrustedKey(channelType, identifier), {
+        isOwner: Boolean(row.isOwner),
+      });
+    }
+
+    console.log(`[Trust] Loaded mode=${trustMode}, contacts=${trustedContacts.size}`);
+  } catch (error) {
+    console.error('Failed to load trust policy from DB:', error);
   }
 }
 
@@ -722,6 +795,7 @@ async function main() {
 
   // Load skills and channels from database
   await loadSkillsFromDB();
+  await loadTrustPolicyFromDB();
   await loadChannelsFromDB();
 
   // Start heartbeat system
