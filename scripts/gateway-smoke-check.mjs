@@ -162,6 +162,49 @@ async function checkGatewayStatus(headers, expectedDeviceId) {
   return body;
 }
 
+async function checkChatSurface(headers) {
+  const response = await request('/api/conversations', {
+    method: 'GET',
+    headers,
+  });
+  const body = await safeJson(response);
+
+  assert(response.ok, `Conversations check failed (${response.status})`);
+  assert(Array.isArray(body), 'Conversations response is not an array');
+
+  return body;
+}
+
+async function checkTrustSurface(headers) {
+  const trustResponse = await request('/api/agent/trust', {
+    method: 'GET',
+    headers,
+  });
+  const trustBody = await safeJson(trustResponse);
+
+  assert(trustResponse.ok, `Trust check failed (${trustResponse.status})`);
+  assert(typeof trustBody?.mode === 'string', 'Trust mode missing from /api/agent/trust');
+  assert(Array.isArray(trustBody?.contacts), 'Trust contacts missing from /api/agent/trust');
+
+  const eventsResponse = await request('/api/agent/trust/events?hours=24', {
+    method: 'GET',
+    headers,
+  });
+  const eventsBody = await safeJson(eventsResponse);
+
+  assert(eventsResponse.ok, `Trust events check failed (${eventsResponse.status})`);
+  assert(typeof eventsBody?.windowHours === 'number', 'windowHours missing from trust events response');
+  assert(typeof eventsBody?.totalBlocked === 'number', 'totalBlocked missing from trust events response');
+  assert(Array.isArray(eventsBody?.byChannel), 'byChannel missing from trust events response');
+  assert(Array.isArray(eventsBody?.recent), 'recent missing from trust events response');
+
+  return {
+    mode: trustBody.mode,
+    contacts: trustBody.contacts.length,
+    blockedLast24h: eventsBody.totalBlocked,
+  };
+}
+
 async function cleanupDevice() {
   if (!createdDeviceId) return;
   if (!activeHeaders) return;
@@ -205,6 +248,14 @@ async function run() {
 
   await checkGatewayStatus(headers, registration.device.id);
   console.log('[gateway-smoke] Gateway status OK');
+
+  const conversations = await checkChatSurface(headers);
+  console.log('[gateway-smoke] Chat surface OK', {
+    conversations: conversations.length,
+  });
+
+  const trust = await checkTrustSurface(headers);
+  console.log('[gateway-smoke] Trust surface OK', trust);
 }
 
 try {
