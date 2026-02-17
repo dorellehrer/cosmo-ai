@@ -80,8 +80,6 @@ module "cloudwatch" {
 
   project_name = var.project_name
   environment  = var.environment
-  alb_arn_suffix = module.ecs.alb_arn_suffix
-  gateway_ws_target_group_arn_suffix = module.ecs.gateway_ws_target_group_arn_suffix
 }
 
 module "rds" {
@@ -136,4 +134,42 @@ module "lambda" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnet_ids
   app_sg_id          = module.vpc.app_sg_id
+}
+
+# ── Root-level Alarms (cross-module dimensions) ─────────────────
+
+resource "aws_cloudwatch_metric_alarm" "gateway_ws_unhealthy_hosts" {
+  alarm_name          = "${var.project_name}-${var.environment}-gateway-ws-unhealthy-hosts"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "UnHealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 0
+  alarm_description   = "Gateway WS target group has unhealthy hosts"
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    LoadBalancer = module.ecs.alb_arn_suffix
+    TargetGroup  = module.ecs.gateway_ws_target_group_arn_suffix
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "gateway_ws_target_connection_errors" {
+  alarm_name          = "${var.project_name}-${var.environment}-gateway-ws-target-connection-errors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "TargetConnectionErrorCount"
+  namespace           = "AWS/ApplicationELB"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 5
+  alarm_description   = "Gateway WS target connection errors >= 5 over 10 minutes"
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    LoadBalancer = module.ecs.alb_arn_suffix
+    TargetGroup  = module.ecs.gateway_ws_target_group_arn_suffix
+  }
 }
