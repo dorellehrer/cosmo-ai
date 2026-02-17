@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/routines/[id]/history — get execution history for a routine
 export async function GET(
@@ -16,7 +16,7 @@ export async function GET(
 
   try {
     const { id } = await params;
-    const rateLimit = checkRateLimit(`routines:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`routines:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: rateLimit.headers });
     }

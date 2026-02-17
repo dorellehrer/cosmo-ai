@@ -9,7 +9,7 @@ import {
   isPreviewProvider,
   OAUTH_PROVIDERS,
 } from '@/lib/integrations';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import crypto from 'crypto';
 
 // POST /api/integrations/[provider]/connect — initiate OAuth flow
@@ -25,7 +25,7 @@ export async function POST(
 
     const { provider } = await params;
 
-    const rateLimit = checkRateLimit(`integration-connect:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`integration-connect:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }

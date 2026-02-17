@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import { storeChannelConfigSecret } from '@/lib/aws';
+import { triggerAgentConfigReload, touchRunningAgentActivity } from '@/lib/agent';
 
 // GET /api/agent/channels — List connected channels
 export async function GET() {
@@ -14,7 +15,7 @@ export async function GET() {
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`agent:channels:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`agent:channels:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     }
 
     // Rate limit check
-    const rateLimitPost = checkRateLimit(`agent:channels:create:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitPost = await checkRateLimitDistributed(`agent:channels:create:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitPost.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -107,6 +108,12 @@ export async function POST(req: Request) {
             configSecretArn: secretArn,
             status: 'connected',
           },
+        });
+
+        await touchRunningAgentActivity(session.user.id).catch(() => {});
+
+        await triggerAgentConfigReload(session.user.id).catch((err) => {
+          console.warn('[agent/channels] config.reload failed:', err);
         });
 
         return NextResponse.json({

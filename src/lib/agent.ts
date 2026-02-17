@@ -9,6 +9,7 @@ import {
   describeAgentTask,
 } from '@/lib/aws';
 import type { AgentStatus, ProvisionAgentRequest, ProvisioningEvent } from '@/types/agent';
+import WebSocket from 'ws';
 
 // ──────────────────────────────────────────────
 // Helpers
@@ -20,6 +21,131 @@ function buildWsEndpoint(publicIp: string): string {
   // Falls back to ws:// for local development.
   const protocol = process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
   return `${protocol}://${publicIp}:18789`;
+}
+
+async function sendAgentControlMessage(
+  wsEndpoint: string,
+  payload: Record<string, unknown>,
+  timeoutMs: number = 2000,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const ws = new WebSocket(wsEndpoint);
+
+    const finalize = (result: boolean) => {
+      if (settled) return;
+      settled = true;
+      try {
+        ws.close();
+      } catch {
+        // ignore close errors
+      }
+      resolve(result);
+    };
+
+    const timer = setTimeout(() => finalize(false), timeoutMs);
+
+    ws.on('open', () => {
+      try {
+        ws.send(JSON.stringify(payload));
+      } catch {
+        clearTimeout(timer);
+        finalize(false);
+      }
+    });
+
+    ws.on('message', (raw) => {
+      try {
+        const message = JSON.parse(raw.toString()) as { type?: string; action?: string };
+        if (message.type === 'ack' && message.action === 'config.reload') {
+          clearTimeout(timer);
+          finalize(true);
+          return;
+        }
+        if (message.type === 'error') {
+          clearTimeout(timer);
+          finalize(false);
+        }
+      } catch {
+        // Ignore malformed frames while waiting for ack/error
+      }
+    });
+
+    ws.on('error', () => {
+      clearTimeout(timer);
+      finalize(false);
+    });
+
+    ws.on('close', () => {
+      clearTimeout(timer);
+      finalize(false);
+    });
+  });
+}
+
+function getReloadEndpointCandidates(wsEndpoint: string): string[] {
+  const candidates = [wsEndpoint];
+  if (wsEndpoint.startsWith('wss://')) {
+    candidates.push(`ws://${wsEndpoint.slice(6)}`);
+  } else if (wsEndpoint.startsWith('ws://')) {
+    candidates.push(`wss://${wsEndpoint.slice(5)}`);
+  }
+  return Array.from(new Set(candidates));
+}
+
+/**
+ * Trigger a best-effort runtime config reload on the user's running agent.
+ * This reduces drift between DB updates (skills/channels/settings) and live runtime behavior.
+ */
+export async function triggerAgentConfigReload(userId: string): Promise<boolean> {
+  const agent = await prisma.agentInstance.findFirst({
+    where: {
+      userId,
+      status: 'running',
+      wsEndpoint: { not: null },
+    },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  if (!agent?.wsEndpoint) {
+    return false;
+  }
+
+  const endpoints = getReloadEndpointCandidates(agent.wsEndpoint);
+  const controlPlaneToken = process.env.AGENT_CONTROL_PLANE_TOKEN || '';
+  for (const endpoint of endpoints) {
+    const ok = await sendAgentControlMessage(endpoint, {
+      type: 'config.reload',
+      ...(controlPlaneToken ? { authToken: controlPlaneToken } : {}),
+    });
+    if (ok) {
+      await prisma.agentInstance.update({
+        where: { id: agent.id },
+        data: { lastActivity: new Date() },
+      }).catch(() => {});
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Update lastActivity for any running agent belonging to the user.
+ * Useful when user initiates agent-related mutations (skills/channels/settings)
+ * even if live control-plane reload is unavailable.
+ */
+export async function touchRunningAgentActivity(userId: string): Promise<void> {
+  await prisma.agentInstance.updateMany({
+    where: {
+      userId,
+      status: 'running',
+    },
+    data: {
+      lastActivity: new Date(),
+    },
+  });
 }
 
 // ──────────────────────────────────────────────
@@ -83,6 +209,7 @@ export async function* provisionAgent(
         MODEL_PROVIDER: request.modelProvider,
         MODEL_NAME: request.modelName,
         API_KEY_SECRET_ARN: secretArn,
+        AGENT_CONTROL_PLANE_TOKEN: process.env.AGENT_CONTROL_PLANE_TOKEN || '',
       },
       config
     );
@@ -232,6 +359,7 @@ export async function restartAgent(userId: string, agentId: string): Promise<voi
       MODEL_PROVIDER: agent.modelProvider,
       MODEL_NAME: agent.modelName,
       API_KEY_SECRET_ARN: agent.apiKeySecretArn || '',
+      AGENT_CONTROL_PLANE_TOKEN: process.env.AGENT_CONTROL_PLANE_TOKEN || '',
     },
     config
   );

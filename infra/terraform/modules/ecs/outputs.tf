@@ -21,3 +21,7 @@ output "agent_task_definition_arn" {
 output "alb_dns_name" {
   value = aws_lb.app.dns_name
 }
+
+output "gateway_ws_target_group_arn" {
+  value = aws_lb_target_group.gateway_ws.arn
+}

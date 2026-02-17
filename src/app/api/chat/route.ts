@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canAffordModel, isPro } from "@/lib/stripe";
-import { checkRateLimit, RATE_LIMIT_CHAT } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_CHAT } from '@/lib/rate-limit';
 import {
   getConnectedIntegrations,
   getGatewayDeviceTools,
@@ -17,7 +17,7 @@ import type { ChatMessage, FileAttachment } from '@/lib/ai/providers';
 import { getModelConfig, DEFAULT_MODEL, FREE_MODEL } from '@/lib/ai/models';
 import type { ReasoningLevel } from '@/lib/ai/models';
 import { DESKTOP_TOOLS } from '@/lib/desktop-tools';
-import { getDeviceSummary, routeToolCall } from '@/lib/gateway/message-router';
+import { getDistributedDeviceSummary, routeToolCall } from '@/lib/gateway/message-router';
 import { recall } from '@/lib/memory';
 import { extractMemories, formatMemoriesForPrompt } from '@/lib/memory-extractor';
 import { remember } from '@/lib/memory';
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`chat:${session.user.id}`, RATE_LIMIT_CHAT);
+    const rateLimit = await checkRateLimitDistributed(`chat:${session.user.id}`, RATE_LIMIT_CHAT);
     if (!rateLimit.allowed) {
       return new Response(
         JSON.stringify({ error: 'Too many requests. Please try again later.' }),
@@ -130,8 +130,6 @@ export async function POST(req: Request) {
         },
       },
     });
-
-    const currentUsage = usageRecord?.count || 0;
 
     // Parse request — supports JSON or FormData (for file uploads)
     let messages: { role: string; content: string }[];
@@ -181,8 +179,6 @@ export async function POST(req: Request) {
       ? `${userMessage.content}\n\n${fileContextText}`
       : userMessage.content;
 
-    const newUsage = currentUsage + 1;
-
     // Get or create conversation
     let conversation;
     if (conversationId) {
@@ -224,7 +220,7 @@ export async function POST(req: Request) {
 
     // Fetch user's connected integrations for tool use
     const connectedIntegrations = await getConnectedIntegrations(user.id);
-    const deviceSummary = getDeviceSummary(user.id);
+    const deviceSummary = await getDistributedDeviceSummary(user.id);
     const gatewayRoutingEnabled = process.env.ENABLE_GATEWAY_TOOL_ROUTING === '1';
     const gatewayTools = gatewayRoutingEnabled
       ? getGatewayDeviceTools(deviceSummary.capabilities)
@@ -438,8 +434,9 @@ export async function POST(req: Request) {
           return new Response(stream, {
             headers: {
               'Content-Type': 'text/event-stream',
-              'Cache-Control': 'no-cache',
+              'Cache-Control': 'no-cache, no-transform',
               'Connection': 'keep-alive',
+              'X-Accel-Buffering': 'no',
             },
           });
         }
@@ -481,9 +478,61 @@ export async function POST(req: Request) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        // Send conversationId and usage info as first message
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({
+        let streamClosed = false;
+        let clientAborted = req.signal.aborted;
+        let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
+        const closeStream = () => {
+          if (streamClosed) return;
+          streamClosed = true;
+          try {
+            controller.close();
+          } catch {
+            // Ignore close errors when stream is already closed/errored
+          }
+        };
+
+        const enqueueData = (payload: unknown): boolean => {
+          if (streamClosed || clientAborted) return false;
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));
+            return true;
+          } catch {
+            clientAborted = true;
+            return false;
+          }
+        };
+
+        const enqueueDone = () => {
+          if (streamClosed || clientAborted) return;
+          try {
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          } catch {
+            // Ignore enqueue errors on disconnect
+          }
+        };
+
+        const startKeepAlive = () => {
+          keepAliveInterval = setInterval(() => {
+            if (streamClosed || clientAborted) return;
+            try {
+              controller.enqueue(encoder.encode(': keepalive\n\n'));
+            } catch {
+              clientAborted = true;
+            }
+          }, 15000);
+        };
+
+        const onAbort = () => {
+          clientAborted = true;
+        };
+
+        req.signal.addEventListener('abort', onAbort);
+        startKeepAlive();
+
+        try {
+          // Send conversationId and usage info as first message
+          if (!enqueueData({
             conversationId: conversation.id,
             credits: user.credits - modelConfig.creditCost,
             creditCost: modelConfig.creditCost,
@@ -491,93 +540,108 @@ export async function POST(req: Request) {
             usedFallback,
             reasoningEffort: reasoningEffort || null,
             isPro: isPro(user),
-          })}\n\n`)
-        );
+          })) {
+            return;
+          }
 
-        // Send tool status events so the client knows what tools were used
-        for (const status of toolStatusEvents) {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ toolStatus: status })}\n\n`)
-          );
-        }
-
-        for await (const chunk of response) {
-          fullResponse += chunk.content;
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: chunk.content })}\n\n`));
-        }
-
-        // Save assistant message to database
-        await prisma.message.create({
-          data: {
-            conversationId: conversation.id,
-            role: 'assistant',
-            content: fullResponse,
-          },
-        });
-
-        // Extract and store new memories (fire-and-forget, don't block response)
-        extractMemories(enhancedContent, fullResponse)
-          .then(async (newMemories) => {
-            for (const mem of newMemories) {
-              try {
-                await remember(user.id, mem.content, mem.category, mem.importance);
-              } catch (e) {
-                console.error('[Memory] Failed to store extracted memory:', e);
-              }
+          // Send tool status events so the client knows what tools were used
+          for (const status of toolStatusEvents) {
+            if (!enqueueData({ toolStatus: status })) {
+              return;
             }
-          })
-          .catch((e) => console.error('[Memory] Extraction failed:', e));
+          }
 
-        // Increment usage AFTER successful response
-        await incrementUsage(user.id, today, usageRecord ?? null);
+          for await (const chunk of response) {
+            if (clientAborted) break;
+            fullResponse += chunk.content;
+            if (!enqueueData({ content: chunk.content })) {
+              break;
+            }
+          }
 
-        // Deduct credits for the message
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { credits: { decrement: modelConfig.creditCost } },
-        });
+          if (clientAborted) {
+            return;
+          }
 
-        // Generate title if this is the first exchange
-        const messageCount = await prisma.message.count({
-          where: { conversationId: conversation.id },
-        });
+          // Save assistant message to database
+          await prisma.message.create({
+            data: {
+              conversationId: conversation.id,
+              role: 'assistant',
+              content: fullResponse,
+            },
+          });
 
-        if (messageCount === 2 && !conversation.title) {
-          // Always use OpenAI for title generation (cheap, fast, internal-only)
-          const titleProvider = createProvider('openai');
-          titleProvider.quickChat({
-            model: 'gpt-5-mini',
-            systemPrompt: 'Generate a very short title (2-5 words) for this conversation based on the user message. Return ONLY the title, no quotes or punctuation.',
-            userMessage: enhancedContent,
-            temperature: 0.7,
-            maxTokens: 20,
-          }).then(async (title) => {
-            if (title) {
+          // Extract and store new memories (fire-and-forget, don't block response)
+          extractMemories(enhancedContent, fullResponse)
+            .then(async (newMemories) => {
+              for (const mem of newMemories) {
+                try {
+                  await remember(user.id, mem.content, mem.category, mem.importance);
+                } catch (e) {
+                  console.error('[Memory] Failed to store extracted memory:', e);
+                }
+              }
+            })
+            .catch((e) => console.error('[Memory] Extraction failed:', e));
+
+          // Increment usage AFTER successful response
+          await incrementUsage(user.id, today, usageRecord ?? null);
+
+          // Deduct credits for the message
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { credits: { decrement: modelConfig.creditCost } },
+          });
+
+          // Generate title if this is the first exchange
+          const messageCount = await prisma.message.count({
+            where: { conversationId: conversation.id },
+          });
+
+          if (messageCount === 2 && !conversation.title) {
+            // Always use OpenAI for title generation (cheap, fast, internal-only)
+            const titleProvider = createProvider('openai');
+            titleProvider.quickChat({
+              model: 'gpt-5-mini',
+              systemPrompt: 'Generate a very short title (2-5 words) for this conversation based on the user message. Return ONLY the title, no quotes or punctuation.',
+              userMessage: enhancedContent,
+              temperature: 0.7,
+              maxTokens: 20,
+            }).then(async (title) => {
+              if (!title || clientAborted || streamClosed) return;
               await prisma.conversation.update({
                 where: { id: conversation.id },
                 data: { title },
               });
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ title })}\n\n`));
-            }
-          }).catch((e) => {
-            console.error('Failed to generate title:', e);
-          }).finally(() => {
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            controller.close();
-          });
-          return; // Don't close here — finally block will close
-        }
+              enqueueData({ title });
+            }).catch((e) => {
+              console.error('Failed to generate title:', e);
+            }).finally(() => {
+              enqueueDone();
+              closeStream();
+            });
+            return; // Don't close here — finally block will close
+          }
 
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-        controller.close();
+          enqueueDone();
+        } finally {
+          if (keepAliveInterval) {
+            clearInterval(keepAliveInterval);
+            keepAliveInterval = null;
+          }
+          req.signal.removeEventListener('abort', onAbort);
+          closeStream();
+        }
       },
     });
 
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-transform',
         'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
       },
     });
   } catch (error) {

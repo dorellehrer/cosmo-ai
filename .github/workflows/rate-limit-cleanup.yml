@@ -1,0 +1,54 @@
+name: Rate Limit Cleanup
+
+on:
+  schedule:
+    # Every hour at minute 17
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Cleanup Expired Rate Limit Buckets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call internal cleanup endpoint
+        env:
+          CLEANUP_URL: ${{ secrets['RATE_LIMIT_CLEANUP_URL'] }}
+          MAINTENANCE_TOKEN: ${{ secrets['RATE_LIMIT_MAINTENANCE_TOKEN'] }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CLEANUP_URL:-}" ]; then
+            echo "Missing required secret: RATE_LIMIT_CLEANUP_URL"
+            exit 1
+          fi
+
+          if [ -z "${MAINTENANCE_TOKEN:-}" ]; then
+            echo "Missing required secret: RATE_LIMIT_MAINTENANCE_TOKEN"
+            exit 1
+          fi
+
+          URL="${CLEANUP_URL}?batchSize=5000&maxBatches=3&graceSeconds=3600"
+          TMP_BODY="$(mktemp)"
+
+          HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w "%{http_code}" \
+            -X POST "$URL" \
+            -H "Authorization: Bearer ${MAINTENANCE_TOKEN}" \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-connrefused)
+
+          echo "HTTP status: ${HTTP_CODE}"
+          echo "Response:"
+          cat "$TMP_BODY"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "Cleanup request failed"
+            exit 1
+          fi
+
+          echo "Rate-limit cleanup completed successfully"

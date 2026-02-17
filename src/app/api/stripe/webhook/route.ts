@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { stripe, PRO_MONTHLY_CREDITS } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@/generated/prisma/client';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -41,173 +42,204 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.userId;
+    await prisma.$transaction(async (tx) => {
+      await tx.stripeWebhookEvent.create({
+        data: {
+          eventId: event.id,
+          eventType: event.type,
+          livemode: event.livemode,
+        },
+      });
 
-        // ── Credit purchase (one-time payment) ──
-        if (session.metadata?.type === 'credit_purchase' && userId) {
-          const creditsToAdd = parseInt(session.metadata.credits || '0', 10);
-          const amountCents = session.amount_total || 0;
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          const userId = session.metadata?.userId;
 
-          if (creditsToAdd > 0) {
-            await prisma.$transaction([
-              prisma.user.update({
+          // ── Credit purchase (one-time payment) ──
+          if (session.metadata?.type === 'credit_purchase' && userId) {
+            const creditsToAdd = parseInt(session.metadata.credits || '0', 10);
+            const amountCents = session.amount_total || 0;
+
+            if (creditsToAdd > 0) {
+              await tx.user.update({
                 where: { id: userId },
                 data: { credits: { increment: creditsToAdd } },
-              }),
-              prisma.creditPurchase.create({
+              });
+
+              await tx.creditPurchase.create({
                 data: {
                   userId,
                   credits: creditsToAdd,
                   amountCents,
                   stripeSessionId: session.id,
                 },
-              }),
-            ]);
-            console.log(`Credit purchase: +${creditsToAdd} credits for user ${userId}`);
+              });
+
+              console.log(`Credit purchase: +${creditsToAdd} credits for user ${userId}`);
+            }
+            break;
+          }
+
+          // ── Subscription purchase ──
+          const subscriptionId = session.subscription as string;
+
+          if (userId && subscriptionId) {
+            // Get subscription details
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const subscriptionData = subscription as any;
+
+            await tx.user.update({
+              where: { id: userId },
+              data: {
+                stripeSubscriptionId: subscriptionId,
+                stripePriceId: subscriptionData.items?.data?.[0]?.price?.id,
+                stripeCurrentPeriodEnd: new Date(subscriptionData.current_period_end * 1000),
+                // Grant Pro monthly credits on first subscription
+                credits: { increment: PRO_MONTHLY_CREDITS },
+              },
+            });
+            console.log(`New Pro subscription: +${PRO_MONTHLY_CREDITS} credits for user ${userId}`);
           }
           break;
         }
 
-        // ── Subscription purchase ──
-        const subscriptionId = session.subscription as string;
-
-        if (userId && subscriptionId) {
-          // Get subscription details
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        case 'customer.subscription.updated': {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const subscriptionData = subscription as any;
+          const subscription = event.data.object as any;
+          const userId = subscription.metadata?.userId;
 
-          await prisma.user.update({
-            where: { id: userId },
-            data: {
-              stripeSubscriptionId: subscriptionId,
-              stripePriceId: subscriptionData.items?.data?.[0]?.price?.id,
-              stripeCurrentPeriodEnd: new Date(subscriptionData.current_period_end * 1000),
-              // Grant Pro monthly credits on first subscription
-              credits: { increment: PRO_MONTHLY_CREDITS },
-            },
-          });
-          console.log(`New Pro subscription: +${PRO_MONTHLY_CREDITS} credits for user ${userId}`);
-        }
-        break;
-      }
+          if (userId) {
+            await tx.user.update({
+              where: { id: userId },
+              data: {
+                stripePriceId: subscription.items?.data?.[0]?.price?.id,
+                stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              },
+            });
+          } else {
+            // Fallback: find user by customer ID
+            const customerId = typeof subscription.customer === 'string'
+              ? subscription.customer
+              : subscription.customer?.id;
 
-      case 'customer.subscription.updated': {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const subscription = event.data.object as any;
-        const userId = subscription.metadata?.userId;
-
-        if (userId) {
-          await prisma.user.update({
-            where: { id: userId },
-            data: {
-              stripePriceId: subscription.items?.data?.[0]?.price?.id,
-              stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-            },
-          });
-        } else {
-          // Fallback: find user by customer ID
-          const customerId = typeof subscription.customer === 'string'
-            ? subscription.customer
-            : subscription.customer?.id;
-
-          await prisma.user.updateMany({
-            where: { stripeCustomerId: customerId },
-            data: {
-              stripePriceId: subscription.items?.data?.[0]?.price?.id,
-              stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-            },
-          });
-        }
-        break;
-      }
-
-      case 'customer.subscription.deleted': {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const subscription = event.data.object as any;
-        const userId = subscription.metadata?.userId;
-
-        if (userId) {
-          await prisma.user.update({
-            where: { id: userId },
-            data: {
-              stripeSubscriptionId: null,
-              stripePriceId: null,
-              stripeCurrentPeriodEnd: null,
-            },
-          });
-        } else {
-          // Fallback: find user by customer ID
-          const customerId = typeof subscription.customer === 'string'
-            ? subscription.customer
-            : subscription.customer?.id;
-
-          await prisma.user.updateMany({
-            where: { stripeCustomerId: customerId },
-            data: {
-              stripeSubscriptionId: null,
-              stripePriceId: null,
-              stripeCurrentPeriodEnd: null,
-            },
-          });
-        }
-        break;
-      }
-
-      case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
-        console.error('Payment failed for invoice:', invoice.id);
-
-        // Find user by Stripe customer ID and flag their account
-        const customerId = typeof invoice.customer === 'string'
-          ? invoice.customer
-          : invoice.customer?.id ?? null;
-
-        if (customerId) {
-          await prisma.user.updateMany({
-            where: { stripeCustomerId: customerId },
-            data: {
-              // Clear subscription so user loses pro access
-              stripeSubscriptionId: null,
-              stripePriceId: null,
-              stripeCurrentPeriodEnd: null,
-            },
-          });
-          console.log(`Payment failed — reverted user (customer ${customerId}) to free tier`);
-        }
-        break;
-      }
-
-      case 'invoice.paid': {
-        const invoice = event.data.object as Stripe.Invoice;
-
-        // Only process subscription renewal invoices (not the first one — that's handled by checkout.session.completed)
-        if (invoice.billing_reason !== 'subscription_cycle') break;
-
-        const customerId = typeof invoice.customer === 'string'
-          ? invoice.customer
-          : invoice.customer?.id ?? null;
-
-        if (customerId) {
-          const result = await prisma.user.updateMany({
-            where: { stripeCustomerId: customerId },
-            data: {
-              credits: { increment: PRO_MONTHLY_CREDITS },
-            },
-          });
-          if (result.count > 0) {
-            console.log(`Monthly credit refill: +${PRO_MONTHLY_CREDITS} credits for customer ${customerId}`);
+            await tx.user.updateMany({
+              where: { stripeCustomerId: customerId },
+              data: {
+                stripePriceId: subscription.items?.data?.[0]?.price?.id,
+                stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              },
+            });
           }
+          break;
         }
-        break;
+
+        case 'customer.subscription.deleted': {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const subscription = event.data.object as any;
+          const userId = subscription.metadata?.userId;
+
+          if (userId) {
+            await tx.user.update({
+              where: { id: userId },
+              data: {
+                stripeSubscriptionId: null,
+                stripePriceId: null,
+                stripeCurrentPeriodEnd: null,
+              },
+            });
+          } else {
+            // Fallback: find user by customer ID
+            const customerId = typeof subscription.customer === 'string'
+              ? subscription.customer
+              : subscription.customer?.id;
+
+            await tx.user.updateMany({
+              where: { stripeCustomerId: customerId },
+              data: {
+                stripeSubscriptionId: null,
+                stripePriceId: null,
+                stripeCurrentPeriodEnd: null,
+              },
+            });
+          }
+          break;
+        }
+
+        case 'invoice.payment_failed': {
+          const invoice = event.data.object as Stripe.Invoice;
+          console.error('Payment failed for invoice:', invoice.id);
+
+          // Find user by Stripe customer ID and flag their account
+          const customerId = typeof invoice.customer === 'string'
+            ? invoice.customer
+            : invoice.customer?.id ?? null;
+
+          if (customerId) {
+            await tx.user.updateMany({
+              where: { stripeCustomerId: customerId },
+              data: {
+                // Clear subscription so user loses pro access
+                stripeSubscriptionId: null,
+                stripePriceId: null,
+                stripeCurrentPeriodEnd: null,
+              },
+            });
+            console.log(`Payment failed — reverted user (customer ${customerId}) to free tier`);
+          }
+          break;
+        }
+
+        case 'invoice.paid': {
+          const invoice = event.data.object as Stripe.Invoice;
+
+          // Only process subscription renewal invoices (not the first one — that's handled by checkout.session.completed)
+          if (invoice.billing_reason !== 'subscription_cycle') break;
+
+          const customerId = typeof invoice.customer === 'string'
+            ? invoice.customer
+            : invoice.customer?.id ?? null;
+
+          if (customerId) {
+            const result = await tx.user.updateMany({
+              where: { stripeCustomerId: customerId },
+              data: {
+                credits: { increment: PRO_MONTHLY_CREDITS },
+              },
+            });
+            if (result.count > 0) {
+              console.log(`Monthly credit refill: +${PRO_MONTHLY_CREDITS} credits for customer ${customerId}`);
+            }
+          }
+          break;
+        }
       }
-    }
+
+      await tx.stripeWebhookEvent.update({
+        where: { eventId: event.id },
+        data: {
+          processedAt: new Date(),
+          processingError: null,
+        },
+      });
+    });
 
     return NextResponse.json({ received: true });
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError
+      && error.code === 'P2002'
+    ) {
+      console.log(`Duplicate Stripe webhook event ignored: ${event.id}`);
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    await prisma.stripeWebhookEvent.updateMany({
+      where: { eventId: event.id, processedAt: null },
+      data: { processingError: error instanceof Error ? error.message : 'Unknown error' },
+    }).catch(() => {});
+
     console.error('Webhook processing error:', error);
     return NextResponse.json(
       { error: 'Webhook processing failed' },

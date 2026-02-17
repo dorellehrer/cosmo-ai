@@ -18,6 +18,17 @@ import { gatewayHub } from './hub';
 let wss: WebSocketServer | null = null;
 let standaloneServer: Server | null = null;
 
+function normalizeGatewayWsPath(pathname: string): string {
+  if (!pathname) return '/ws';
+  const withLeadingSlash = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  return withLeadingSlash.replace(/\/+$/, '') || '/ws';
+}
+
+function getGatewayWsPaths(): string[] {
+  const configured = normalizeGatewayWsPath(process.env.GATEWAY_WS_PATH || '/ws');
+  return Array.from(new Set([configured, '/ws', '/api/gateway/ws']));
+}
+
 // ── Mode 1: Attach to an existing HTTP server ──────────────
 
 /**
@@ -30,6 +41,8 @@ export function attachGatewayWebSocket(server: Server) {
     return wss;
   }
 
+  const wsPaths = new Set(getGatewayWsPaths());
+
   wss = new WebSocketServer({ noServer: true });
 
   wss.on('connection', (ws: WebSocket) => {
@@ -39,7 +52,7 @@ export function attachGatewayWebSocket(server: Server) {
   server.on('upgrade', (request: IncomingMessage, socket, head) => {
     const { pathname } = new URL(request.url || '/', `http://${request.headers.host}`);
 
-    if (pathname === '/api/gateway/ws') {
+    if (wsPaths.has(pathname)) {
       wss!.handleUpgrade(request, socket, head, (ws: WebSocket) => {
         wss!.emit('connection', ws, request);
       });
@@ -47,7 +60,7 @@ export function attachGatewayWebSocket(server: Server) {
     // Don't handle other upgrade paths — let Next.js HMR etc. pass through
   });
 
-  console.log('[Gateway WS] WebSocket server attached on /api/gateway/ws');
+  console.log(`[Gateway WS] WebSocket server attached on paths: ${Array.from(wsPaths).join(', ')}`);
   return wss;
 }
 
@@ -65,6 +78,8 @@ export function startGatewayWebSocketServer(port: number): Promise<Server> {
     return Promise.resolve(standaloneServer);
   }
 
+  const wsPaths = new Set(getGatewayWsPaths());
+
   return new Promise((resolve, reject) => {
     const httpServer = createServer((req, res) => {
       if (req.url === '/health') {
@@ -77,10 +92,23 @@ export function startGatewayWebSocketServer(port: number): Promise<Server> {
       res.end();
     });
 
-    wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+    wss = new WebSocketServer({ noServer: true });
 
     wss.on('connection', (ws: WebSocket) => {
       gatewayHub.handleConnection(ws);
+    });
+
+    httpServer.on('upgrade', (request: IncomingMessage, socket, head) => {
+      const { pathname } = new URL(request.url || '/', `http://${request.headers.host}`);
+
+      if (wsPaths.has(pathname)) {
+        wss!.handleUpgrade(request, socket, head, (ws: WebSocket) => {
+          wss!.emit('connection', ws, request);
+        });
+        return;
+      }
+
+      socket.destroy();
     });
 
     httpServer.on('error', (err) => {
@@ -89,7 +117,7 @@ export function startGatewayWebSocketServer(port: number): Promise<Server> {
     });
 
     httpServer.listen(port, '0.0.0.0', () => {
-      console.log(`[Gateway WS] Standalone WebSocket server listening on port ${port}`);
+      console.log(`[Gateway WS] Standalone WebSocket server listening on port ${port} for paths: ${Array.from(wsPaths).join(', ')}`);
       standaloneServer = httpServer;
       resolve(httpServer);
     });

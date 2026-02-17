@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/integrations — list user's connected integrations
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const rateLimit = checkRateLimit(`integrations:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`integrations:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }

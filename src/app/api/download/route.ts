@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 /**
  * GET /api/download
@@ -38,30 +38,49 @@ async function getLatestRelease(): Promise<GitHubRelease | null> {
     return cachedRelease.data;
   }
 
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'Nova-AI-Download',
+  };
+
+  // Use GitHub token if available (required for draft releases)
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+
   try {
-    const headers: Record<string, string> = {
-      Accept: 'application/vnd.github+json',
-      'User-Agent': 'Nova-AI-Download',
-    };
-
-    // Use GitHub token if available for higher rate limits
-    if (process.env.GITHUB_TOKEN) {
-      headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-    }
-
+    // Try /releases/latest first (only finds published releases)
     const res = await fetch(
       `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`,
       { headers, next: { revalidate: 300 } }
     );
 
-    if (!res.ok) {
-      console.error(`GitHub API returned ${res.status}: ${res.statusText}`);
-      return null;
+    if (res.ok) {
+      const data = (await res.json()) as GitHubRelease;
+      if (data.assets && data.assets.length > 0) {
+        cachedRelease = { data, expiresAt: Date.now() + CACHE_TTL_MS };
+        return data;
+      }
     }
 
-    const data = (await res.json()) as GitHubRelease;
-    cachedRelease = { data, expiresAt: Date.now() + CACHE_TTL_MS };
-    return data;
+    // Fallback: list all releases (includes drafts if token has repo access)
+    const listRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases?per_page=5`,
+      { headers, next: { revalidate: 300 } }
+    );
+
+    if (listRes.ok) {
+      const releases = (await listRes.json()) as GitHubRelease[];
+      // Pick the first release that has assets
+      const withAssets = releases.find((r) => r.assets && r.assets.length > 0);
+      if (withAssets) {
+        cachedRelease = { data: withAssets, expiresAt: Date.now() + CACHE_TTL_MS };
+        return withAssets;
+      }
+    }
+
+    console.error('No releases with assets found');
+    return null;
   } catch (error) {
     console.error('Failed to fetch latest release:', error);
     return null;
@@ -102,7 +121,7 @@ function findAsset(
 
 export async function GET(request: NextRequest) {
   // Rate limit
-  const rateLimitResult = checkRateLimit(
+  const rateLimitResult = await checkRateLimitDistributed(
     request.headers.get('x-forwarded-for') || 'anonymous',
     RATE_LIMIT_API
   );

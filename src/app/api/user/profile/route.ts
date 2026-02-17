@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import { isPro } from '@/lib/stripe';
 import { MODELS, DEFAULT_MODEL, REASONING_LEVELS } from '@/lib/ai/models';
 
@@ -14,7 +14,7 @@ export async function GET() {
   }
 
   try {
-    const rateLimit = checkRateLimit(`profile:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`profile:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
@@ -67,7 +67,7 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const rateLimit = checkRateLimit(`profile:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`profile:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },

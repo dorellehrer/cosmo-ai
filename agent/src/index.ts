@@ -43,6 +43,7 @@ const config = {
   modelName: process.env.MODEL_NAME || 'gpt-5-mini',
   agentName: process.env.AGENT_NAME || 'Nova',
   personality: process.env.AGENT_PERSONALITY || 'friendly',
+  controlPlaneToken: process.env.AGENT_CONTROL_PLANE_TOKEN || '',
   databaseUrl: process.env.DATABASE_URL || '',
 };
 
@@ -53,6 +54,37 @@ const config = {
 const pool = config.databaseUrl
   ? new pg.Pool({ connectionString: config.databaseUrl, max: 3, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 10_000 })
   : null;
+
+const ACTIVITY_WRITE_INTERVAL_MS = 30_000;
+let lastActivityPersistedAt = 0;
+let pendingActivityWrite: Promise<void> | null = null;
+
+async function markAgentActivity(force: boolean = false): Promise<void> {
+  if (!pool) return;
+
+  const now = Date.now();
+  if (!force && now - lastActivityPersistedAt < ACTIVITY_WRITE_INTERVAL_MS) {
+    return;
+  }
+
+  if (pendingActivityWrite) {
+    return;
+  }
+
+  const timestamp = new Date();
+  pendingActivityWrite = pool.query(
+    'UPDATE "AgentInstance" SET "lastActivity" = $1, "updatedAt" = $1 WHERE id = $2',
+    [timestamp, config.agentId]
+  ).then(() => {
+    lastActivityPersistedAt = now;
+  }).catch((error) => {
+    console.error('Failed to update agent activity timestamp:', error);
+  }).finally(() => {
+    pendingActivityWrite = null;
+  });
+
+  await pendingActivityWrite;
+}
 
 // ──────────────────────────────────────────────
 // AI Model Client
@@ -265,8 +297,13 @@ function createAdapter(channelType: string): ChannelAdapter | null {
 
 async function handleMessage(
   sessionKey: string,
-  userMessage: string
+  userMessage: string,
+  options?: { recordActivity?: boolean }
 ): Promise<string> {
+  if (options?.recordActivity !== false) {
+    await markAgentActivity();
+  }
+
   const session = getOrCreateSession(sessionKey);
 
   session.messages.push({ role: 'user', content: userMessage });
@@ -370,6 +407,14 @@ wss.on('connection', (ws: WebSocket) => {
     try {
       const message = JSON.parse(data.toString());
 
+      if (config.controlPlaneToken) {
+        const authToken = typeof message.authToken === 'string' ? message.authToken : '';
+        if (authToken !== config.controlPlaneToken) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Unauthorized control plane request' }));
+          return;
+        }
+      }
+
       switch (message.type) {
         case 'chat': {
           const sessionKey = message.sessionKey || 'default';
@@ -446,7 +491,11 @@ wss.on('connection', (ws: WebSocket) => {
         }
 
         case 'heartbeat.trigger': {
-          const hbResponse = await handleMessage('heartbeat', 'Generate a brief, friendly check-in message for your user.');
+          const hbResponse = await handleMessage(
+            'heartbeat',
+            'Generate a brief, friendly check-in message for your user.',
+            { recordActivity: false },
+          );
           ws.send(JSON.stringify({ type: 'heartbeat', content: hbResponse }));
           // Send through all connected channels
           for (const adapter of channelAdapters) {
@@ -463,15 +512,18 @@ wss.on('connection', (ws: WebSocket) => {
         }
 
         case 'config.reload': {
-          // Re-read skills from DB
+          // Re-read skills/channels/heartbeat config from DB
           if (pool) {
             try {
-              const result = await pool.query(
-                'SELECT "skillId" FROM "AgentSkill" WHERE "userId" = $1 AND enabled = true',
-                [config.userId]
-              );
-              enabledSkillIds = result.rows.map((r: { skillId: string }) => r.skillId);
-              ws.send(JSON.stringify({ type: 'ack', action: 'config.reload', skillCount: enabledSkillIds.length }));
+              await loadSkillsFromDB();
+              await loadChannelsFromDB();
+              startHeartbeat();
+              ws.send(JSON.stringify({
+                type: 'ack',
+                action: 'config.reload',
+                skillCount: enabledSkillIds.length,
+                channelCount: channelAdapters.length,
+              }));
             } catch (err) {
               console.error('Config reload failed:', err);
               ws.send(JSON.stringify({ type: 'error', message: 'Config reload failed' }));
@@ -550,6 +602,17 @@ async function loadSkillsFromDB(): Promise<void> {
 
 async function loadChannelsFromDB(): Promise<void> {
   if (!pool) return;
+
+  while (channelAdapters.length > 0) {
+    const adapter = channelAdapters.pop();
+    if (!adapter) continue;
+    try {
+      await adapter.disconnect();
+    } catch {
+      // ignore disconnect errors during reload
+    }
+  }
+
   try {
     const result = await pool.query(
       `SELECT "channelType", "configSecretArn", status FROM "AgentChannel" WHERE "userId" = $1 AND status = 'connected'`,
@@ -631,7 +694,7 @@ function startHeartbeat(): void {
       if (hour < startHour || hour >= endHour) return;
 
       const prompt = agent.heartbeatPrompt || 'Generate a brief, friendly check-in message.';
-      const response = await handleMessage('heartbeat', prompt);
+      const response = await handleMessage('heartbeat', prompt, { recordActivity: false });
       console.log(`[Heartbeat] ${response.substring(0, 100)}...`);
 
       // Send through all connected channels

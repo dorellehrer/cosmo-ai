@@ -11,6 +11,8 @@
 import { gatewayHub } from './hub';
 import { getRequiredCapability, isDeviceTool, toGatewayToolName } from './tools';
 import type { ToolResultPayload } from './protocol';
+import { getOnlineDevices } from './device-registry';
+import { awaitGatewayToolCallResult, enqueueGatewayToolCall } from './dispatch-queue';
 
 // ──────────────────────────────────────────────
 // Router
@@ -54,6 +56,33 @@ export async function routeToolCall(
 
   // Check if any connected device has the capability
   if (!gatewayHub.hasCapability(userId, capability)) {
+    const clusterDevices = await getOnlineDevices(userId, capability);
+
+    if (clusterDevices.length > 0) {
+      const queuedCall = await enqueueGatewayToolCall({
+        userId,
+        requiredCapability: capability,
+        tool: routedTool,
+        params,
+        timeoutMs,
+      });
+
+      const queuedResult = await awaitGatewayToolCallResult(queuedCall.id, timeoutMs);
+
+      if (queuedResult.success) {
+        return {
+          routed: true,
+          deviceId: queuedResult.processorInstance || undefined,
+          result: queuedResult.result,
+        };
+      }
+
+      return {
+        routed: false,
+        result: queuedResult.result,
+      };
+    }
+
     return {
       routed: false,
       result: {
@@ -100,6 +129,19 @@ export function getAvailableDeviceCapabilities(userId: string): string[] {
   return gatewayHub.getUserCapabilities(userId);
 }
 
+export async function getAvailableDeviceCapabilitiesDistributed(userId: string): Promise<string[]> {
+  const onlineDevices = await getOnlineDevices(userId);
+  const capabilities = new Set<string>();
+
+  for (const device of onlineDevices) {
+    for (const capability of device.capabilities) {
+      capabilities.add(capability);
+    }
+  }
+
+  return Array.from(capabilities);
+}
+
 /**
  * Check if a specific tool can be routed to a device for this user.
  */
@@ -133,5 +175,35 @@ export function getDeviceSummary(userId: string): {
     deviceCount: deviceList.length,
     capabilities: Array.from(allCaps),
     devices: deviceList,
+  };
+}
+
+export async function getDistributedDeviceSummary(userId: string): Promise<{
+  deviceCount: number;
+  capabilities: string[];
+  devices: Array<{ deviceId: string; platform: string; capabilities: string[] }>;
+  localDeviceCount: number;
+}> {
+  const localSummary = getDeviceSummary(userId);
+  const onlineDevices = await getOnlineDevices(userId);
+
+  const capabilities = new Set<string>();
+  const devices = onlineDevices.map((device) => {
+    for (const capability of device.capabilities) {
+      capabilities.add(capability);
+    }
+
+    return {
+      deviceId: device.id,
+      platform: device.platform,
+      capabilities: device.capabilities,
+    };
+  });
+
+  return {
+    deviceCount: devices.length,
+    capabilities: Array.from(capabilities),
+    devices,
+    localDeviceCount: localSummary.deviceCount,
   };
 }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/agent/memory — Search agent memory
 export async function GET(req: Request) {
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`agent:memory:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`agent:memory:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -52,7 +52,7 @@ export async function DELETE() {
     }
 
     // Rate limit check
-    const rateLimitDelete = checkRateLimit(`agent:memory:clear:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitDelete = await checkRateLimitDistributed(`agent:memory:clear:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitDelete.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

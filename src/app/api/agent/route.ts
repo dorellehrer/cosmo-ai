@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { provisionAgent } from '@/lib/agent';
-import { checkRateLimit, RATE_LIMIT_API, RATE_LIMIT_AGENT_PROVISION } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API, RATE_LIMIT_AGENT_PROVISION } from '@/lib/rate-limit';
 import { isPro } from '@/lib/stripe';
 import type { AgentStatus, ProvisionAgentRequest, ProvisioningEvent } from '@/types/agent';
 
@@ -16,7 +16,7 @@ export async function GET() {
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`agent:list:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`agent:list:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     }
 
     // Rate limit check — agent provisioning is very expensive
-    const rateLimit = checkRateLimit(`agent:provision:${session.user.id}`, RATE_LIMIT_AGENT_PROVISION);
+    const rateLimit = await checkRateLimitDistributed(`agent:provision:${session.user.id}`, RATE_LIMIT_AGENT_PROVISION);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

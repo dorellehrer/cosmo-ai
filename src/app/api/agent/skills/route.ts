@@ -3,7 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { BUILTIN_SKILLS, getSkillIdVariants, toCanonicalSkillId } from '@/types/agent';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { triggerAgentConfigReload, touchRunningAgentActivity } from '@/lib/agent';
 
 // GET /api/agent/skills — List installed skills + available marketplace
 export async function GET() {
@@ -14,7 +15,7 @@ export async function GET() {
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`agent:skills:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`agent:skills:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     // Rate limit check
-    const rateLimitPost = checkRateLimit(`agent:skills:install:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitPost = await checkRateLimitDistributed(`agent:skills:install:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitPost.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -101,6 +102,12 @@ export async function POST(req: Request) {
       },
     });
 
+    await touchRunningAgentActivity(session.user.id).catch(() => {});
+
+    await triggerAgentConfigReload(session.user.id).catch((err) => {
+      console.warn('[agent/skills] config.reload failed after install:', err);
+    });
+
     return NextResponse.json({ skill }, { status: 201 });
   } catch (error) {
     console.error('Failed to install skill:', error);
@@ -116,7 +123,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const rateLimitPatch = checkRateLimit(`agent:skills:toggle:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitPatch = await checkRateLimitDistributed(`agent:skills:toggle:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitPatch.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -145,6 +152,12 @@ export async function PATCH(req: Request) {
     if (result.count === 0) {
       return NextResponse.json({ error: 'Skill not found or not installed' }, { status: 404 });
     }
+
+    await touchRunningAgentActivity(session.user.id).catch(() => {});
+
+    await triggerAgentConfigReload(session.user.id).catch((err) => {
+      console.warn('[agent/skills] config.reload failed after toggle:', err);
+    });
 
     return NextResponse.json({ updated: true, skillId: canonicalSkillId, enabled });
   } catch (error) {

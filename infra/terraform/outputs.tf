@@ -40,6 +40,11 @@ output "app_service_name" {
   value       = module.ecs.app_service_name
 }
 
+output "gateway_ws_target_group_arn" {
+  description = "ALB target group ARN for gateway WebSocket traffic"
+  value       = module.ecs.gateway_ws_target_group_arn
+}
+
 # ── ECR ───────────────────────────────────────────────
 
 output "ecr_app_repo_url" {

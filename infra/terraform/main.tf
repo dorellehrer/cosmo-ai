@@ -118,6 +118,9 @@ module "ecs" {
   agent_cpu             = var.agent_cpu
   agent_memory          = var.agent_memory
   app_desired_count     = var.app_desired_count
+  gateway_ws_port       = var.gateway_ws_port
+  gateway_ws_health_path = var.gateway_ws_health_path
+  https_listener_arn    = var.https_listener_arn
 }
 
 module "lambda" {

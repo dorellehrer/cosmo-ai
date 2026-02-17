@@ -72,31 +72,31 @@ function getDesktopCSS(): string {
       overflow: hidden !important;
     }
 
-    /* Root container gets the rounded window + solid background */
+    /* Root container gets the gem-shaped window + solid background */
     body > div:first-child,
     #__next,
     #__next > div:first-child {
-      border-radius: ${IS_MAC ? '12px' : '0px'};
+      border-radius: ${IS_MAC ? '28px 14px 28px 14px / 14px 28px 14px 28px' : '0px'};
       overflow: hidden;
       background: #0a0a0a;
       height: 100vh;
       position: relative;
     }
 
-    /* Subtle animated glow border (macOS only — transparent window) */
+    /* Animated glow border following gem shape (macOS only) */
     ${IS_MAC ? `
     #__next::after {
       content: '';
       position: fixed;
       inset: 0;
-      border-radius: 12px;
-      padding: 1px;
+      border-radius: 28px 14px 28px 14px / 14px 28px 14px 28px;
+      padding: 1.5px;
       background: linear-gradient(
         135deg,
-        rgba(139, 92, 246, 0.35),
-        rgba(217, 70, 239, 0.2),
-        rgba(139, 92, 246, 0.1),
-        rgba(217, 70, 239, 0.35)
+        rgba(139, 92, 246, 0.5),
+        rgba(217, 70, 239, 0.3),
+        rgba(56, 189, 248, 0.2),
+        rgba(139, 92, 246, 0.5)
       );
       -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
@@ -105,6 +105,12 @@ function getDesktopCSS(): string {
       mask-composite: exclude;
       pointer-events: none;
       z-index: 99999;
+      animation: nova-glow-rotate 6s linear infinite;
+    }
+
+    @keyframes nova-glow-rotate {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
     }` : ''}
 
     /* Hide web navigation and footer */
@@ -243,10 +249,10 @@ function createWindow(): void {
   const iconPath = getIconPath();
 
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 860,
+    height: 640,
     minWidth: 480,
-    minHeight: 600,
+    minHeight: 500,
     title: 'Nova AI',
     icon: iconPath,
     frame: false,

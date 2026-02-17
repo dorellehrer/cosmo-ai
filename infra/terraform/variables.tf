@@ -69,6 +69,24 @@ variable "app_desired_count" {
   default     = 1
 }
 
+variable "gateway_ws_port" {
+  description = "Gateway WebSocket server port exposed by the app task"
+  type        = number
+  default     = 3001
+}
+
+variable "gateway_ws_health_path" {
+  description = "Health endpoint path served by the standalone gateway WS server"
+  type        = string
+  default     = "/health"
+}
+
+variable "https_listener_arn" {
+  description = "Optional existing HTTPS ALB listener ARN for routing gateway WS paths"
+  type        = string
+  default     = ""
+}
+
 # ── ECS — Agent ───────────────────────────────────────
 
 variable "agent_cpu" {

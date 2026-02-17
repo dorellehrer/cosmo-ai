@@ -15,6 +15,11 @@ export interface IntegrationProviderMeta {
   status: IntegrationStatus;
 }
 
+export interface PublicIntegrationSummary {
+  live: string[];
+  preview: string[];
+}
+
 export const INTEGRATION_PROVIDER_REGISTRY: Record<IntegrationProvider, IntegrationProviderMeta> = {
   google: { id: 'google', displayName: 'Google', connectionMode: 'oauth', status: 'live' },
   spotify: { id: 'spotify', displayName: 'Spotify', connectionMode: 'oauth', status: 'live' },
@@ -45,5 +50,18 @@ export function getIntegrationProviderMeta(provider: string): IntegrationProvide
     return INTEGRATION_PROVIDER_REGISTRY[provider as IntegrationProvider];
   }
   return null;
+}
+
+export function getPublicIntegrationSummary(): PublicIntegrationSummary {
+  const live = OAUTH_PROVIDER_IDS.map((providerId) => INTEGRATION_PROVIDER_REGISTRY[providerId].displayName);
+  const preview = PREVIEW_PROVIDER_IDS.map((providerId) => INTEGRATION_PROVIDER_REGISTRY[providerId].displayName);
+  return { live, preview };
+}
+
+export function formatIntegrationList(names: string[]): string {
+  if (names.length === 0) return '';
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`;
 }
 

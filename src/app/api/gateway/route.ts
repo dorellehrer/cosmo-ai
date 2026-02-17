@@ -16,9 +16,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import { gatewayHub } from '@/lib/gateway/hub';
-import { getDeviceSummary } from '@/lib/gateway/message-router';
+import { getDistributedDeviceSummary } from '@/lib/gateway/message-router';
 
 /**
  * GET /api/gateway
@@ -30,13 +30,13 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const rateLimit = checkRateLimit(`gateway:${session.user.id}`, RATE_LIMIT_API);
+  const rateLimit = await checkRateLimitDistributed(`gateway:${session.user.id}`, RATE_LIMIT_API);
   if (!rateLimit.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429, headers: rateLimit.headers });
   }
 
   try {
-    const summary = getDeviceSummary(session.user.id);
+    const summary = await getDistributedDeviceSummary(session.user.id);
     const stats = gatewayHub.getStats();
 
     return NextResponse.json({

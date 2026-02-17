@@ -82,3 +82,23 @@ variable "agent_memory" {
 variable "app_desired_count" {
   type = number
 }
+
+variable "gateway_ws_port" {
+  type    = number
+  default = 3001
+}
+
+variable "gateway_ws_health_path" {
+  type    = string
+  default = "/health"
+}
+
+variable "https_listener_arn" {
+  type    = string
+  default = ""
+}
+
+variable "gateway_ws_listener_rule_priority" {
+  type    = number
+  default = 20
+}

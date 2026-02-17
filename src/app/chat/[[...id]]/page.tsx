@@ -61,7 +61,6 @@ export default function ChatPage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
-  const [userIsPro, setUserIsPro] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningLevel>('low');
   const [showModelPicker, setShowModelPicker] = useState(false);
@@ -161,7 +160,6 @@ export default function ChatPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.preferredModel) setSelectedModel(data.preferredModel);
-        if (data.isPro !== undefined) setUserIsPro(data.isPro);
         if (data.credits !== undefined) setUserCredits(data.credits);
         if (data.reasoningEffort) setReasoningEffort(data.reasoningEffort as ReasoningLevel);
       })
@@ -203,20 +201,7 @@ export default function ChatPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [sidebarOpen]);
 
-  // Load conversation if ID is provided
-  useEffect(() => {
-    if (conversationId) {
-      loadConversation(conversationId);
-    } else {
-      // New chat
-      setMessages([]);
-      setCurrentConversationId(null);
-      setCurrentTitle(null);
-      inputRef.current?.focus();
-    }
-  }, [conversationId]);
-
-  const loadConversation = async (id: string) => {
+  const loadConversation = useCallback(async (id: string) => {
     try {
       setLoadingChat(true);
       const response = await fetch(`/api/conversations/${id}`);
@@ -244,7 +229,20 @@ export default function ChatPage() {
       // Focus input after loading
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  };
+  }, [router]);
+
+  // Load conversation if ID is provided
+  useEffect(() => {
+    if (conversationId) {
+      loadConversation(conversationId);
+    } else {
+      // New chat
+      setMessages([]);
+      setCurrentConversationId(null);
+      setCurrentTitle(null);
+      inputRef.current?.focus();
+    }
+  }, [conversationId, loadConversation]);
 
   const startNewChat = () => {
     router.push('/chat');
@@ -545,164 +543,164 @@ export default function ChatPage() {
       if (!response.ok) throw new Error('Failed to get response');
 
       const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
+      const mainDecoder = new TextDecoder();
+
+      const processSseChunk = async (
+        state: { buffer: string },
+        chunk: string,
+        onParsed: (parsed: Record<string, unknown>) => Promise<void> | void,
+      ) => {
+        state.buffer += chunk.replace(/\r\n/g, '\n');
+        const events = state.buffer.split('\n\n');
+        state.buffer = events.pop() ?? '';
+
+        for (const event of events) {
+          const dataLines = event
+            .split('\n')
+            .filter((line) => line.startsWith('data:'))
+            .map((line) => line.slice(5).trimStart());
+
+          if (dataLines.length === 0) continue;
+
+          const data = dataLines.join('\n');
+          if (data === '[DONE]') continue;
+
+          try {
+            const parsed = JSON.parse(data) as Record<string, unknown>;
+            await onParsed(parsed);
+          } catch {
+            // Ignore parse errors for malformed frames
+          }
+        }
+      };
 
       if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        const mainSseState = { buffer: '' };
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
+        const handleMainParsed = async (parsed: Record<string, unknown>) => {
+          // Handle conversationId from new conversation
+          if (typeof parsed.conversationId === 'string' && !currentConversationId) {
+            setCurrentConversationId(parsed.conversationId);
+            // Update URL without full navigation
+            window.history.replaceState(null, '', `/chat/${parsed.conversationId}`);
+          }
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
+          // Handle updated credits from server
+          if (parsed.credits !== undefined) {
+            setUserCredits(parsed.credits as number);
+          }
+
+          // Handle title update
+          if (typeof parsed.title === 'string' && parsed.title) {
+            setCurrentTitle(parsed.title);
+            // Update conversations list
+            fetchConversations();
+          }
+
+          // Handle tool status (e.g. "Searching the web...")
+          if (typeof parsed.toolStatus === 'string' && parsed.toolStatus) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, toolStatus: parsed.toolStatus }
+                  : m
+              )
+            );
+          }
+
+          // Handle desktop tool calls — execute client-side and send results back
+          if (Array.isArray(parsed.desktopToolCalls) && Array.isArray(parsed.pendingMessages)) {
+            // Dynamic import to avoid bundling desktop-tools for web users
+            const { executeDesktopTool } = await import('@/lib/desktop-tools');
+
+            // Show tool status for each desktop tool
+            for (const tc of parsed.desktopToolCalls) {
+              const statusLabel = typeof tc === 'object' && tc !== null && 'statusLabel' in tc
+                ? String(tc.statusLabel)
+                : undefined;
+
+              if (statusLabel) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, toolStatus: statusLabel }
+                      : m
+                  )
+                );
+              }
+            }
+
+            // Execute each desktop tool call
+            const toolResults: Array<{ callId: string; result: string }> = [];
+            for (const tc of parsed.desktopToolCalls) {
+              const callId = typeof tc === 'object' && tc !== null && 'callId' in tc
+                ? String(tc.callId)
+                : '';
+              const name = typeof tc === 'object' && tc !== null && 'name' in tc
+                ? String(tc.name)
+                : '';
+              const argumentsValue = typeof tc === 'object' && tc !== null && 'arguments' in tc
+                ? (tc.arguments as Record<string, unknown>)
+                : {};
+
+              if (!callId || !name) continue;
 
               try {
-                const parsed = JSON.parse(data);
+                const result = await executeDesktopTool(name, argumentsValue);
+                toolResults.push({
+                  callId,
+                  result: typeof result === 'string' ? result : JSON.stringify(result),
+                });
+              } catch (err) {
+                toolResults.push({
+                  callId,
+                  result: JSON.stringify({ error: err instanceof Error ? err.message : 'Tool execution failed' }),
+                });
+              }
+            }
 
-                // Handle conversationId from new conversation
-                if (parsed.conversationId && !currentConversationId) {
-                  setCurrentConversationId(parsed.conversationId);
-                  // Update URL without full navigation
-                  window.history.replaceState(null, '', `/chat/${parsed.conversationId}`);
-                }
+            // Send continuation request with tool results
+            const continuationResponse = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                messages: [...messages, userMessage].map((m) => ({
+                  role: m.role,
+                  content: m.content,
+                })),
+                conversationId: currentConversationId || (parsed.conversationId as string | undefined),
+                model: selectedModel,
+                reasoningEffort,
+                desktopTools: true,
+                toolResults,
+              }),
+              signal: controller.signal,
+            });
 
-                // Handle updated credits from server
-                if (parsed.credits !== undefined) {
-                  setUserCredits(parsed.credits);
-                }
+            if (!continuationResponse.ok) throw new Error('Desktop tool continuation failed');
 
-                // Handle title update
-                if (parsed.title) {
-                  setCurrentTitle(parsed.title);
-                  // Update conversations list
+            // Parse the continuation SSE stream
+            const contReader = continuationResponse.body?.getReader();
+            if (contReader) {
+              const contSseState = { buffer: '' };
+              const continuationDecoder = new TextDecoder();
+
+              const handleContinuationParsed = (cParsed: Record<string, unknown>) => {
+                if (typeof cParsed.title === 'string' && cParsed.title) {
+                  setCurrentTitle(cParsed.title);
                   fetchConversations();
                 }
-
-                // Handle tool status (e.g. "Searching the web...")
-                if (parsed.toolStatus) {
+                if (typeof cParsed.toolStatus === 'string' && cParsed.toolStatus) {
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
-                        ? { ...m, toolStatus: parsed.toolStatus }
+                        ? { ...m, toolStatus: cParsed.toolStatus as string }
                         : m
                     )
                   );
                 }
-
-                // Handle desktop tool calls — execute client-side and send results back
-                if (parsed.desktopToolCalls && parsed.pendingMessages) {
-                  // Dynamic import to avoid bundling desktop-tools for web users
-                  const { executeDesktopTool } = await import('@/lib/desktop-tools');
-
-                  // Show tool status for each desktop tool
-                  for (const tc of parsed.desktopToolCalls) {
-                    setMessages((prev) =>
-                      prev.map((m) =>
-                        m.id === assistantId
-                          ? { ...m, toolStatus: tc.statusLabel }
-                          : m
-                      )
-                    );
-                  }
-
-                  // Execute each desktop tool call
-                  const toolResults: Array<{ callId: string; result: string }> = [];
-                  for (const tc of parsed.desktopToolCalls) {
-                    try {
-                      const result = await executeDesktopTool(tc.name, tc.arguments);
-                      toolResults.push({
-                        callId: tc.callId,
-                        result: typeof result === 'string' ? result : JSON.stringify(result),
-                      });
-                    } catch (err) {
-                      toolResults.push({
-                        callId: tc.callId,
-                        result: JSON.stringify({ error: err instanceof Error ? err.message : 'Tool execution failed' }),
-                      });
-                    }
-                  }
-
-                  // Send continuation request with tool results
-                  const continuationResponse = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      messages: [...messages, userMessage].map((m) => ({
-                        role: m.role,
-                        content: m.content,
-                      })),
-                      conversationId: currentConversationId || parsed.conversationId,
-                      model: selectedModel,
-                      reasoningEffort,
-                      desktopTools: true,
-                      toolResults,
-                    }),
-                    signal: controller.signal,
-                  });
-
-                  if (!continuationResponse.ok) throw new Error('Desktop tool continuation failed');
-
-                  // Parse the continuation SSE stream
-                  const contReader = continuationResponse.body?.getReader();
-                  if (contReader) {
-                    while (true) {
-                      const { done: cDone, value: cValue } = await contReader.read();
-                      if (cDone) break;
-
-                      const cChunk = decoder.decode(cValue);
-                      const cLines = cChunk.split('\n');
-                      for (const cLine of cLines) {
-                        if (cLine.startsWith('data: ')) {
-                          const cData = cLine.slice(6);
-                          if (cData === '[DONE]') continue;
-                          try {
-                            const cParsed = JSON.parse(cData);
-                            if (cParsed.title) {
-                              setCurrentTitle(cParsed.title);
-                              fetchConversations();
-                            }
-                            if (cParsed.toolStatus) {
-                              setMessages((prev) =>
-                                prev.map((m) =>
-                                  m.id === assistantId
-                                    ? { ...m, toolStatus: cParsed.toolStatus }
-                                    : m
-                                )
-                              );
-                            }
-                            if (cParsed.content) {
-                              streamBufferRef.current += cParsed.content;
-                              if (rafIdRef.current === null) {
-                                rafIdRef.current = requestAnimationFrame(() => {
-                                  const buffered = streamBufferRef.current;
-                                  streamBufferRef.current = '';
-                                  rafIdRef.current = null;
-                                  setMessages((prev) =>
-                                    prev.map((m) =>
-                                      m.id === assistantId
-                                        ? { ...m, content: m.content + buffered, toolStatus: undefined }
-                                        : m
-                                    )
-                                  );
-                                });
-                              }
-                            }
-                          } catch {
-                            // Ignore parse errors
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-
-                // Handle content — buffer tokens and flush via RAF
-                if (parsed.content) {
-                  streamBufferRef.current += parsed.content;
+                if (typeof cParsed.content === 'string' && cParsed.content) {
+                  streamBufferRef.current += cParsed.content;
                   if (rafIdRef.current === null) {
                     rafIdRef.current = requestAnimationFrame(() => {
                       const buffered = streamBufferRef.current;
@@ -718,11 +716,67 @@ export default function ChatPage() {
                     });
                   }
                 }
-              } catch {
-                // Ignore JSON parse errors for incomplete chunks
+              };
+
+              while (true) {
+                const { done: cDone, value: cValue } = await contReader.read();
+                if (cDone) break;
+                await processSseChunk(
+                  contSseState,
+                  continuationDecoder.decode(cValue, { stream: true }),
+                  handleContinuationParsed,
+                );
+              }
+
+              const continuationRemainder = continuationDecoder.decode();
+              if (continuationRemainder) {
+                await processSseChunk(contSseState, continuationRemainder, handleContinuationParsed);
+              }
+
+              if (contSseState.buffer.trim()) {
+                await processSseChunk(contSseState, '\n\n', handleContinuationParsed);
               }
             }
           }
+
+          // Handle content — buffer tokens and flush via RAF
+          if (typeof parsed.content === 'string' && parsed.content) {
+            streamBufferRef.current += parsed.content;
+            if (rafIdRef.current === null) {
+              rafIdRef.current = requestAnimationFrame(() => {
+                const buffered = streamBufferRef.current;
+                streamBufferRef.current = '';
+                rafIdRef.current = null;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, content: m.content + buffered, toolStatus: undefined }
+                      : m
+                  )
+                );
+              });
+            }
+          }
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          await processSseChunk(
+            mainSseState,
+            mainDecoder.decode(value, { stream: true }),
+            handleMainParsed,
+          );
+        }
+
+        const mainRemainder = mainDecoder.decode();
+        if (mainRemainder) {
+          await processSseChunk(mainSseState, mainRemainder, handleMainParsed);
+        }
+
+        if (mainSseState.buffer.trim()) {
+          await processSseChunk(mainSseState, '\n\n', handleMainParsed);
         }
       }
     } catch (error) {
@@ -758,7 +812,7 @@ export default function ChatPage() {
       // Refresh conversations list
       fetchConversations();
     }
-  }, [isLoading, messages, currentConversationId, selectedModel, reasoningEffort, fetchConversations, t]);
+  }, [isLoading, messages, currentConversationId, selectedModel, reasoningEffort, fetchConversations, t, isDesktop, scrollToBottom]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -804,8 +858,7 @@ export default function ChatPage() {
   }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSuggestionClick = (suggestion: string) => {
-    setInput(suggestion);
-    inputRef.current?.focus();
+    doSend(suggestion);
   };
 
   const copyMessage = useCallback(async (messageId: string, content: string) => {

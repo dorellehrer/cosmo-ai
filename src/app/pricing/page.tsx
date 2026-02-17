@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { MODEL_LIST } from '@/lib/ai/models';
+import { formatIntegrationList, getPublicIntegrationSummary } from '@/lib/integrations/providers';
 
 const CREDIT_PACKAGES = [
   {
@@ -36,22 +37,17 @@ const CREDIT_PACKAGES = [
   },
 ];
 
+const integrationSummary = getPublicIntegrationSummary();
+const liveIntegrationsLabel = formatIntegrationList(integrationSummary.live);
+const previewIntegrationsLabel = formatIntegrationList(integrationSummary.preview);
+
 const PRO_FEATURES = [
   '🧠 1,000 credits/month included',
   '✨ 5 intelligence levels — Standard to Genius',
   '💡 Adjustable thinking depth for deeper reasoning',
   '🎨 DALL-E image generation (50/day)',
-  '📅 Google Calendar (read + create + update)',
-  '📧 Gmail search & reading',
-  '📁 Google Drive file search',
-  '🎵 Spotify playback & search',
-  '📝 Notion search & page creation',
-  '💬 Slack messages & channels',
-  '📱 WhatsApp messaging',
-  '🎮 Discord servers & channels',
-  '📞 AI Phone Calls ($0.10/min)',
-  '💡 Philips Hue smart lighting',
-  '🔊 Sonos multi-room audio',
+  `🔗 Live integrations: ${liveIntegrationsLabel}`,
+  `🧪 Preview integrations: ${previewIntegrationsLabel}`,
   '🧠 Personal AI Agent',
   '🔒 Priority support',
 ];

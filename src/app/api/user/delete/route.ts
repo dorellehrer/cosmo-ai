@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
 import { stripe } from '@/lib/stripe';
 import { destroyAgent } from '@/lib/agent';
 
@@ -14,7 +14,7 @@ export async function DELETE() {
   }
 
   try {
-    const rateLimit = checkRateLimit(`delete:${session.user.id}`, RATE_LIMIT_AUTH);
+    const rateLimit = await checkRateLimitDistributed(`delete:${session.user.id}`, RATE_LIMIT_AUTH);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },

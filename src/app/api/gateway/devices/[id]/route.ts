@@ -7,7 +7,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import {
   getDevice,
   updateDevice,
@@ -47,7 +47,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const rateLimit = checkRateLimit(`devices:${session.user.id}`, RATE_LIMIT_API);
+  const rateLimit = await checkRateLimitDistributed(`devices:${session.user.id}`, RATE_LIMIT_API);
   if (!rateLimit.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429, headers: rateLimit.headers });
   }

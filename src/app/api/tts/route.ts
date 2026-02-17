@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generateSpeech, type TtsOptions } from '@/lib/tts';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit
-    const rateLimitResult = await checkRateLimit(
+    const rateLimitResult = await checkRateLimitDistributed(
       `tts:${session.user.id}`,
       RATE_LIMIT_API,
     );

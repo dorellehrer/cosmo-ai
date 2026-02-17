@@ -4,6 +4,11 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { PublicNav } from '@/components/PublicNav';
 import { PublicFooter } from '@/components/PublicFooter';
+import { formatIntegrationList, getPublicIntegrationSummary } from '@/lib/integrations/providers';
+
+const integrationSummary = getPublicIntegrationSummary();
+const liveIntegrationsLabel = formatIntegrationList(integrationSummary.live);
+const previewIntegrationsLabel = formatIntegrationList(integrationSummary.preview);
 
 type FAQCategory = {
   id: string;
@@ -47,7 +52,7 @@ const faqCategories: FAQCategory[] = [
       },
       {
         q: 'How do I upgrade to Pro?',
-        a: 'Visit our Pricing page or go to Settings and click "Upgrade to Pro." Pro is $20/month and includes 1,000 credits, all integrations, AI phone calls, and more. You can also buy credit packs individually without subscribing.',
+        a: `Visit our Pricing page or go to Settings and click "Upgrade to Pro." Pro is $20/month and includes 1,000 credits plus live integrations (${liveIntegrationsLabel}). Preview features (${previewIntegrationsLabel}) are marked in-product while rollout continues. You can also buy credit packs individually without subscribing.`,
       },
       {
         q: 'Can I cancel my subscription?',

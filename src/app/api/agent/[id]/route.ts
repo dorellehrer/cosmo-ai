@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { stopAgent, restartAgent, destroyAgent, refreshAgentStatus } from '@/lib/agent';
+import { stopAgent, restartAgent, destroyAgent, refreshAgentStatus, touchRunningAgentActivity } from '@/lib/agent';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import type { AgentStatus } from '@/types/agent';
 
 // GET /api/agent/[id] — Get agent details with status refresh
@@ -18,7 +18,7 @@ export async function GET(
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`agent:detail:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`agent:detail:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -103,7 +103,7 @@ export async function PATCH(
     }
 
     // Rate limit check
-    const rateLimitPatch = checkRateLimit(`agent:update:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitPatch = await checkRateLimitDistributed(`agent:update:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitPatch.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -221,6 +221,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
+    await touchRunningAgentActivity(session.user.id).catch(() => {});
+
     return NextResponse.json({ message: 'Agent updated' });
   } catch (error) {
     console.error('Failed to update agent:', error);
@@ -241,7 +243,7 @@ export async function DELETE(
     }
 
     // Rate limit check
-    const rateLimitDelete = checkRateLimit(`agent:destroy:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitDelete = await checkRateLimitDistributed(`agent:destroy:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitDelete.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

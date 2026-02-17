@@ -1,12 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { formatIntegrationList, getPublicIntegrationSummary } from '@/lib/integrations/providers';
+
+const integrationSummary = getPublicIntegrationSummary();
+const liveIntegrationsLabel = formatIntegrationList(integrationSummary.live);
+const previewIntegrationsLabel = formatIntegrationList(integrationSummary.preview);
 
 const faqs = [
   {
     question: 'How is Nova different from ChatGPT?',
     answer:
-      "ChatGPT answers questions. Nova actually does things. It connects to your email, calendar, Spotify, WhatsApp, Slack, Discord, and Notion — and takes action on your behalf. Say \"schedule lunch with Sarah\" and it creates the event. Say \"call mom\" and it makes a real phone call.",
+      `ChatGPT answers questions. Nova actually does things. It connects to services like ${liveIntegrationsLabel} and takes action on your behalf. Preview features such as ${previewIntegrationsLabel} are clearly marked while we complete rollout.`,
   },
   {
     question: 'Is Nova really free?',
@@ -21,12 +26,12 @@ const faqs = [
   {
     question: 'What can Nova connect to?',
     answer:
-      "Google (Calendar, Gmail, Drive), Spotify, WhatsApp, Slack, Discord, and Notion — with more coming soon. Connect your accounts in Settings and Nova can read your emails, manage your calendar, send messages, and control your music.",
+      `Live today: ${liveIntegrationsLabel}. Preview (coming soon): ${previewIntegrationsLabel}. Connect available services in Settings and Nova can read your emails, manage your calendar, and control your music and smart home devices.`,
   },
   {
     question: 'Can Nova really make phone calls?',
     answer:
-      "Yes! Nova can call any phone number with a natural-sounding voice, have a real conversation, and report back with a summary of what was said. It costs $0.10 per minute — great for quick calls like \"tell mom I'll be late.\"",
+      'AI phone calls are currently in preview. You can enable and test the beta flow as it rolls out, and pricing/details are shown in-product before use.',
   },
   {
     question: 'Is my data safe?',

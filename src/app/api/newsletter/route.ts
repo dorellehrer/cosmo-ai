@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   // Rate limit: 5 req/min per IP to prevent spam
-  const rateLimitResult = checkRateLimit(
+  const rateLimitResult = await checkRateLimitDistributed(
     request.headers.get('x-forwarded-for') || 'unknown',
     RATE_LIMIT_AUTH
   );

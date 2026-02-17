@@ -1,0 +1,45 @@
+name: Gateway Smoke Check
+
+on:
+  workflow_run:
+    workflows: ["Deploy Nova AI"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Run Gateway Smoke Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run gateway smoke check
+        env:
+          GATEWAY_SMOKE_BASE_URL: https://www.heynova.se
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TEST_USER_EMAIL:-}" ] || [ -z "${TEST_USER_PASSWORD:-}" ]; then
+            echo "Missing required secrets: TEST_USER_EMAIL / TEST_USER_PASSWORD"
+            exit 1
+          fi
+
+          npm run smoke:gateway

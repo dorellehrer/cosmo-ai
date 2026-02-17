@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkRateLimit, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
+import { deliverContactSubmission } from '@/lib/contact-delivery';
 
-// Contact form API — sends email notification via AWS SES
-// Falls back to logging if SES is not configured
+// Contact form API — sends to configured delivery channel (Webhook or AWS SES)
 
 export async function POST(request: NextRequest) {
   // Rate limit: reuse auth preset (5 req/min) to prevent spam
-  const rateLimitResult = checkRateLimit(
+  const rateLimitResult = await checkRateLimitDistributed(
     request.headers.get('x-forwarded-for') || 'unknown',
     RATE_LIMIT_AUTH
   );
@@ -37,37 +37,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const subjectMap: Record<string, string> = {
-      general: 'General Inquiry',
-      support: 'Support Request',
-      billing: 'Billing Question',
-      feedback: 'Feedback',
-      partnership: 'Partnership Inquiry',
-    };
+    const delivery = await deliverContactSubmission({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      subject: String(subject || 'general').trim(),
+      message: message.trim(),
+    });
 
-    const emailSubject = `[Nova Contact] ${subjectMap[subject] || 'General'} from ${name}`;
-    const emailBody = [
-      `New contact form submission:`,
-      ``,
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Subject: ${subjectMap[subject] || subject}`,
-      ``,
-      `Message:`,
-      message,
-      ``,
-      `---`,
-      `Sent from Nova AI contact form at ${new Date().toISOString()}`,
-    ].join('\n');
-
-    // Log the submission (appears in CloudWatch)
-    // TODO: Add SES email delivery once domain is verified
-    console.log('CONTACT FORM SUBMISSION:', emailSubject);
-    console.log(emailBody);
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, delivery: delivery.method });
   } catch (error) {
     console.error('Contact form error:', error);
+
+    if (error instanceof Error && error.message.includes('not configured')) {
+      return NextResponse.json(
+        { error: 'Contact delivery is not configured' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Failed to send message' },
       { status: 500 }

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_AUTH } from '@/lib/rate-limit';
 import { FREE_MONTHLY_CREDITS } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limit by IP for auth endpoints
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
-    const rateLimit = checkRateLimit(`auth:signup:${ip}`, RATE_LIMIT_AUTH);
+    const rateLimit = await checkRateLimitDistributed(`auth:signup:${ip}`, RATE_LIMIT_AUTH);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

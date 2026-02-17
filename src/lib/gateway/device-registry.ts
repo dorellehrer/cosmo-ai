@@ -135,6 +135,29 @@ export async function getOnlineDevices(userId: string, capability?: string) {
   return devices.filter(d => d.capabilities.includes(capability));
 }
 
+export async function getGatewayClusterPresenceStats() {
+  const staleThreshold = new Date(Date.now() - 5 * 60 * 1000);
+
+  const [onlineDevices, staleOnlineDevices, byPlatform] = await Promise.all([
+    prisma.device.count({ where: { isOnline: true } }),
+    prisma.device.count({ where: { isOnline: true, lastSeenAt: { lt: staleThreshold } } }),
+    prisma.device.groupBy({
+      by: ['platform'],
+      where: { isOnline: true },
+      _count: { _all: true },
+    }),
+  ]);
+
+  return {
+    onlineDevices,
+    staleOnlineDevices,
+    onlineByPlatform: byPlatform.map((entry) => ({
+      platform: entry.platform,
+      count: entry._count._all,
+    })),
+  };
+}
+
 // ──────────────────────────────────────────────
 // Device Sessions (auth tokens for WS connections)
 // ──────────────────────────────────────────────

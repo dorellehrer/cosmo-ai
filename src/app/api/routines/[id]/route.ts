@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 import { isValidCron, getNextRun } from '@/lib/cron';
 
 // PATCH /api/routines/[id] — update routine (toggle, rename, reschedule)
@@ -17,7 +17,7 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const rateLimit = checkRateLimit(`routines:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`routines:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: rateLimit.headers });
     }
@@ -100,7 +100,7 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    const rateLimit = checkRateLimit(`routines:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`routines:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: rateLimit.headers });
     }

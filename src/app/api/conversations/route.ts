@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { checkRateLimit, RATE_LIMIT_API } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_API } from '@/lib/rate-limit';
 
 // GET /api/conversations - List all conversations for the current user
 export async function GET(req: Request) {
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     }
 
     // Rate limit check
-    const rateLimit = checkRateLimit(`conversations:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimit = await checkRateLimitDistributed(`conversations:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     }
 
     // Rate limit check
-    const rateLimitPost = checkRateLimit(`conversations:create:${session.user.id}`, RATE_LIMIT_API);
+    const rateLimitPost = await checkRateLimitDistributed(`conversations:create:${session.user.id}`, RATE_LIMIT_API);
     if (!rateLimitPost.allowed) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },

@@ -7,7 +7,7 @@
 import type { ConnectedIntegration } from './tool-definitions';
 import type { AIProvider } from './providers';
 import { getOpenAIClient } from './openai-provider';
-import { checkRateLimit, RATE_LIMIT_IMAGE, RATE_LIMIT_CALLS } from '@/lib/rate-limit';
+import { checkRateLimitDistributed, RATE_LIMIT_IMAGE, RATE_LIMIT_CALLS } from '@/lib/rate-limit';
 
 /** Get the cheapest model for a given provider (used for internal tool tasks) */
 const INTERNAL_MODELS: Record<string, string> = {
@@ -629,7 +629,7 @@ export async function executeToolCall(
         const prompt = args.prompt as string;
         const size = (args.size as string) || '1024x1024';
 
-        const imgRateLimit = checkRateLimit(
+        const imgRateLimit = await checkRateLimitDistributed(
           `dalle:${userId}`,
           RATE_LIMIT_IMAGE
         );
@@ -1270,7 +1270,7 @@ export async function executeToolCall(
         if (!phone) return JSON.stringify({ error: 'AI Phone Calls is not connected. Please enable it in Settings → Integrations.' });
 
         // Rate limit AI calls
-        const callRateLimit = checkRateLimit(`calls:${userId}`, RATE_LIMIT_CALLS);
+        const callRateLimit = await checkRateLimitDistributed(`calls:${userId}`, RATE_LIMIT_CALLS);
         if (!callRateLimit.allowed) {
           return JSON.stringify({
             error: 'Daily AI call limit reached (10/day). Try again tomorrow.',

@@ -57,6 +57,26 @@ resource "aws_lb_target_group" "app" {
   tags = { Name = "${var.project_name}-${var.environment}-app-tg" }
 }
 
+resource "aws_lb_target_group" "gateway_ws" {
+  name        = "${var.project_name}-${var.environment}-ws-tg"
+  port        = var.gateway_ws_port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    path                = var.gateway_ws_health_path
+    port                = "traffic-port"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 10
+    interval            = 30
+    matcher             = "200"
+  }
+
+  tags = { Name = "${var.project_name}-${var.environment}-ws-tg" }
+}
+
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app.arn
   port              = 80
@@ -88,6 +108,23 @@ resource "aws_lb_listener" "http" {
 #   }
 # }
 
+resource "aws_lb_listener_rule" "gateway_ws" {
+  count        = var.https_listener_arn != "" ? 1 : 0
+  listener_arn = var.https_listener_arn
+  priority     = var.gateway_ws_listener_rule_priority
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.gateway_ws.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/ws", "/ws/*", "/api/gateway/ws", "/api/gateway/ws/*"]
+    }
+  }
+}
+
 # ── App Task Definition ──────────────────────────────
 
 resource "aws_ecs_task_definition" "app" {
@@ -108,11 +145,16 @@ resource "aws_ecs_task_definition" "app" {
       containerPort = 3000
       hostPort      = 3000
       protocol      = "tcp"
+    }, {
+      containerPort = var.gateway_ws_port
+      hostPort      = var.gateway_ws_port
+      protocol      = "tcp"
     }]
 
     environment = [
       { name = "NODE_ENV", value = "production" },
       { name = "PORT", value = "3000" },
+      { name = "GATEWAY_WS_PORT", value = tostring(var.gateway_ws_port) },
     ]
 
     logConfiguration = {
@@ -149,6 +191,12 @@ resource "aws_ecs_service" "app" {
     target_group_arn = aws_lb_target_group.app.arn
     container_name   = "${var.project_name}-app"
     container_port   = 3000
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.gateway_ws.arn
+    container_name   = "${var.project_name}-app"
+    container_port   = var.gateway_ws_port
   }
 
   deployment_circuit_breaker {

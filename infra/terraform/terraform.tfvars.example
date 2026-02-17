@@ -17,6 +17,10 @@ db_username       = "cosmo_admin"
 app_cpu           = 512
 app_memory        = 1024
 app_desired_count = 1
+gateway_ws_port   = 3001
+gateway_ws_health_path = "/health"
+# Optional: existing ALB HTTPS listener ARN for /ws path forwarding
+https_listener_arn = ""
 
 # ECS — Agent (per container)
 agent_cpu    = 256
