@@ -106,5 +106,3 @@ resource "aws_cloudwatch_metric_alarm" "trust_config_reload_failed" {
   tags = { Name = "${var.project_name}-${var.environment}-trust-config-reload-failed" }
 }
 
-# WebSocket target group health and connection errors
-resource "aws_cloudwatch_metric_alarm" "gateway_ws_unhealthy_hosts" {
