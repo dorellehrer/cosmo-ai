@@ -287,6 +287,33 @@ function isTrustedSender(channelType: string, senderId: string): boolean {
   return true;
 }
 
+async function recordTrustEvent(
+  channelType: string,
+  senderIdentifier: string,
+  normalizedSender: string,
+  action: 'blocked_untrusted' = 'blocked_untrusted',
+): Promise<void> {
+  if (!pool) return;
+
+  try {
+    await pool.query(
+      `INSERT INTO "AgentTrustEvent"
+        (id, "userId", "channelType", "senderIdentifier", "normalizedSender", action, "createdAt")
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+      [
+        crypto.randomUUID(),
+        config.userId,
+        channelType,
+        senderIdentifier,
+        normalizedSender,
+        action,
+      ],
+    );
+  } catch (error) {
+    console.error('[Trust] Failed to record trust event:', error);
+  }
+}
+
 async function flushMemory(): Promise<void> {
   if (!pool || memoryBuffer.length === 0) return;
 
@@ -728,6 +755,7 @@ async function loadChannelsFromDB(): Promise<void> {
             mode: trustMode,
             blockedCount: trustBlockedCount,
           });
+          await recordTrustEvent(normalizedChannel, msg.senderId, normalizedSender);
           return 'This Nova assistant only responds to approved contacts for this account.';
         }
 

@@ -61,6 +61,7 @@ model User {
   memories         Memory[]
   subAgents        SubAgent[]
   trustedContacts  AgentTrustedContact[]
+  trustEvents      AgentTrustEvent[]
 }
 
 // Push notification subscriptions (Web Push API)
@@ -325,6 +326,23 @@ model AgentTrustedContact {
 
   @@unique([userId, channelType, identifier])
   @@index([userId])
+  @@index([userId, channelType])
+}
+
+// Trust enforcement events for diagnostics (e.g., blocked untrusted senders)
+model AgentTrustEvent {
+  id               String   @id @default(cuid())
+  userId           String
+  channelType      String
+  senderIdentifier String
+  normalizedSender String
+  action           String   @default("blocked_untrusted")
+  createdAt        DateTime @default(now())
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, action])
   @@index([userId, channelType])
 }
 

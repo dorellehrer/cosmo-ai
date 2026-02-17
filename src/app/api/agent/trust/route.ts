@@ -55,6 +55,26 @@ function normalizeIdentifier(channelType: string, identifier: string): string {
   }
 }
 
+function isValidNormalizedIdentifier(channelType: string, identifier: string): boolean {
+  if (!identifier) return false;
+
+  switch (channelType) {
+    case 'whatsapp':
+    case 'sms':
+      return /^\+?\d{8,15}$/.test(identifier);
+    case 'telegram':
+      return /^[a-z0-9_]{3,64}$/.test(identifier);
+    case 'email':
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+    case 'discord':
+    case 'slack':
+    case 'webchat':
+      return /^[a-z0-9._:@#+-]{2,128}$/.test(identifier);
+    default:
+      return identifier.length >= 2 && identifier.length <= 160;
+  }
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -181,6 +201,13 @@ export async function POST(req: Request) {
 
     if (!channelType || !identifier) {
       return NextResponse.json({ error: 'channelType and identifier are required' }, { status: 400 });
+    }
+
+    if (!isValidNormalizedIdentifier(channelType, identifier)) {
+      return NextResponse.json(
+        { error: 'Invalid identifier format for channel type' },
+        { status: 400 }
+      );
     }
 
     if (!isOwner) {
