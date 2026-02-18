@@ -199,6 +199,9 @@
     "queueAlarmOpen": "Alerte de file active",
     "queueAlarmClear": "Alerte de file levée",
     "refresh": "Actualiser",
+    "sloHistory": "Historique des tendances",
+    "recordedAt": "Enregistré",
+    "noSloHistory": "Aucun instantané d'historique pour le moment",
     "integrations": {
       "google": {
         "name": "Google",

@@ -199,6 +199,9 @@
     "queueAlarmOpen": "キューアラーム発生",
     "queueAlarmClear": "キューアラームなし",
     "refresh": "更新",
+    "sloHistory": "トレンド履歴",
+    "recordedAt": "記録時刻",
+    "noSloHistory": "履歴スナップショットはまだありません",
     "integrations": {
       "google": {
         "name": "Google",

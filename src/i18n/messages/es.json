@@ -199,6 +199,9 @@
     "queueAlarmOpen": "Alarma de cola activa",
     "queueAlarmClear": "Alarma de cola despejada",
     "refresh": "Actualizar",
+    "sloHistory": "Historial de tendencias",
+    "recordedAt": "Registrado",
+    "noSloHistory": "Aún no hay instantáneas de historial",
     "integrations": {
       "google": {
         "name": "Google",

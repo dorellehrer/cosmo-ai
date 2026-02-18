@@ -199,6 +199,9 @@
     "queueAlarmOpen": "Queue alarm open",
     "queueAlarmClear": "Queue alarm clear",
     "refresh": "Refresh",
+    "sloHistory": "Trend history",
+    "recordedAt": "Recorded",
+    "noSloHistory": "No history snapshots yet",
     "integrations": {
       "google": {
         "name": "Google",

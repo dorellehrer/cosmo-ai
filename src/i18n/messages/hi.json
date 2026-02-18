@@ -199,6 +199,9 @@
     "queueAlarmOpen": "क्यू अलार्म सक्रिय",
     "queueAlarmClear": "क्यू अलार्म साफ",
     "refresh": "रीफ्रेश",
+    "sloHistory": "ट्रेंड इतिहास",
+    "recordedAt": "रिकॉर्ड किया गया",
+    "noSloHistory": "अभी तक कोई इतिहास स्नैपशॉट नहीं",
     "integrations": {
       "google": {
         "name": "Google",

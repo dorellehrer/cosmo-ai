@@ -199,6 +199,9 @@
     "queueAlarmOpen": "إنذار الطابور نشط",
     "queueAlarmClear": "إنذار الطابور صافٍ",
     "refresh": "تحديث",
+    "sloHistory": "سجل الاتجاه",
+    "recordedAt": "تم التسجيل",
+    "noSloHistory": "لا توجد لقطات سجل بعد",
     "integrations": {
       "google": {
         "name": "جوجل",

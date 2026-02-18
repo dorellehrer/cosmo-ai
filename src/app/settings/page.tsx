@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -95,6 +95,16 @@ export default function SettingsPage() {
       };
     };
   };
+  type SloSnapshot = {
+    recordedAt: string;
+    apiHealthy: boolean;
+    gatewayHealthy: boolean;
+    dbLatencyMs: number | null;
+    queueReliability: number;
+    queuePending: number;
+    queueFailed: number;
+    queueExpired: number;
+  };
 
   const t = useTranslations('settings');
   const common = useTranslations('common');
@@ -147,6 +157,8 @@ export default function SettingsPage() {
   const [appHealth, setAppHealth] = useState<AppHealthResponse | null>(null);
   const [gatewayHealth, setGatewayHealth] = useState<GatewayHealthResponse | null>(null);
   const [loadingSlo, setLoadingSlo] = useState(false);
+  const [sloHistory, setSloHistory] = useState<SloSnapshot[]>([]);
+  const lastSloSnapshotKeyRef = useRef<string | null>(null);
 
   // Load profile from API
   useEffect(() => {
@@ -227,6 +239,54 @@ export default function SettingsPage() {
 
     return () => clearInterval(interval);
   }, [fetchSloHealth]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem('nova-slo-history');
+      if (!saved) return;
+
+      const parsed = JSON.parse(saved) as SloSnapshot[];
+      if (Array.isArray(parsed)) {
+        setSloHistory(parsed.slice(0, 20));
+      }
+    } catch (err) {
+      console.error('Failed to load SLO history:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!appHealth || !gatewayHealth) return;
+
+    const snapshotKey = `${appHealth.timestamp}:${gatewayHealth.timestamp}`;
+    if (lastSloSnapshotKeyRef.current === snapshotKey) return;
+    lastSloSnapshotKeyRef.current = snapshotKey;
+
+    const snapshotQueue = gatewayHealth.gateway?.dispatchQueue;
+    const snapshotDenominator = (snapshotQueue?.completedLastHour || 0) + (snapshotQueue?.failedLastHour || 0) + (snapshotQueue?.expiredLastHour || 0);
+    const snapshotReliability = snapshotDenominator > 0
+      ? Math.round(((snapshotQueue?.completedLastHour || 0) / snapshotDenominator) * 1000) / 10
+      : 100;
+
+    const nextSnapshot: SloSnapshot = {
+      recordedAt: new Date().toISOString(),
+      apiHealthy: appHealth.status === 'healthy',
+      gatewayHealthy: gatewayHealth.status === 'healthy',
+      dbLatencyMs: typeof appHealth.dbLatencyMs === 'number' ? appHealth.dbLatencyMs : null,
+      queueReliability: snapshotReliability,
+      queuePending: snapshotQueue?.pending || 0,
+      queueFailed: snapshotQueue?.failedLastHour || 0,
+      queueExpired: snapshotQueue?.expiredLastHour || 0,
+    };
+
+    setSloHistory((prev) => {
+      const next = [nextSnapshot, ...prev].slice(0, 20);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('nova-slo-history', JSON.stringify(next));
+      }
+      return next;
+    });
+  }, [appHealth, gatewayHealth]);
 
   // Auto-save name with debounce
   const saveName = useCallback(
@@ -1180,6 +1240,41 @@ export default function SettingsPage() {
               >
                 {t('refresh')}
               </button>
+            </div>
+
+            <div className="mt-3 rounded-lg border border-white/10 bg-black/10 p-3">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-xs font-medium text-white/80">{t('sloHistory')}</p>
+                <span className="text-[11px] text-white/40">{sloHistory.length}</span>
+              </div>
+
+              {sloHistory.length > 0 ? (
+                <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                  {sloHistory.slice(0, 10).map((snapshot, index) => (
+                    <div key={`${snapshot.recordedAt}-${index}`} className="rounded border border-white/10 bg-white/[0.02] px-2 py-1.5 text-[11px] text-white/70">
+                      <div className="flex flex-wrap items-center gap-2 mb-1 text-white/50">
+                        <span>{t('recordedAt')}</span>
+                        <span>{new Date(snapshot.recordedAt).toLocaleString()}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className={snapshot.apiHealthy ? 'text-emerald-300' : 'text-red-300'}>
+                          {t('apiAvailability')}: {snapshot.apiHealthy ? '100%' : '0%'}
+                        </span>
+                        <span className={snapshot.gatewayHealthy ? 'text-emerald-300' : 'text-red-300'}>
+                          {t('gatewayAvailability')}: {snapshot.gatewayHealthy ? '100%' : '0%'}
+                        </span>
+                        <span>{t('dbLatency')}: {snapshot.dbLatencyMs ?? '—'}{typeof snapshot.dbLatencyMs === 'number' ? 'ms' : ''}</span>
+                        <span>{t('queueReliability')}: {snapshot.queueReliability}%</span>
+                        <span>{t('pending')}: {snapshot.queuePending}</span>
+                        <span>{t('failed')}: {snapshot.queueFailed}</span>
+                        <span>{t('expired')}: {snapshot.queueExpired}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-white/40">{t('noSloHistory')}</p>
+              )}
             </div>
           </div>
         </section>

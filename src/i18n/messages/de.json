@@ -199,6 +199,9 @@
     "queueAlarmOpen": "Warteschlangenalarm aktiv",
     "queueAlarmClear": "Warteschlangenalarm frei",
     "refresh": "Aktualisieren",
+    "sloHistory": "Trendverlauf",
+    "recordedAt": "Erfasst",
+    "noSloHistory": "Noch keine Verlaufsschnappschüsse",
     "integrations": {
       "google": {
         "name": "Google",

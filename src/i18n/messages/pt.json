@@ -199,6 +199,9 @@
     "queueAlarmOpen": "Alarme de fila aberto",
     "queueAlarmClear": "Alarme de fila limpo",
     "refresh": "Atualizar",
+    "sloHistory": "Histórico de tendências",
+    "recordedAt": "Registrado",
+    "noSloHistory": "Ainda não há snapshots no histórico",
     "integrations": {
       "google": {
         "name": "Google",
