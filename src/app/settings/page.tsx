@@ -154,6 +154,8 @@ export default function SettingsPage() {
   const [trustEvents, setTrustEvents] = useState<TrustEventsResponse | null>(null);
   const [loadingTrustEvents, setLoadingTrustEvents] = useState(false);
   const [trustEventsWindowHours, setTrustEventsWindowHours] = useState(24);
+  const [trustEventChannelFilter, setTrustEventChannelFilter] = useState('all');
+  const [trustingSenderKey, setTrustingSenderKey] = useState<string | null>(null);
   const [appHealth, setAppHealth] = useState<AppHealthResponse | null>(null);
   const [gatewayHealth, setGatewayHealth] = useState<GatewayHealthResponse | null>(null);
   const [loadingSlo, setLoadingSlo] = useState(false);
@@ -478,6 +480,50 @@ export default function SettingsPage() {
     }
   };
 
+  const handleTrustSenderFromDiagnostics = async (event: {
+    channelType: string;
+    senderIdentifier: string;
+    normalizedSender: string;
+  }) => {
+    const identifier = (event.senderIdentifier || event.normalizedSender || '').trim();
+    if (!identifier) return;
+
+    const senderKey = `${event.channelType}:${identifier.toLowerCase()}`;
+    setTrustingSenderKey(senderKey);
+
+    try {
+      const res = await fetch('/api/agent/trust', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channelType: event.channelType,
+          identifier,
+          label: 'Trusted from diagnostics',
+          isOwner: false,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to trust sender');
+      }
+
+      const data = await res.json();
+      if (data?.contact) {
+        const next = data.contact as TrustedContact;
+        setTrustedContacts((prev) => {
+          const withoutExisting = prev.filter((contact) => contact.id !== next.id);
+          return [next, ...withoutExisting];
+        });
+      }
+
+      void fetchTrustEvents();
+    } catch (err) {
+      console.error('Failed to trust sender from diagnostics:', err);
+    } finally {
+      setTrustingSenderKey(null);
+    }
+  };
+
 
 
   const connectedIntegrations = integrations.filter((i) => i.connected);
@@ -489,6 +535,9 @@ export default function SettingsPage() {
   const appHealthy = appHealth?.status === 'healthy';
   const gatewayHealthy = gatewayHealth?.status === 'healthy';
   const queueAlarm = (queue?.failedLastHour || 0) > 0 || (queue?.expiredLastHour || 0) > 0;
+  const filteredTrustRecent = (trustEvents?.recent || []).filter((event) => (
+    trustEventChannelFilter === 'all' || event.channelType === trustEventChannelFilter
+  ));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -1155,20 +1204,61 @@ export default function SettingsPage() {
               </div>
 
               <div className="rounded-lg border border-white/10 bg-black/10 p-3">
-                <p className="text-xs font-medium text-white/80 mb-2">{t('recentBlockedEvents')}</p>
-                {trustEvents?.recent.length ? (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                  <p className="text-xs font-medium text-white/80">{t('recentBlockedEvents')}</p>
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="trust-channel-filter" className="text-[11px] text-white/50">{t('diagnosticsChannelFilter')}</label>
+                    <select
+                      id="trust-channel-filter"
+                      value={trustEventChannelFilter}
+                      onChange={(e) => setTrustEventChannelFilter(e.target.value)}
+                      className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    >
+                      <option value="all" className="bg-slate-800">{t('allChannels')}</option>
+                      {(trustEvents?.byChannel || []).map((entry) => (
+                        <option key={entry.channelType} value={entry.channelType} className="bg-slate-800">
+                          {entry.channelType}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {filteredTrustRecent.length ? (
                   <div className="space-y-1.5">
-                    {trustEvents.recent.slice(0, 6).map((event) => (
-                      <div key={event.id} className="flex items-center justify-between gap-3 text-xs text-white/70">
-                        <span className="truncate">
-                          {event.channelType} · {event.senderIdentifier || event.normalizedSender || t('blockedSenderUnknown')}
-                        </span>
-                        <span className="shrink-0 text-white/40">{new Date(event.createdAt).toLocaleString()}</span>
+                    {filteredTrustRecent.slice(0, 8).map((event) => {
+                      const senderIdentifier = event.senderIdentifier || event.normalizedSender || '';
+                      const trustedAlready = trustedContacts.some(
+                        (contact) => contact.channelType === event.channelType && contact.identifier.toLowerCase() === senderIdentifier.toLowerCase(),
+                      );
+                      const senderKey = `${event.channelType}:${senderIdentifier.toLowerCase()}`;
+
+                      return (
+                      <div key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-white/70">
+                        <div className="min-w-0">
+                          <span className="truncate block">
+                            {event.channelType} · {senderIdentifier || t('blockedSenderUnknown')}
+                          </span>
+                          <span className="text-white/40">{new Date(event.createdAt).toLocaleString()}</span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={trustedAlready || !senderIdentifier || trustingSenderKey === senderKey}
+                          onClick={() => void handleTrustSenderFromDiagnostics(event)}
+                          className="px-2 py-1 rounded border border-white/20 hover:bg-white/5 disabled:opacity-50 transition-colors shrink-0"
+                        >
+                          {trustedAlready
+                            ? t('trustedAlready')
+                            : trustingSenderKey === senderKey
+                              ? common('loading')
+                              : t('trustSender')}
+                        </button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
-                  <p className="text-xs text-white/40">{t('noRecentBlockedEvents')}</p>
+                  <p className="text-xs text-white/40">{t('noFilteredBlockedEvents')}</p>
                 )}
               </div>
             </div>
