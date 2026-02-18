@@ -207,6 +207,7 @@
     "sloHistory": "ट्रेंड इतिहास",
     "recordedAt": "रिकॉर्ड किया गया",
     "noSloHistory": "अभी तक कोई इतिहास स्नैपशॉट नहीं",
+    "clearHistory": "साफ करें",
     "integrations": {
       "google": {
         "name": "Google",

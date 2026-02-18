@@ -207,6 +207,7 @@
     "sloHistory": "趋势历史",
     "recordedAt": "记录时间",
     "noSloHistory": "暂无历史快照",
+    "clearHistory": "清除",
     "integrations": {
       "google": {
         "name": "Google",

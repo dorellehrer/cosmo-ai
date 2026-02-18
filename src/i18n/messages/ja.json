@@ -207,6 +207,7 @@
     "sloHistory": "トレンド履歴",
     "recordedAt": "記録時刻",
     "noSloHistory": "履歴スナップショットはまだありません",
+    "clearHistory": "クリア",
     "integrations": {
       "google": {
         "name": "Google",

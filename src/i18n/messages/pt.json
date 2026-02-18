@@ -207,6 +207,7 @@
     "sloHistory": "Histórico de tendências",
     "recordedAt": "Registrado",
     "noSloHistory": "Ainda não há snapshots no histórico",
+    "clearHistory": "Limpar",
     "integrations": {
       "google": {
         "name": "Google",

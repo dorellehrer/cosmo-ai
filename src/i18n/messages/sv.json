@@ -207,6 +207,7 @@
     "sloHistory": "Trendhistorik",
     "recordedAt": "Registrerad",
     "noSloHistory": "Inga historikögonblicksbilder ännu",
+    "clearHistory": "Rensa",
     "integrations": {
       "google": {
         "name": "Google",

@@ -207,6 +207,7 @@
     "sloHistory": "سجل الاتجاه",
     "recordedAt": "تم التسجيل",
     "noSloHistory": "لا توجد لقطات سجل بعد",
+    "clearHistory": "مسح",
     "integrations": {
       "google": {
         "name": "جوجل",

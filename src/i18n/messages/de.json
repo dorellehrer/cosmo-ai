@@ -207,6 +207,7 @@
     "sloHistory": "Trendverlauf",
     "recordedAt": "Erfasst",
     "noSloHistory": "Noch keine Verlaufsschnappschüsse",
+    "clearHistory": "Löschen",
     "integrations": {
       "google": {
         "name": "Google",

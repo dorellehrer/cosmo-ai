@@ -162,6 +162,13 @@ export default function SettingsPage() {
   const [sloHistory, setSloHistory] = useState<SloSnapshot[]>([]);
   const lastSloSnapshotKeyRef = useRef<string | null>(null);
 
+  const clearSloHistory = () => {
+    setSloHistory([]);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('nova-slo-history');
+    }
+  };
+
   // Load profile from API
   useEffect(() => {
     fetch('/api/user/profile')
@@ -538,6 +545,11 @@ export default function SettingsPage() {
   const filteredTrustRecent = (trustEvents?.recent || []).filter((event) => (
     trustEventChannelFilter === 'all' || event.channelType === trustEventChannelFilter
   ));
+  const historyForChart = [...sloHistory].reverse();
+  const maxLatency = historyForChart.reduce((max, snapshot) => {
+    if (typeof snapshot.dbLatencyMs !== 'number') return max;
+    return Math.max(max, snapshot.dbLatencyMs);
+  }, 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -1335,8 +1347,50 @@ export default function SettingsPage() {
             <div className="mt-3 rounded-lg border border-white/10 bg-black/10 p-3">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <p className="text-xs font-medium text-white/80">{t('sloHistory')}</p>
-                <span className="text-[11px] text-white/40">{sloHistory.length}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-white/40">{sloHistory.length}</span>
+                  <button
+                    type="button"
+                    onClick={clearSloHistory}
+                    disabled={sloHistory.length === 0}
+                    className="px-2 py-0.5 rounded border border-white/20 hover:bg-white/5 disabled:opacity-50 text-[11px] transition-colors"
+                  >
+                    {t('clearHistory')}
+                  </button>
+                </div>
               </div>
+
+              {historyForChart.length > 1 && (
+                <div className="mb-3 rounded border border-white/10 bg-white/[0.02] p-2">
+                  <div className="mb-1 text-[11px] text-white/50">{t('queueReliability')}</div>
+                  <div className="flex items-end gap-1 h-12">
+                    {historyForChart.slice(-12).map((snapshot, index) => (
+                      <div
+                        key={`queue-bar-${snapshot.recordedAt}-${index}`}
+                        className="flex-1 rounded-sm bg-violet-400/70"
+                        style={{ height: `${Math.max(10, snapshot.queueReliability)}%` }}
+                        title={`${snapshot.queueReliability}%`}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="mt-2 mb-1 text-[11px] text-white/50">{t('dbLatency')}</div>
+                  <div className="flex items-end gap-1 h-12">
+                    {historyForChart.slice(-12).map((snapshot, index) => {
+                      const latency = typeof snapshot.dbLatencyMs === 'number' ? snapshot.dbLatencyMs : 0;
+                      const height = maxLatency > 0 ? Math.max(8, Math.round((latency / maxLatency) * 100)) : 8;
+                      return (
+                        <div
+                          key={`latency-bar-${snapshot.recordedAt}-${index}`}
+                          className="flex-1 rounded-sm bg-cyan-400/70"
+                          style={{ height: `${height}%` }}
+                          title={typeof snapshot.dbLatencyMs === 'number' ? `${snapshot.dbLatencyMs}ms` : '—'}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {sloHistory.length > 0 ? (
                 <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
