@@ -62,6 +62,20 @@ export default function SettingsPage() {
     createdAt: string;
     updatedAt: string;
   };
+  type TrustEventsResponse = {
+    windowHours: number;
+    totalBlocked: number;
+    byChannel: Array<{ channelType: string; count: number }>;
+    audit: Array<{ action: string; count: number }>;
+    recent: Array<{
+      id: string;
+      channelType: string;
+      senderIdentifier: string;
+      normalizedSender: string;
+      action: string;
+      createdAt: string;
+    }>;
+  };
 
   const t = useTranslations('settings');
   const common = useTranslations('common');
@@ -108,6 +122,9 @@ export default function SettingsPage() {
   const [contactIdentifier, setContactIdentifier] = useState('');
   const [contactLabel, setContactLabel] = useState('');
   const [contactIsOwner, setContactIsOwner] = useState(false);
+  const [trustEvents, setTrustEvents] = useState<TrustEventsResponse | null>(null);
+  const [loadingTrustEvents, setLoadingTrustEvents] = useState(false);
+  const [trustEventsWindowHours, setTrustEventsWindowHours] = useState(24);
 
   // Load profile from API
   useEffect(() => {
@@ -135,6 +152,26 @@ export default function SettingsPage() {
       .catch((err) => console.error('Failed to load trust policy:', err))
       .finally(() => setLoadingTrust(false));
   }, []);
+
+  const fetchTrustEvents = useCallback(async (hours = trustEventsWindowHours) => {
+    setLoadingTrustEvents(true);
+    try {
+      const res = await fetch(`/api/agent/trust/events?hours=${hours}`);
+      if (!res.ok) {
+        throw new Error('Failed to load trust events');
+      }
+      const data = await res.json();
+      setTrustEvents(data as TrustEventsResponse);
+    } catch (err) {
+      console.error('Failed to load trust events:', err);
+    } finally {
+      setLoadingTrustEvents(false);
+    }
+  }, [trustEventsWindowHours]);
+
+  useEffect(() => {
+    void fetchTrustEvents();
+  }, [fetchTrustEvents]);
 
   // Auto-save name with debounce
   const saveName = useCallback(
@@ -258,6 +295,8 @@ export default function SettingsPage() {
       if (!res.ok) {
         throw new Error('Failed to save trust mode');
       }
+
+      void fetchTrustEvents();
     } catch (err) {
       console.error('Failed to save trust mode:', err);
     } finally {
@@ -296,6 +335,8 @@ export default function SettingsPage() {
         });
       }
 
+      void fetchTrustEvents();
+
       setContactIdentifier('');
       setContactLabel('');
       setContactIsOwner(false);
@@ -314,6 +355,7 @@ export default function SettingsPage() {
         throw new Error('Failed to delete trusted contact');
       }
       setTrustedContacts((prev) => prev.filter((contact) => contact.id !== id));
+      void fetchTrustEvents();
     } catch (err) {
       console.error('Failed to delete trusted contact:', err);
     } finally {
@@ -908,6 +950,104 @@ export default function SettingsPage() {
               <span>{trustedContacts.filter((contact) => contact.isOwner).length}</span>
               <span>•</span>
               <span>{t('ownerBadge').toLowerCase()}</span>
+            </div>
+
+            <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.02] p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                <div>
+                  <h3 className="text-sm sm:text-base text-white font-medium">{t('channelTrustDiagnostics')}</h3>
+                  <p className="text-white/50 text-xs sm:text-sm">{t('channelTrustDiagnosticsDescription')}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="trust-window" className="text-xs text-white/60">{t('trustWindow')}</label>
+                  <select
+                    id="trust-window"
+                    value={trustEventsWindowHours}
+                    onChange={(e) => {
+                      const hours = parseInt(e.target.value, 10);
+                      setTrustEventsWindowHours(hours);
+                      void fetchTrustEvents(hours);
+                    }}
+                    className="bg-white/10 border border-white/20 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    disabled={loadingTrustEvents}
+                  >
+                    <option value={24} className="bg-slate-800">{t('last24Hours')}</option>
+                    <option value={72} className="bg-slate-800">{t('last72Hours')}</option>
+                    <option value={168} className="bg-slate-800">{t('last7Days')}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-2 mb-3">
+                <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                  <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('totalBlocked')}</p>
+                  <p className="text-white text-lg font-semibold">{trustEvents?.totalBlocked ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                  <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('activeChannels')}</p>
+                  <p className="text-white text-lg font-semibold">{trustEvents?.byChannel.length ?? 0}</p>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                  <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('auditActions')}</p>
+                  <p className="text-white text-lg font-semibold">{trustEvents?.audit.length ?? 0}</p>
+                </div>
+              </div>
+
+              {loadingTrustEvents && (
+                <p className="text-white/50 text-xs mb-3">{common('loading')}</p>
+              )}
+
+              <div className="grid sm:grid-cols-2 gap-3 mb-3">
+                <div className="rounded-lg border border-white/10 bg-black/10 p-3">
+                  <p className="text-xs font-medium text-white/80 mb-2">{t('channelType')}</p>
+                  {trustEvents?.byChannel.length ? (
+                    <div className="space-y-1.5">
+                      {trustEvents.byChannel.map((entry) => (
+                        <div key={entry.channelType} className="flex items-center justify-between text-xs text-white/70">
+                          <span>{entry.channelType}</span>
+                          <span>{entry.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-white/40">{t('noBlockedEvents')}</p>
+                  )}
+                </div>
+
+                <div className="rounded-lg border border-white/10 bg-black/10 p-3">
+                  <p className="text-xs font-medium text-white/80 mb-2">{t('auditActions')}</p>
+                  {trustEvents?.audit.length ? (
+                    <div className="space-y-1.5">
+                      {trustEvents.audit.map((entry) => (
+                        <div key={entry.action} className="flex items-center justify-between text-xs text-white/70">
+                          <span>{entry.action}</span>
+                          <span>{entry.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-white/40">{t('noAuditEvents')}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-black/10 p-3">
+                <p className="text-xs font-medium text-white/80 mb-2">{t('recentBlockedEvents')}</p>
+                {trustEvents?.recent.length ? (
+                  <div className="space-y-1.5">
+                    {trustEvents.recent.slice(0, 6).map((event) => (
+                      <div key={event.id} className="flex items-center justify-between gap-3 text-xs text-white/70">
+                        <span className="truncate">
+                          {event.channelType} · {event.senderIdentifier || event.normalizedSender || t('blockedSenderUnknown')}
+                        </span>
+                        <span className="shrink-0 text-white/40">{new Date(event.createdAt).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-white/40">{t('noRecentBlockedEvents')}</p>
+                )}
+              </div>
             </div>
           </div>
         </section>
