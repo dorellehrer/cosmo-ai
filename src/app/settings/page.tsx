@@ -76,6 +76,25 @@ export default function SettingsPage() {
       createdAt: string;
     }>;
   };
+  type AppHealthResponse = {
+    status: 'healthy' | 'unhealthy';
+    timestamp: string;
+    uptime: number;
+    dbLatencyMs?: number;
+  };
+  type GatewayHealthResponse = {
+    status: 'healthy' | 'unhealthy';
+    timestamp: string;
+    gateway?: {
+      dispatchQueue?: {
+        pending: number;
+        processing: number;
+        completedLastHour: number;
+        expiredLastHour: number;
+        failedLastHour: number;
+      };
+    };
+  };
 
   const t = useTranslations('settings');
   const common = useTranslations('common');
@@ -125,6 +144,9 @@ export default function SettingsPage() {
   const [trustEvents, setTrustEvents] = useState<TrustEventsResponse | null>(null);
   const [loadingTrustEvents, setLoadingTrustEvents] = useState(false);
   const [trustEventsWindowHours, setTrustEventsWindowHours] = useState(24);
+  const [appHealth, setAppHealth] = useState<AppHealthResponse | null>(null);
+  const [gatewayHealth, setGatewayHealth] = useState<GatewayHealthResponse | null>(null);
+  const [loadingSlo, setLoadingSlo] = useState(false);
 
   // Load profile from API
   useEffect(() => {
@@ -172,6 +194,39 @@ export default function SettingsPage() {
   useEffect(() => {
     void fetchTrustEvents();
   }, [fetchTrustEvents]);
+
+  const fetchSloHealth = useCallback(async () => {
+    setLoadingSlo(true);
+    try {
+      const [appRes, gatewayRes] = await Promise.all([
+        fetch('/api/health', { cache: 'no-store' }),
+        fetch('/api/gateway/health', { cache: 'no-store' }),
+      ]);
+
+      if (appRes.ok) {
+        const appData = await appRes.json();
+        setAppHealth(appData as AppHealthResponse);
+      }
+
+      if (gatewayRes.ok) {
+        const gatewayData = await gatewayRes.json();
+        setGatewayHealth(gatewayData as GatewayHealthResponse);
+      }
+    } catch (err) {
+      console.error('Failed to load SLO health:', err);
+    } finally {
+      setLoadingSlo(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchSloHealth();
+    const interval = setInterval(() => {
+      void fetchSloHealth();
+    }, 60_000);
+
+    return () => clearInterval(interval);
+  }, [fetchSloHealth]);
 
   // Auto-save name with debounce
   const saveName = useCallback(
@@ -366,6 +421,14 @@ export default function SettingsPage() {
 
 
   const connectedIntegrations = integrations.filter((i) => i.connected);
+  const queue = gatewayHealth?.gateway?.dispatchQueue;
+  const queueReliabilityDenominator = (queue?.completedLastHour || 0) + (queue?.failedLastHour || 0) + (queue?.expiredLastHour || 0);
+  const queueReliability = queueReliabilityDenominator > 0
+    ? Math.round(((queue?.completedLastHour || 0) / queueReliabilityDenominator) * 1000) / 10
+    : 100;
+  const appHealthy = appHealth?.status === 'healthy';
+  const gatewayHealthy = gatewayHealth?.status === 'healthy';
+  const queueAlarm = (queue?.failedLastHour || 0) > 0 || (queue?.expiredLastHour || 0) > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -1048,6 +1111,75 @@ export default function SettingsPage() {
                   <p className="text-xs text-white/40">{t('noRecentBlockedEvents')}</p>
                 )}
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-8 sm:mb-12" aria-labelledby="service-slo-heading">
+          <h2 id="service-slo-heading" className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400" aria-hidden="true">
+              <path d="M3 3v18h18" />
+              <path d="m19 9-5 5-4-4-3 3" />
+            </svg>
+            {t('serviceSlo')}
+            {loadingSlo && <span className="text-xs text-white/40 font-normal">{common('loading')}</span>}
+          </h2>
+
+          <div className="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <p className="text-white/60 text-sm mb-4">{t('serviceSloDescription')}</p>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('apiAvailability')}</p>
+                <p className="text-white text-lg font-semibold">{appHealthy ? '100%' : '0%'}</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('gatewayAvailability')}</p>
+                <p className="text-white text-lg font-semibold">{gatewayHealthy ? '100%' : '0%'}</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('dbLatency')}</p>
+                <p className="text-white text-lg font-semibold">{appHealth?.dbLatencyMs ?? '—'}{typeof appHealth?.dbLatencyMs === 'number' ? 'ms' : ''}</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('queueReliability')}</p>
+                <p className="text-white text-lg font-semibold">{queueReliability}%</p>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-2 mb-4">
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-xs text-white/60 mb-1">{t('dispatchBacklog')}</p>
+                <p className="text-white text-sm">
+                  {t('pending')}: {queue?.pending ?? 0} · {t('processing')}: {queue?.processing ?? 0}
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-xs text-white/60 mb-1">{t('lastHourDeliveries')}</p>
+                <p className="text-white text-sm">
+                  {t('completed')}: {queue?.completedLastHour ?? 0} · {t('failed')}: {queue?.failedLastHour ?? 0} · {t('expired')}: {queue?.expiredLastHour ?? 0}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs text-white/70 flex flex-wrap items-center gap-2">
+              <span>{t('alarms')}:</span>
+              <span className={`px-1.5 py-0.5 rounded border ${appHealthy ? 'border-emerald-500/40 text-emerald-300' : 'border-red-500/40 text-red-300'}`}>
+                {appHealthy ? t('apiHealthy') : t('apiUnhealthy')}
+              </span>
+              <span className={`px-1.5 py-0.5 rounded border ${gatewayHealthy ? 'border-emerald-500/40 text-emerald-300' : 'border-red-500/40 text-red-300'}`}>
+                {gatewayHealthy ? t('gatewayHealthy') : t('gatewayUnhealthy')}
+              </span>
+              <span className={`px-1.5 py-0.5 rounded border ${queueAlarm ? 'border-amber-500/40 text-amber-300' : 'border-emerald-500/40 text-emerald-300'}`}>
+                {queueAlarm ? t('queueAlarmOpen') : t('queueAlarmClear')}
+              </span>
+              <button
+                type="button"
+                onClick={() => void fetchSloHealth()}
+                className="ml-auto px-2 py-1 rounded border border-white/20 hover:bg-white/5 transition-colors"
+              >
+                {t('refresh')}
+              </button>
             </div>
           </div>
         </section>
