@@ -546,6 +546,15 @@ export default function SettingsPage() {
     trustEventChannelFilter === 'all' || event.channelType === trustEventChannelFilter
   ));
   const historyForChart = [...sloHistory].reverse();
+  const recentSloWindow = sloHistory.slice(0, 12);
+  const healthyWindowSamples = recentSloWindow.filter((snapshot) => snapshot.apiHealthy && snapshot.gatewayHealthy).length;
+  const healthyWindowPercent = recentSloWindow.length > 0
+    ? Math.round((healthyWindowSamples / recentSloWindow.length) * 1000) / 10
+    : 100;
+  const queueReliabilityBreaches = recentSloWindow.filter((snapshot) => snapshot.queueReliability < 99).length;
+  const latencyBreaches = recentSloWindow.filter(
+    (snapshot) => typeof snapshot.dbLatencyMs === 'number' && snapshot.dbLatencyMs > 500,
+  ).length;
   const maxLatency = historyForChart.reduce((max, snapshot) => {
     if (typeof snapshot.dbLatencyMs !== 'number') return max;
     return Math.max(max, snapshot.dbLatencyMs);
@@ -1321,6 +1330,21 @@ export default function SettingsPage() {
                 <p className="text-white text-sm">
                   {t('completed')}: {queue?.completedLastHour ?? 0} · {t('failed')}: {queue?.failedLastHour ?? 0} · {t('expired')}: {queue?.expiredLastHour ?? 0}
                 </p>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-2 mb-4">
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('apiAvailability')} + {t('gatewayAvailability')}</p>
+                <p className="text-white text-lg font-semibold">{healthyWindowPercent}%</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('queueReliability')} {'< 99%'}</p>
+                <p className="text-white text-lg font-semibold">{queueReliabilityBreaches}</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wide">{t('dbLatency')} {'> 500ms'}</p>
+                <p className="text-white text-lg font-semibold">{latencyBreaches}</p>
               </div>
             </div>
 
